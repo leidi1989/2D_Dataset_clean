@@ -11,7 +11,7 @@ srstyle: huawei_segment
 tarstyle: cvat_image_1_1
 
 # images or labels need to rename prefix
-prefix: "huawei"
+prefix: "huawei1"
 
 # name delimiter(cityscapes: "@")
 delimiter: "@"
