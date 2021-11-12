@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-11-12 18:06:59
+LastEditTime: 2021-11-12 18:17:14
 '''
 import os
 import json
@@ -22,7 +22,8 @@ def annotation_creat_root(dataset: dict, color_list: list) -> None:
 
     Returns:
         [type]: [xml根节点]
-    """    
+    """
+    
     class_id = 0
     annotations = ET.Element('annotations')
     version = ET.SubElement(annotations, 'version')
