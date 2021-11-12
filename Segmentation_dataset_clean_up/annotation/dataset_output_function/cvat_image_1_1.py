@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-11-12 17:34:35
+LastEditTime: 2021-11-12 18:05:15
 '''
 import os
 import json
@@ -95,7 +95,6 @@ def annotation_get_temp(dataset: dict, temp_annotation_path: str) -> None:
         dataset (dict): [数据集信息字典]
         temp_annotation_path (str): [暂存标签路径]
     """
-
     image = TEMP_LOAD(dataset, temp_annotation_path)
     if image == None:
         return
