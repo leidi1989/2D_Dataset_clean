@@ -1,0 +1,4 @@
+persons:1,2
+cars:0,1000000
+stones:1,2
+trees:1,2

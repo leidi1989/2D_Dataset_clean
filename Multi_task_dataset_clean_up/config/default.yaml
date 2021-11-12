@@ -1,0 +1,50 @@
+# dataset path
+root: /media/leidi/hy_dataset/Dataset/Autopilot_multi_task_dataset/bdd100k_images_annotations
+
+# output path
+target: /media/leidi/hy_dataset/Dataset/Autopilot_multi_task_dataset/bdd100k_21_classes_to_9_classes_muti_20211025
+
+# input labels style: huawei_segment, bdd100k
+srstyle: bdd100k
+
+# output labels style: bdd100k, yolop
+tarstyle: yolop
+
+# images or labels need to rename prefix
+prefix: bdd100k
+
+# name delimiter
+delimiter: "_"
+
+# dataset detect class path
+detect_classes: Multi_task_dataset_clean_up/data/detect/detect_classes_bdd100k_10_classes.names
+
+# dataset detect class modify file path
+detect_modify_class_file: "Multi_task_dataset_clean_up/data/detect/detect_classes_bdd100k_10_classes_to_hy_7_classes.txt"
+
+# dataset segment class path
+segment_classes: Multi_task_dataset_clean_up/data/segment/segment_classes_bdd100k_11_classes.names
+
+# dataset segment class modify file path
+segment_modify_class_file: "Multi_task_dataset_clean_up/data/segment/segment_classes_bdd100k_11_classes_to_yolop_2_classes.txt"
+
+# (train, val, test, redund)
+proportion: 0.92,0.04,0.04,0
+
+# check target annotations
+check: 100
+
+# transparent bounding box mask
+detectmask: False
+
+# transparent bounding box mask
+segmentmask: True
+
+# total class true box pixel limits, use to limit class pixel and distance
+classpixeldistance:
+
+# anchor box cluster count
+anchorboxcluster: 9
+
+# progress debug
+debug: False

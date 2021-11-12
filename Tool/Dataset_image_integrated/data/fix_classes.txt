@@ -1,0 +1,9 @@
+person:pedestrian cyclist
+car:carfull vanfull
+truck:truckfull specialvehiclefull engineeringvehiclefull
+bus:busfull
+motorbike:motorcycle
+bicycle:bicycle tricyclefull
+train:
+traffic light:
+conebarrel:

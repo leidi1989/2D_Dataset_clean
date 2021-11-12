@@ -1,0 +1,49 @@
+# dataset path
+root: /media/leidi/hy_dataset/Dataset/huawei_dataset_total/hy_segement_dataset_huawei_3217_20210918
+
+# output path
+target: /media/leidi/hy_dataset/Dataset/huawei_dataset_total/hy_segement_dataset_huawei_3217_20210918_20211103
+
+# input labels style: pascal_voc, coco2017, kitti, yolo, tt100k, lisa, cctsdb,
+#                     huawei_segment, sjt, myxb, hy_highway
+srstyle: huawei_segment
+
+# output labels style: pascal_voc, coco2017, yolo
+tarstyle: pascal_voc
+
+# images or labels need to rename prefix
+prefix: "huawei3"
+
+# name delimiter
+delimiter: "_"
+
+# dataset detect class path
+classes: Detect_dataset_clean_up/data/detect_classes_huawei_173_classes_20210918.names
+
+# dataset class modify file path
+modifyclassfile: "Detect_dataset_clean_up/data/detect_classes_huawei_173_classes_to_hy_7_classes.txt"
+
+# (train, val, test, redund)
+# proportion: 0.95,0.025,0.025
+proportion: 0.8,0.1,0.1
+
+# check target annotations
+check: 50
+
+# transparent bounding box mask
+mask: False
+
+# total class true box pixel limits, use to limit class pixel and distance
+classpixeldistance: ""
+
+# anchor box cluster count
+anchorboxcluster: 9
+
+# blue lever, 1-9
+blurlever: 0
+
+# perspective lever, 1-9
+perspectivelever: 0
+
+# progress debug
+debug: False
