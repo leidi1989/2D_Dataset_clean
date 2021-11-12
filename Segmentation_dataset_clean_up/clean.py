@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2021-11-12 15:17:19
+LastEditTime: 2021-11-12 18:28:52
 '''
 from utils.utils import *
 from input import source_dataset
@@ -26,7 +26,7 @@ def main(dataset_info: dict) -> None:
 
     Args:
         dataset_info (dict): [数据集信息字典]
-    """
+    """ 
 
     # print('\nStart copy images and annotations:')
     # source_dataset.__dict__[dataset_info['source_dataset_stype']](dataset_info)
