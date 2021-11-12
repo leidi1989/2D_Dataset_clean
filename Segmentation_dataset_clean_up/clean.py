@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2021-11-12 18:35:06
+LastEditTime: 2021-11-12 18:40:19
 '''
 from utils.utils import *
 from input import source_dataset
@@ -45,8 +45,8 @@ def main(dataset_info: dict) -> None:
     annotation_output.__dict__[
         dataset_info['target_dataset_style']](dataset_info)
 
-    print('\nStart check target annotations:')
-    check(dataset_info)
+    # print('\nStart check target annotations:')
+    # check(dataset_info)
     
     # print('\nStart update framework:')
     # framework_update.__dict__[
