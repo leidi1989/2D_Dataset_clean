@@ -4,12 +4,12 @@ Version:
 Author: Leidi
 Date: 2021-08-10 18:38:55
 LastEditors: Leidi
-LastEditTime: 2021-11-15 15:11:45
+LastEditTime: 2021-11-15 15:30:16
 '''
-from utils.plot import plot_segment_sample_statistics, plot_detect_sample_statistics
-from annotation.annotation_temp import TEMP_LOAD
-from base.image_base import *
 from utils.utils import *
+from base.image_base import *
+from annotation.annotation_temp import TEMP_LOAD
+from utils.plot import plot_segment_sample_statistics, plot_detect_sample_statistics
 
 import os
 import cv2

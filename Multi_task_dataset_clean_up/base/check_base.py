@@ -4,11 +4,11 @@ Version:
 Author: Leidi
 Date: 2021-08-03 22:18:39
 LastEditors: Leidi
-LastEditTime: 2021-09-27 18:19:54
+LastEditTime: 2021-11-15 15:29:58
 '''
 from utils.utils import *
-from utils.plot import plot_true_segment, plot_true_box
 from annotation.annotation_output import *
+from utils.plot import plot_true_segment, plot_true_box
 from annotation.annotation_check import annotation_check_function
 
 import shutil

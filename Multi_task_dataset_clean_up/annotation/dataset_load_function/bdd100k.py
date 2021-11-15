@@ -4,17 +4,17 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-10-27 15:34:53
+LastEditTime: 2021-11-15 15:29:30
 '''
 import os
 import cv2
 import json
 import operator
 
-from base.image_base import *
-from utils.modify_class import modify_true_box_list, modify_true_segmentation_list
 from utils.utils import *
+from base.image_base import *
 from annotation.annotation_temp import TEMP_OUTPUT
+from utils.modify_class import modify_true_box_list, modify_true_segmentation_list
 
 
 def load_annotation(dataset: dict, source_annotation_name: str, process_output: dict) -> None:

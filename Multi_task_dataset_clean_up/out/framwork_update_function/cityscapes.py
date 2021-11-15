@@ -4,11 +4,10 @@ Version:
 Author: Leidi
 Date: 2021-10-19 15:55:16
 LastEditors: Leidi
-LastEditTime: 2021-11-08 17:40:17
+LastEditTime: 2021-11-15 15:32:14
 '''
 import os
 import cv2
-import json
 import shutil
 import numpy as np
 
