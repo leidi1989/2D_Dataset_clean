@@ -4,11 +4,11 @@ Version:
 Author: Leidi
 Date: 2021-08-11 03:28:09
 LastEditors: Leidi
-LastEditTime: 2021-11-08 17:39:31
+LastEditTime: 2021-11-15 15:20:10
 '''
 from base.image_base import *
-from annotation.annotation_temp import TEMP_LOAD
 from utils.utils import check_output_path
+from annotation.annotation_temp import TEMP_LOAD
 from utils.plot import plot_segment_annotation, plot_pick_class_segment_annotation
 
 import os
@@ -18,7 +18,7 @@ import numpy as np
 from tqdm import tqdm
 
 
-def BDD100K_FRAMEWORK(dataset: dict) -> None:
+def bdd100k(dataset: dict) -> None:
     """[将数据集转换为BDD100K组织格式]
 
     Args:
@@ -78,7 +78,7 @@ def BDD100K_FRAMEWORK(dataset: dict) -> None:
     return
 
 
-def YOLOP_FRAMEWORK(dataset: dict) -> None:
+def yolop(dataset: dict) -> None:
     """[将数据集转换为YOLOP组织格式]
 
     Args:
@@ -490,29 +490,3 @@ def YOLOP_FRAMEWORK(dataset: dict) -> None:
 #         cv2.imwrite(labelIds_output_path, zeros)
 
 #     return
-
-
-framework_function_dict = {'bdd100k': BDD100K_FRAMEWORK,
-                           'yolop': YOLOP_FRAMEWORK,
-                           # 'cityscapes': CITYSCAPES_FRAMEWORK,
-                           # 'coco2017': COCO_2017_FRAMEWORK,
-                           # 'pascal_voc': PASCAL_VOC_FRAMEWORK,
-                           # 'cityscapes_val': CITYSCAPESVAL_FRAMEWORK
-                           }
-
-
-def framework_funciton(dataset_stype: str, *args):
-    """[获取指定类别数据集annotation输出函数。]
-
-    Args:
-        dataset_style (str): [输出数据集类别。]
-
-    Returns:
-        [function]: [返回指定类别数据集输出函数。]
-    """
-
-    # try:
-    return framework_function_dict.get(dataset_stype)(*args)
-    # except:
-    #     print("Annotation output fail, need update {} annotation output function！".format(
-    #         dataset_stype))

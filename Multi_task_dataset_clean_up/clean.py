@@ -4,17 +4,15 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2021-11-15 15:11:00
+LastEditTime: 2021-11-15 15:27:19
 '''
 from utils.utils import *
 from base.check_base import check
-from base.framework_base import framework
 from input import source_dataset
 from out import framework_update
 from annotation import annotation_load
 from annotation import annotation_output
 from base.information_base import information
-from base.out_base import out
 from base.dataset_characteristic import *
 
 import os
@@ -31,9 +29,9 @@ def main(dataset_info: dict) -> None:
         dataset_info (dict): [数据集信息字典]
     """
 
-    # print('\nStart copy images and annotations:')
-    # source_dataset.__dict__[dataset_info['source_dataset_stype']](dataset_info)
-    
+    print('\nStart copy images and annotations:')
+    source_dataset.__dict__[dataset_info['source_dataset_stype']](dataset_info)
+
     print('\nStart to transform source annotation to temp annotation:')
     annotation_load.__dict__[
         dataset_info['source_dataset_stype']](dataset_info)
