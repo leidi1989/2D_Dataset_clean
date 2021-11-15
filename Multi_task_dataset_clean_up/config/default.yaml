@@ -1,8 +1,8 @@
 # dataset path
-root: /home/leidi/test/bdd100k
+root: /home/leidi/test/bdd100k_images_annotations
 
 # output path
-target: /home/leidi/test/bdd100k_20211115
+target: /home/leidi/test/bdd100k_multi_task_20211115
 
 # input labels style: huawei_segment, bdd100k
 srstyle: bdd100k
@@ -29,7 +29,7 @@ segment_classes: Multi_task_dataset_clean_up/data/segment/segment_classes_bdd100
 segment_modify_class_file: "Multi_task_dataset_clean_up/data/segment/segment_classes_bdd100k_11_classes_to_yolop_2_classes.txt"
 
 # (train, val, test, redund)
-proportion: 0.8,0.1,0.1,0
+proportion: 0.92,0.04,0.04,0
 
 # check target annotations
 check: 100
