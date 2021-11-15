@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2021-11-15 15:27:19
+LastEditTime: 2021-11-15 15:35:15
 '''
 from utils.utils import *
 from base.check_base import check
@@ -12,8 +12,8 @@ from input import source_dataset
 from out import framework_update
 from annotation import annotation_load
 from annotation import annotation_output
-from base.information_base import information
 from base.dataset_characteristic import *
+from base.information_base import information
 
 import os
 import time
