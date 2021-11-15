@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-10 18:38:55
 LastEditors: Leidi
-LastEditTime: 2021-11-15 15:30:16
+LastEditTime: 2021-11-15 15:56:21
 '''
 from utils.utils import *
 from base.image_base import *
@@ -240,20 +240,17 @@ def detect_sample_statistics(dataset: dict) -> None:
             one_set_class_prop_dict[one_class] = float(0)
 
         # 统计全部labels各类别数量
-        with multiprocessing.Manager() as manager:
-            process_output = manager.dict()
-            with tqdm(total=len(divide_annotation_list)) as t:
-                pool = multiprocessing.Pool(8)
-                for n in divide_annotation_list:
-                    pool.apply_async(func=get_TEMP_LOAD, args=(
-                        dataset, n, process_output,),
-                        callback=t.update(),
-                        error_callback=err_call_back)
-                pool.close()
-                pool.join()
-            for key in one_set_class_count_dict.keys():
-                if key in process_output:
-                    one_set_class_count_dict[key] = process_output[key]
+        process_output = multiprocessing.Manager().dict()
+        pool = multiprocessing.Pool(dataset['workers'])
+        for n in tqdm(divide_annotation_list):
+            pool.apply_async(func=get_TEMP_LOAD, args=(
+                dataset, n, process_output,),
+                error_callback=err_call_back)
+        pool.close()
+        pool.join()
+        for key in one_set_class_count_dict.keys():
+            if key in process_output:
+                one_set_class_count_dict[key] = process_output[key]
         dataset['temp_divide_count_dict_list'].append(one_set_class_count_dict)
 
         # 声明单数据集计数总数
