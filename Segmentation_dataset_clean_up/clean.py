@@ -4,16 +4,16 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2021-11-15 14:48:03
+LastEditTime: 2021-11-15 14:49:40
 '''
 from utils.utils import *
 from input import source_dataset
-from annotation import annotation_load
-from annotation import annotation_output
 from out import framework_update
 from base.check_base import check
-from base.information_base import information
+from annotation import annotation_load
+from annotation import annotation_output
 from base.dataset_characteristic import *
+from base.information_base import information
 
 import os
 import time
@@ -47,7 +47,7 @@ def main(dataset_info: dict) -> None:
 
     print('\nStart check target annotations:')
     check(dataset_info)
-    
+
     print('\nStart update framework:')
     framework_update.__dict__[
         dataset_info['target_dataset_style']](dataset_info)
