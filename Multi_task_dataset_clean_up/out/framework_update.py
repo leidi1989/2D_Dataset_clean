@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-11 03:28:09
 LastEditors: Leidi
-LastEditTime: 2021-11-15 15:20:10
+LastEditTime: 2021-11-15 15:28:43
 '''
 from base.image_base import *
 from utils.utils import check_output_path
@@ -26,7 +26,7 @@ def bdd100k(dataset: dict) -> None:
     """
 
     output_root = check_output_path(os.path.join(
-        dataset['target_path'], 'target_output'))   # 输出数据集文件夹
+        dataset['target_path'], 'bdd100k'))   # 输出数据集文件夹
     task_list = ['images', 'detect_annotation', 'segment_annotation']
     data_divion_name = ['train', 'val', 'test']
     output_folder_path_list = []
@@ -86,7 +86,7 @@ def yolop(dataset: dict) -> None:
     """
 
     output_root = check_output_path(os.path.join(
-        dataset['target_path'], 'target_output'))   # 输出数据集文件夹
+        dataset['target_path'], 'yolop'))   # 输出数据集文件夹
     task_list = ['images', 'det_annotations',
                  'da_seg_annotations', 'll_seg_annotations']
     data_divion_name = ['train', 'val', 'test']
