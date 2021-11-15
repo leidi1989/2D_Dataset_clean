@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-11-15 14:10:17
+LastEditTime: 2021-11-15 14:43:06
 '''
 import os
 from PIL import Image
@@ -57,6 +57,10 @@ def load_image_annotation(dataset: dict, one_annotation: dict, class_dict: dict,
     ann_image_id = one_annotation['image_id']   # 获取此bbox图片id
     cls = class_dict[str(one_annotation['category_id'])]     # 获取bbox类别
     cls = cls.replace(' ', '').lower()
+    if cls == 'static_object.concave.firehydrant':
+        cls = 'static_object.concave.fire_hydrant'
+    if cls == 'static_object.concave.firehydrant_infer':
+        cls = 'static_object.concave.fire_hydrant_infer'
     if cls not in dataset['source_class_list']:
         return
     true_segmentation_list = []
