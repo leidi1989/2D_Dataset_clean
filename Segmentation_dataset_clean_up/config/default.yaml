@@ -1,26 +1,26 @@
 # dataset path
-root: /media/leidi/hy_dataset/Dataset/Autopilot_segmentation_dataset/hy_segement_dataset_huawei/hy_segement_dataset_huawei_3217_20210918
+root: /home/leidi/test/apolloscape_20211115
 
 # output path
-target: /media/leidi/hy_dataset/Dataset/Autopilot_segmentation_dataset/hy_segement_dataset_huawei/hy_segement_dataset_huawei_3217_20210918_20211112
+target: /home/leidi/test/apolloscape_20211115_20211115
 
 # input labels style: cityscapes, coco2017, huawei_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017
-srstyle: huawei_segment
+srstyle: apolloscape_lane_segment
 
 # output labels style: cityscapes, coco2017, cityscapes_val, cvat_image_1_1
-tarstyle: cvat_image_1_1
+tarstyle: cityscapes
 
 # images or labels need to rename prefix
-prefix: "huawei3"
+prefix: "apolloscape"
 
 # name delimiter(cityscapes: "@")
 delimiter: "@"
 
 # dataset segment class path
-classes: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_huawei_173_classes_20210918.names
+classes: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_apolloscape_lane_segmentation_38_classes.names
 
 # dataset class modify file path
-modifyclassfile: ""
+modifyclassfile: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_apolloscape_lane_segmentation_38_classes_to_cityscapes_2_classes_road_lane.txt
 
 # (train, val, test, redund)
 # proportion: 0.95,0.025,0.025,0
