@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-10-28 16:34:33
+LastEditTime: 2021-11-15 14:10:17
 '''
 import os
 from PIL import Image
@@ -25,8 +25,8 @@ def load_image_base_information(dataset: dict, image_base_information: dict, tot
     """
 
     image_id = image_base_information['id']
-    image_name = image_base_information['file_name'].split(
-        '.')[0] + '.' + dataset['temp_image_form']
+    image_name = os.path.splitext(image_base_information['file_name'])[
+        0] + '.' + dataset['temp_image_form']
     image_name_new = dataset['file_prefix'] + image_name
     image_path = os.path.join(dataset['temp_images_folder'], image_name_new)
     img = Image.open(image_path)
@@ -59,29 +59,23 @@ def load_image_annotation(dataset: dict, one_annotation: dict, class_dict: dict,
     cls = cls.replace(' ', '').lower()
     if cls not in dataset['source_class_list']:
         return
-
     true_segmentation_list = []
-    for one_seg in one_annotation['segmentation']:
-        segment = []
-        point = []
-        for i, x in enumerate(one_seg):
-            if 0 == i % 2:
-                point.append(x)
-            else:
-                point.append(x)
-                point = list(map(int, point))
-                segment.append(point)
-                if 2 != len(point):
-                    print('Segmentation label wrong: ',
-                          each_annotation_images_data_dict[ann_image_id].image_name_new)
-                    continue
-                point = []
-        if 0 == one_annotation['iscrowd']:
-            true_segmentation_list.append(TRUE_SEGMENTATION(
-                cls, segment, one_annotation['area']))
+    segment = []
+    c = 0
+    for n in one_annotation['segmentation']:
+        if 0 == c:
+            segment.append([])
+            segment[-1].append(n)
+            c += 1
         else:
-            true_segmentation_list.append(TRUE_SEGMENTATION(
-                cls, segment, one_annotation['area'], 1))
+            segment[-1].append(n)
+            c = 0
+    if 0 == one_annotation['iscrowd']:
+        true_segmentation_list.append(TRUE_SEGMENTATION(
+            cls, segment, one_annotation['area']))
+    else:
+        true_segmentation_list.append(TRUE_SEGMENTATION(
+            cls, segment, one_annotation['area'], 1))
 
     return ann_image_id, true_segmentation_list
 

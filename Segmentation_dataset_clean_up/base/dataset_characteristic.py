@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-09 21:55:18
 LastEditors: Leidi
-LastEditTime: 2021-11-15 13:43:05
+LastEditTime: 2021-11-15 13:49:22
 '''
 
 
@@ -30,9 +30,9 @@ dataset_file_form = {'coco2017': {'image': 'jpg',
                      'cvat_image_1_1': {'image': 'jpg',
                                         'annotation': 'xml'
                                         },
-                     'huawei_segment': {'image': 'jpg',
-                                        'annotation': 'json'
-                                        },
+                     'yunce_segment': {'image': 'jpg',
+                                       'annotation': 'json'
+                                       },
                      'hy_val': {'image': 'jpg',
                                 'annotation': 'json'
                                 },
