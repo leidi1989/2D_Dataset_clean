@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-11-08 10:30:52
 LastEditors: Leidi
-LastEditTime: 2021-11-08 15:21:59
+LastEditTime: 2021-11-15 13:41:56
 '''
 import os
 from tqdm import tqdm
@@ -250,5 +250,39 @@ def hy_val(dataset: dict) -> None:
         pool.join()
     print('Move images count: {}\n'.format(
         len(os.listdir(dataset['source_images_folder']))))
+
+    return
+
+
+def yunce_segment(dataset: dict) -> None:
+    """[拷贝huawei_segment数据集中的image及annotation至temp文件夹]
+
+    Args:
+        dataset (dict): [数据集信息字典]
+    """
+
+    print('Copy images: ')
+    for root, dirs, files in tqdm(os.walk(dataset['source_path'])):
+        pool = multiprocessing.Pool(dataset['workers'])
+        for n in tqdm(files):
+            if n.endswith(dataset['source_image_form']):
+                pool.apply_async(F.__dict__[dataset['source_dataset_stype']].copy_image,
+                                 args=(dataset, root, n,))
+        pool.close()
+        pool.join()
+    print('Move images count: {}\n'.format(
+        len(os.listdir(dataset['source_images_folder']))))
+
+    print('Copy annotations: ')
+    for root, dirs, files in tqdm(os.walk(dataset['source_path'])):
+        pool = multiprocessing.Pool(dataset['workers'])
+        for n in tqdm(files):
+            if n.endswith(dataset['source_annotation_form']):
+                pool.apply_async(F.__dict__[dataset['source_dataset_stype']].copy_annotation,
+                                 args=(dataset, root, n,))
+        pool.close()
+        pool.join()
+    print('Move annotations count: {}\n'.format(
+        len(os.listdir(dataset['source_annotations_folder']))))
 
     return
