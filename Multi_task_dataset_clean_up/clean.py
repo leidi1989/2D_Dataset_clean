@@ -4,13 +4,15 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2021-11-08 19:21:28
+LastEditTime: 2021-11-15 15:11:00
 '''
 from utils.utils import *
 from base.check_base import check
 from base.framework_base import framework
-from base.source_base import source
-from base.temp_base import temp
+from input import source_dataset
+from out import framework_update
+from annotation import annotation_load
+from annotation import annotation_output
 from base.information_base import information
 from base.out_base import out
 from base.dataset_characteristic import *
@@ -29,14 +31,38 @@ def main(dataset_info: dict) -> None:
         dataset_info (dict): [数据集信息字典]
     """
 
-    source(dataset_info)
-    temp(dataset_info)
+    # print('\nStart copy images and annotations:')
+    # source_dataset.__dict__[dataset_info['source_dataset_stype']](dataset_info)
+    
+    print('\nStart to transform source annotation to temp annotation:')
+    annotation_load.__dict__[
+        dataset_info['source_dataset_stype']](dataset_info)
+
+    print('\nStart to analyze dataset:')
     information(dataset_info)
-    out(dataset_info)
+
+    print('\nStart output temp dataset annotations to target annotations:')
+    dataset_info['temp_annotation_path_list'] = temp_annotation_path_list(
+        dataset_info['temp_annotations_folder'])
+    annotation_output.__dict__[
+        dataset_info['target_dataset_style']](dataset_info)
+
+    print('\nStart check target annotations:')
     check(dataset_info)
-    # framework(dataset_info)
+
+    print('\nStart update framework:')
+    framework_update.__dict__[
+        dataset_info['target_dataset_style']](dataset_info)
 
     return
+
+    # temp(dataset_info)
+    # information(dataset_info)
+    # out(dataset_info)
+    # check(dataset_info)
+    # framework(dataset_info)
+
+    # return
 
 
 if __name__ == "__main__":
@@ -44,7 +70,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='clean.py')
     parser.add_argument('--config', '--c', dest='config', default=r'Multi_task_dataset_clean_up/config/default.yaml',
                         type=str, help='dataset config file path')
-    parser.add_argument('--workers', '--w', dest='workers', default=multiprocessing.cpu_count()-1,
+    parser.add_argument('--workers', '--w', dest='workers', default=multiprocessing.cpu_count(),
                         type=int, help='maximum number of dataloader workers(multiprocessing.cpu_count())')
     opt = parser.parse_args()
 

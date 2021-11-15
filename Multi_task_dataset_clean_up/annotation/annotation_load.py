@@ -4,17 +4,17 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2021-10-28 16:30:36
+LastEditTime: 2021-11-15 15:19:10
 '''
 import os
 import json
 import multiprocessing
 
 from utils.utils import *
-from annotation.dataset_load_function import coco2017, huawei_segment, bdd100k
+import annotation.dataset_load_function as F
 
 
-def HUAWEI_SEGMENT_LOAD(dataset: dict) -> None:
+def huawei_segment(dataset: dict) -> None:
     """[华为标注分割数据集annotation读取]
 
     Args:
@@ -40,7 +40,7 @@ def HUAWEI_SEGMENT_LOAD(dataset: dict) -> None:
         pool = multiprocessing.Pool(dataset['workers'])
         print('Load image base informations:')
         for image_base_information in tqdm(data['images']):
-            pool.apply_async(func=huawei_segment.load_image_base_information, args=(
+            pool.apply_async(func=F.__dict__[dataset['source_dataset_stype']].load_image_base_information, args=(
                 dataset, image_base_information, total_annotations_dict,),
                 error_callback=err_call_back)
         pool.close()
@@ -51,7 +51,7 @@ def HUAWEI_SEGMENT_LOAD(dataset: dict) -> None:
         pool = multiprocessing.Pool(dataset['workers'])
         print('Load image true and segment annotation:')
         for one_annotation in tqdm(data['annotations']):
-            total_image_box_segment_list.append(pool.apply_async(func=huawei_segment.load_image_annotation, args=(
+            total_image_box_segment_list.append(pool.apply_async(func=F.__dict__[dataset['source_dataset_stype']].load_image_annotation, args=(
                 dataset, one_annotation, class_dict, total_annotations_dict,),
                 error_callback=err_call_back))
         pool.close()
@@ -83,7 +83,7 @@ def HUAWEI_SEGMENT_LOAD(dataset: dict) -> None:
                                                          })
         pool = multiprocessing.Pool(dataset['workers'])
         for _, image in tqdm(total_images_data_dict.items()):
-            pool.apply_async(func=huawei_segment.output_temp_annotation, args=(
+            pool.apply_async(func=F.__dict__[dataset['source_dataset_stype']].output_temp_annotation, args=(
                 dataset, image, process_output,),
                 error_callback=err_call_back)
         pool.close()
@@ -118,7 +118,7 @@ def HUAWEI_SEGMENT_LOAD(dataset: dict) -> None:
     return
 
 
-def COCO_2017_LOAD(dataset: dict) -> None:
+def coco2017(dataset: dict) -> None:
     """[COCO2017数据集annotation读取]
 
     Args:
@@ -143,7 +143,7 @@ def COCO_2017_LOAD(dataset: dict) -> None:
         total_annotations_dict = multiprocessing.Manager().dict()
         pool = multiprocessing.Pool(dataset['workers'])
         for image_base_information in tqdm(data['images']):
-            pool.apply_async(func=coco2017.load_image_base_information, args=(
+            pool.apply_async(func=F.__dict__[dataset['source_dataset_stype']].load_image_base_information, args=(
                 dataset, image_base_information, total_annotations_dict,),
                 error_callback=err_call_back)
         pool.close()
@@ -153,7 +153,7 @@ def COCO_2017_LOAD(dataset: dict) -> None:
         total_image_box_segment_list = []
         pool = multiprocessing.Pool(dataset['workers'])
         for one_annotation in tqdm(data['annotations']):
-            total_image_box_segment_list.append(pool.apply_async(func=coco2017.load_image_annotation, args=(
+            total_image_box_segment_list.append(pool.apply_async(func=F.__dict__[dataset['source_dataset_stype']].load_image_annotation, args=(
                 dataset, one_annotation, class_dict, total_annotations_dict,),
                 error_callback=err_call_back))
         pool.close()
@@ -185,7 +185,7 @@ def COCO_2017_LOAD(dataset: dict) -> None:
                                                          })
         pool = multiprocessing.Pool(dataset['workers'])
         for _, image in tqdm(total_images_data_dict.items()):
-            pool.apply_async(func=coco2017.output_temp_annotation, args=(
+            pool.apply_async(func=F.__dict__[dataset['source_dataset_stype']].output_temp_annotation, args=(
                 dataset, image, process_output,),
                 error_callback=err_call_back)
         pool.close()
@@ -220,7 +220,7 @@ def COCO_2017_LOAD(dataset: dict) -> None:
     return
 
 
-def BDD100K_LOAD(dataset: dict) -> None:
+def bdd100k(dataset: dict) -> None:
     """[BDD100K割数据集annotation读取]
 
     Args:
@@ -235,7 +235,7 @@ def BDD100K_LOAD(dataset: dict) -> None:
                                                      })
     pool = multiprocessing.Pool(dataset['workers'])
     for source_annotation_path in tqdm(os.listdir(dataset['source_annotations_folder'])):
-        pool.apply_async(func=bdd100k.load_annotation, args=(
+        pool.apply_async(func=F.__dict__[dataset['source_dataset_stype']].load_annotation, args=(
             dataset, source_annotation_path, process_output,),
             error_callback=err_call_back)
     pool.close()
@@ -266,22 +266,3 @@ def BDD100K_LOAD(dataset: dict) -> None:
         f.close()
 
     return
-
-
-annotation_load_function_dict = {'huawei_segment': HUAWEI_SEGMENT_LOAD,
-                                 'coco2017': COCO_2017_LOAD,
-                                 'bdd100k': BDD100K_LOAD,
-                                 }
-
-
-def annotation_load_function(dataset_stype, *args):
-    """[获取指定类别数据集annotation提取函数。]
-
-    Args:
-        dataset_style (str): [输出数据集类别。]
-
-    Returns:
-        [function]: [返回指定类别数据集读取函数。]
-    """
-
-    return annotation_load_function_dict.get(dataset_stype)(*args)
