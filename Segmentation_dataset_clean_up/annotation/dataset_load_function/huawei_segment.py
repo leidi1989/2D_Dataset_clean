@@ -4,15 +4,15 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-10-28 16:34:33
+LastEditTime: 2021-11-15 14:46:02
 '''
 import os
 from PIL import Image
 
 from utils.utils import *
 from base.image_base import *
-from utils.modify_class import modify_true_segmentation_list
 from annotation.annotation_temp import TEMP_OUTPUT
+from utils.modify_class import modify_true_segmentation_list
 
 
 def load_image_base_information(dataset: dict, image_base_information: dict, total_annotations_dict: dict) -> None:

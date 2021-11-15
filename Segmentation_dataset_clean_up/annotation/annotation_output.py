@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-05 21:50:49
 LastEditors: Leidi
-LastEditTime: 2021-11-12 17:18:57
+LastEditTime: 2021-11-15 14:46:44
 '''
 import os
 import json
@@ -14,8 +14,8 @@ import multiprocessing
 import xml.etree.ElementTree as ET
 
 from base.image_base import *
-from utils.utils import err_call_back, RGB_to_Hex
 import annotation.dataset_output_function as F
+from utils.utils import err_call_back, RGB_to_Hex
 
 
 # COCO转换所需常量

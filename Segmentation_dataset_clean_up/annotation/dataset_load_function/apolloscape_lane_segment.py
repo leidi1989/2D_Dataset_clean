@@ -4,12 +4,11 @@ Version:
 Author: Leidi
 Date: 2021-10-27 15:19:44
 LastEditors: Leidi
-LastEditTime: 2021-10-27 19:12:49
+LastEditTime: 2021-11-15 14:46:20
 '''
 import cv2
 import numpy as np
 from collections import namedtuple
-from PIL import Image
 
 from utils.utils import *
 from base.image_base import *
