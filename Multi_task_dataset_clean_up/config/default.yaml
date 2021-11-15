@@ -17,16 +17,16 @@ prefix: bdd100k
 delimiter: "_"
 
 # dataset detect class path
-detect_classes: Multi_task_dataset_clean_up/data/detect/detect_classes_bdd100k_10_classes.names
+detect_classes: /home/leidi/hy_program/2D_Dataset_clean/Multi_task_dataset_clean_up/data/detect/detect_classes_bdd100k_10_classes.names
 
 # dataset detect class modify file path
-detect_modify_class_file: "Multi_task_dataset_clean_up/data/detect/detect_classes_bdd100k_10_classes_to_hy_7_classes.txt"
+detect_modify_class_file: /home/leidi/hy_program/2D_Dataset_clean/Multi_task_dataset_clean_up/data/detect/detect_classes_huawei_173_classes_to_hy_7_classes.txt
 
 # dataset segment class path
-segment_classes: Multi_task_dataset_clean_up/data/segment/segment_classes_bdd100k_11_classes.names
+segment_classes: /home/leidi/hy_program/2D_Dataset_clean/Multi_task_dataset_clean_up/data/segment/segment_classes_bdd100k_11_classes.names
 
 # dataset segment class modify file path
-segment_modify_class_file: "Multi_task_dataset_clean_up/data/segment/segment_classes_bdd100k_11_classes_to_yolop_2_classes.txt"
+segment_modify_class_file: /home/leidi/hy_program/2D_Dataset_clean/Multi_task_dataset_clean_up/data/segment/segment_classes_bdd100k_11_classes_to_yolop_2_classes.txt
 
 # (train, val, test, redund)
 proportion: 0.92,0.04,0.04,0
