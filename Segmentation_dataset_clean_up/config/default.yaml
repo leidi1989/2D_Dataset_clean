@@ -17,14 +17,14 @@ prefix: yunce
 delimiter: "@"
 
 # dataset segment class path
-classes: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_182_classes_infer_20211115.names
+classes: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_183_classes_infer_20211116.names
 
 # dataset class modify file path
-modifyclassfile: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_182_classes_include_infer_20211115.txt
+modifyclassfile: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_183_classes_include_infer_to_road_lane_parkingline_parking_20211116.txt
 
 # (train, val, test, redund)
 # proportion: 0.95,0.025,0.025,0
-proportion: 1,0,0,0
+proportion: 0.8,0.1,0.1,0
 
 # check target annotations
 check: 100
