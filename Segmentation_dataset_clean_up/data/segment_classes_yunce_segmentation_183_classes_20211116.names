@@ -101,6 +101,7 @@ traffic.lane.parking_limiter
 traffic.lane.forward_left_arrow
 traffic.lane.forward_right_arrow
 traffic.lane.left_right_arrow
+traffic.lane.forward_left_right_arrow
 traffic.lane.parkingspacesolidline
 traffic.lane.unknown
 traffic.signal.light

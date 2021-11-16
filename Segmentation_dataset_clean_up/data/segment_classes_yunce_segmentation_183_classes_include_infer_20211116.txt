@@ -101,6 +101,7 @@ traffic.lane.parking_limiter:traffic.lane.parking_limiter_infer
 traffic.lane.forward_left_arrow:traffic.lane.forward_left_arrow_infer
 traffic.lane.forward_right_arrow:traffic.lane.forward_right_arrow_infer
 traffic.lane.left_right_arrow:traffic.lane.left_right_arrow_infer
+traffic.lane.forward_left_right_arrow:traffic.lane.forward_left_right_arrow_infer
 traffic.lane.parkingspacesolidline:traffic.lane.parkingspacesolidline_infer
 traffic.lane.unknown:traffic.lane.unknown_infer
 traffic.signal.light:traffic.signal.light_infer

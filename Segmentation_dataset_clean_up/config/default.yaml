@@ -1,8 +1,8 @@
 # dataset path
-root: /home/leidi/test/yunce_input
+root: /home/leidi/test/yunce_20211116
 
 # output path
-target: /home/leidi/test/yunce_input_20211115
+target: /home/leidi/test/yunce_20211116_20211116
 
 # input labels style: cityscapes, coco2017, huawei_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017, yunce_segment
 srstyle: yunce_segment
