@@ -73,6 +73,7 @@ static_object.construction.unknown:static_object.construction.unknown_infer
 ground.road:ground.road_infer
 ground.road_unreach:ground.road_unreach_infer
 ground.road_curb:ground.road_curb_infer
+ground.road_curb_unreach:ground.road_curb_unreach_infer
 ground.sidewalk:ground.sidewalk_infer
 ground.parkinglot:ground.parkinglot_infer
 ground.parkingspace:ground.parkingspace_infer

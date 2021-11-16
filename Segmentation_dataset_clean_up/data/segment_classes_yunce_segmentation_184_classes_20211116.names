@@ -73,6 +73,7 @@ static_object.construction.unknown
 ground.road
 ground.road_unreach
 ground.road_curb
+ground.road_curb_unreach
 ground.sidewalk
 ground.parkinglot
 ground.parkingspace
