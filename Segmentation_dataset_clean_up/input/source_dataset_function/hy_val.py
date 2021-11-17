@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-11-08 10:33:42
 LastEditors: Leidi
-LastEditTime: 2021-11-08 11:45:14
+LastEditTime: 2021-11-17 10:32:42
 '''
 import os
 import json
@@ -47,9 +47,10 @@ def copy_annotation(dataset: dict, root: str, n: str) -> None:
     """
 
     fake_js = {}
-    json_name = n.replace('.jpg', '.json')
-    json_output_path = os.path.join(
-        dataset['source_annotations_folder'], json_name)
-    json.dump(fake_js, open(json_output_path, 'w'))
+    if n.endswith('.' + dataset['source_image_form']):
+        json_name = n.replace('.jpg', '.json')
+        json_output_path = os.path.join(
+            dataset['source_annotations_folder'], json_name)
+        json.dump(fake_js, open(json_output_path, 'w'))
 
     return
