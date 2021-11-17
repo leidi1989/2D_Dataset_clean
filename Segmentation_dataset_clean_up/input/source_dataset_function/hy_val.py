@@ -48,7 +48,8 @@ def copy_annotation(dataset: dict, root: str, n: str) -> None:
 
     fake_js = {}
     if n.endswith('.' + dataset['source_image_form']):
-        json_name = n.replace('.jpg', '.json')
+        json_name = n.replace(
+            '.' + dataset['source_image_form'], '.' + dataset['source_annotation_form'])
         json_output_path = os.path.join(
             dataset['source_annotations_folder'], json_name)
         json.dump(fake_js, open(json_output_path, 'w'))
