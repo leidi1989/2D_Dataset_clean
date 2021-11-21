@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2021-10-29 11:36:37
+LastEditTime: 2021-11-21 11:52:12
 '''
 # -*- coding: utf-8 -*-
 import os
@@ -492,21 +492,3 @@ def get_class_pixel_limit(class_pixel_distance_file_path: str) -> dict:
                 return None
 
     return class_pixel_limit_dict
-
-
-def create_fake_annotation(dataset: dict) -> None:
-    """[创建TI验证程序所需的cityscapes格式的验证集初始标签]
-
-    Args:
-        dataset (dict): [数据集信息字典]
-    """
-    
-    for root, dirs, files in tqdm(os.walk(dataset['source_path'])):
-            for n in files:
-                fake_js = {}
-                json_name = n.split('.')[0]+'.json'
-                json_output_path = os.path.join(
-                    dataset['source_annotations_folder'], json_name)
-                json.dump(fake_js, open(json_output_path, 'w'))
-
-    return

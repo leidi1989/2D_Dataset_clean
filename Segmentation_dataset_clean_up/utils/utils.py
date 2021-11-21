@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2021-11-12 16:55:14
+LastEditTime: 2021-11-21 11:51:15
 '''
 # -*- coding: utf-8 -*-
 import os
@@ -190,7 +190,7 @@ def temp_file_name(temp_annotations_folder: str) -> list:
     temp_file_name_list = []    # 暂存数据集全量文件名称列表
     print('Get temp file name list:')
     for n in tqdm(os.listdir(temp_annotations_folder)):
-        temp_file_name_list.append(n.split(os.sep)[-1].split('.')[0])
+        temp_file_name_list.append(os.path.splitext(n.split(os.sep)[-1])[0])
 
     return temp_file_name_list
 
@@ -484,24 +484,6 @@ def get_class_pixel_limit(class_pixel_distance_file_path: str) -> dict:
                 return None
 
     return class_pixel_limit_dict
-
-
-def create_fake_annotation(dataset: dict) -> None:
-    """[创建TI验证程序所需的cityscapes格式的验证集初始标签]
-
-    Args:
-        dataset (dict): [数据集信息字典]
-    """
-
-    for root, dirs, files in tqdm(os.walk(dataset['source_path'])):
-        for n in files:
-            fake_js = {}
-            json_name = n.split('.')[0]+'.json'
-            json_output_path = os.path.join(
-                dataset['source_annotations_folder'], json_name)
-            json.dump(fake_js, open(json_output_path, 'w'))
-
-    return
 
 
 def calNextPoints(points: list, rate: float) -> list:
