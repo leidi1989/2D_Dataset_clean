@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-06-09 14:54:44
 LastEditors: Leidi
-LastEditTime: 2021-11-14 11:39:36
+LastEditTime: 2021-11-17 17:39:29
 '''
 # 导入需要的库
 import os
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='tool_avi_to_mp4.py')
     parser.add_argument('--avipath', default=r'',
                         type=str, help='avi path')
-    parser.add_argument('--imgpath', default=r'/media/leidi/hy_dataset/Dataset/detect_output/edgeai-torchvision/100epoch_bdd100k_11_classes_to_cityscapes_3_classes_road_lane_20211025/100epoch_cam_left_front_20210918_2021-11-05-11-04-32_bdd100k_road_lane_segmentation_measure_fpn_edgeailite_aspp_regnetx800mf_resize1536x768',
+    parser.add_argument('--imgpath', default=r'/home/leidi/hy_program/YOLOP/runs/output',
                         type=str, help='image output path')
     parser.add_argument('--pref', default=r'',
                         type=str, help='rename prefix')
