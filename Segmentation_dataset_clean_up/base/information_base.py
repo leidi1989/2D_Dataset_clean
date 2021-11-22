@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-10 18:38:55
 LastEditors: Leidi
-LastEditTime: 2021-11-08 19:06:55
+LastEditTime: 2021-11-22 09:53:27
 '''
 from utils.utils import *
 from utils.plot import plot_sample_statistics
@@ -224,6 +224,9 @@ def sample_statistics(dataset: dict) -> None:
         # 统计全部labels各类别像素点数量
         for n in tqdm(divide_annotation_list):
             image = TEMP_LOAD(dataset, n)
+            if image == None:
+                print('\nLoad erro: ',n)
+                continue
             for m in image.true_segmentation_list:
                 one_set_class_pixal_dict[m.clss] += polygon_area(
                     m.segmentation[:-1])
