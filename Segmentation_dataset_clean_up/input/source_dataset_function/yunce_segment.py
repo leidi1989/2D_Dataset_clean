@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-11-08 10:33:42
 LastEditors: Leidi
-LastEditTime: 2021-11-08 11:30:59
+LastEditTime: 2021-11-22 14:30:20
 '''
 import os
 import shutil
@@ -45,9 +45,10 @@ def copy_annotation(dataset: dict, root: str, n: str) -> None:
         n (str): [文件名]
     """
 
+    prefix = root.split(os.sep)[-1]
     annotation = os.path.join(root, n)
     temp_annotation = os.path.join(
-        dataset['source_annotations_folder'], n)
+        dataset['source_annotations_folder'], prefix + dataset['prefix_delimiter']+ n)
     shutil.copy(annotation, temp_annotation)
 
     return

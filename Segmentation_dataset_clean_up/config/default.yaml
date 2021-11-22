@@ -1,8 +1,8 @@
 # dataset path
-root: /mnt/data_1/Dataset/Temp/yunce_20211121
+root: /mnt/data_1/Dataset/Temp/yunce/total
 
 # output path
-target: /mnt/data_1/Dataset/Temp/yunce_20211121_20211122
+target: /mnt/data_1/Dataset/Temp/yunce/total_20211122_test
 
 # input labels style: cityscapes, coco2017, huawei_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017, yunce_segment
 srstyle: yunce_segment
@@ -11,7 +11,7 @@ srstyle: yunce_segment
 tarstyle: cityscapes
 
 # images or labels need to rename prefix
-prefix: yunce
+prefix: yunce202111222
 
 # name delimiter(cityscapes: "@")
 delimiter: "@"
@@ -21,13 +21,14 @@ classes: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/d
 
 # dataset class modify file path
 modifyclassfile: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_road_lane_parkingline_parking_20211116.txt
+# modifyclassfile: ""
 
 # (train, val, test, redund)
 # proportion: 0.95,0.025,0.025,0
 proportion: 0.8,0.1,0.1,0
 
 # check target annotations
-check: 100
+check: 200
 
 # transparent bounding box mask
 mask: True
