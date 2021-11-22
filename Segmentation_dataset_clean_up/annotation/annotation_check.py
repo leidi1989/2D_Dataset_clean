@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2021-11-22 09:53:50
+LastEditTime: 2021-11-22 10:28:19
 '''
 import os
 import cv2
@@ -34,29 +34,26 @@ def cityscapes(dataset: dict) -> list:
         target_annotation_path = os.path.join(
             dataset['target_annotations_folder'],
             n + '.' + dataset['target_annotation_form'])
-        try:    
-            with open(target_annotation_path, 'r') as f:
-                data = json.loads(f.read())
-                image_name = n + '.' + dataset['target_image_form']
-                image_path = os.path.join(
-                    dataset['temp_images_folder'], image_name)
-                image_size = cv2.imread(image_path).shape
-                height = image_size[0]
-                width = image_size[1]
-                channels = image_size[2]
-                true_segmentation_list = []
-                for obj in data['objects']:
-                    cls = str(obj['label'])
-                    cls = cls.replace(' ', '').lower()
-                    if cls not in dataset['class_list_new']:
-                        continue
-                    true_segmentation_list.append(TRUE_SEGMENTATION(
-                        cls, obj['polygon']))  # 将单个真实框加入单张图片真实框列表
-                image = IMAGE(image_name, image_name, image_path, int(
-                    height), int(width), int(channels), [], true_segmentation_list)
-                check_images_list.append(image)
-        except:
-            print('\nLoad erro:', target_annotation_path)
+        with open(target_annotation_path, 'r') as f:
+            data = json.loads(f.read())
+            image_name = n + '.' + dataset['target_image_form']
+            image_path = os.path.join(
+                dataset['temp_images_folder'], image_name)
+            image_size = cv2.imread(image_path).shape
+            height = image_size[0]
+            width = image_size[1]
+            channels = image_size[2]
+            true_segmentation_list = []
+            for obj in data['objects']:
+                cls = str(obj['label'])
+                cls = cls.replace(' ', '').lower()
+                if cls not in dataset['class_list_new']:
+                    continue
+                true_segmentation_list.append(TRUE_SEGMENTATION(
+                    cls, obj['polygon']))  # 将单个真实框加入单张图片真实框列表
+            image = IMAGE(image_name, image_name, image_path, int(
+                height), int(width), int(channels), [], true_segmentation_list)
+            check_images_list.append(image)
 
     return check_images_list
 

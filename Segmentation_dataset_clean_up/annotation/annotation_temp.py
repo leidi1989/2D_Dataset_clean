@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-09 00:59:33
 LastEditors: Leidi
-LastEditTime: 2021-11-22 09:46:16
+LastEditTime: 2021-11-22 10:33:04
 '''
 import os
 import cv2
@@ -26,11 +26,7 @@ def TEMP_LOAD(dataset: dict, temp_annotation_path: str) -> IMAGE:
     """
 
     with open(temp_annotation_path, 'r') as f:
-        try:
-            data = json.loads(f.read())
-        except:
-            print('\nLoad erro:', temp_annotation_path)
-            return
+        data = json.loads(f.read())
         image_name = temp_annotation_path.split(
             os.sep)[-1].replace('.json', '.' + dataset['temp_image_form'])
         image_path = os.path.join(dataset['temp_images_folder'], image_name)
