@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2021-11-22 14:13:59
+LastEditTime: 2021-11-23 14:34:19
 '''
 import os
 import json
@@ -152,7 +152,7 @@ def coco2017(dataset: dict) -> None:
 
     success_count = 0
     fail_count = 0
-    no_detect_segmentation = 0
+    no_segmentation = 0
     temp_file_name_list = []
 
     for source_annotation_name in tqdm(os.listdir(dataset['source_annotations_folder'])):
@@ -201,7 +201,7 @@ def coco2017(dataset: dict) -> None:
         process_temp_file_name_list = multiprocessing.Manager().list()
         process_output = multiprocessing.Manager().dict({"success_count": 0,
                                                          "fail_count": 0,
-                                                         "no_detect_segmentation": 0,
+                                                         "no_segmentation": 0,
                                                          "temp_file_name_list": process_temp_file_name_list
                                                          })
         pool = multiprocessing.Pool(dataset['workers'])
@@ -215,7 +215,7 @@ def coco2017(dataset: dict) -> None:
         # 更新输出统计
         success_count += process_output['success_count']
         fail_count += process_output['fail_count']
-        no_detect_segmentation += process_output['no_detect_segmentation']
+        no_segmentation += process_output['no_segmentation']
         temp_file_name_list += process_output['temp_file_name_list']
 
     # 输出读取统计结果
@@ -223,19 +223,13 @@ def coco2017(dataset: dict) -> None:
     print('Total annotations:         \t {} '.format(
         len(os.listdir(dataset['source_annotations_folder']))))
     print('Convert fail:              \t {} '.format(fail_count))
-    print('No segmentation delete images: \t {} '.format(no_detect_segmentation))
+    print('No segmentation delete images: \t {} '.format(no_segmentation))
     print('Convert success:           \t {} '.format(success_count))
     dataset['temp_file_name_list'] = temp_file_name_list
-    with open(os.path.join(dataset['temp_informations_folder'], 'detect_classes.names'), 'w') as f:
-        if len(dataset['detect_class_list_new']):
+    with open(os.path.join(dataset['temp_informations_folder'], 'classes.names'), 'w') as f:
+        if len(dataset['class_list_new']):
             f.write('\n'.join(str(n)
-                              for n in dataset['detect_class_list_new']))
-        f.close()
-
-    with open(os.path.join(dataset['temp_informations_folder'], 'segment_classes.names'), 'w') as f:
-        if len(dataset['segment_class_list_new']):
-            f.write('\n'.join(str(n)
-                              for n in dataset['segment_class_list_new']))
+                              for n in dataset['class_list_new']))
         f.close()
 
     return

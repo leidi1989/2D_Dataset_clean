@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-09 21:55:18
 LastEditors: Leidi
-LastEditTime: 2021-11-15 13:49:22
+LastEditTime: 2021-11-22 20:19:56
 '''
 
 
@@ -33,7 +33,7 @@ dataset_file_form = {'coco2017': {'image': 'jpg',
                      'yunce_segment': {'image': 'jpg',
                                        'annotation': 'json'
                                        },
-                     'hy_val': {'image': 'jpg',
+                     'hy_val': {'image': 'png',
                                 'annotation': 'json'
                                 },
                      'cityscapes_val': {'image': 'png',
