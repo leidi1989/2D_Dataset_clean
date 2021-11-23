@@ -28,7 +28,7 @@ modifyclassfile: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_cl
 proportion: 0.8,0.1,0.1,0
 
 # check target annotations
-check: 200
+check: 100
 
 # transparent bounding box mask
 mask: True
