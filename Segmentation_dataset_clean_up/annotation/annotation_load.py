@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2021-11-24 16:41:55
+LastEditTime: 2021-11-24 16:51:46
 '''
 import os
 import json
@@ -160,6 +160,9 @@ def coco2017(dataset: dict) -> None:
             dataset['source_annotations_folder'], source_annotation_name)
         with open(source_annotation_path, 'r') as f:
             data = json.loads(f.read())
+        
+        del f
+
         class_dict = {}
         for n in data['categories']:
             class_dict['%s' % n['id']] = n['name']
@@ -183,6 +186,8 @@ def coco2017(dataset: dict) -> None:
                 error_callback=err_call_back))
         pool.close()
         pool.join()
+        
+        del data
 
         total_images_data_dict = {}
         for image_true_segment in total_image_segment_list:
@@ -196,6 +201,8 @@ def coco2017(dataset: dict) -> None:
             else:
                 total_images_data_dict[image_true_segment.get()[0]].true_segmentation_list.extend(
                     image_true_segment.get()[1])
+        
+        del total_annotations_dict, total_image_segment_list
 
         # 输出读取的source annotation至temp annotation
         process_temp_file_name_list = multiprocessing.Manager().list()
@@ -295,6 +302,9 @@ def huawei_segment(dataset: dict) -> None:
             dataset['source_annotations_folder'], source_annotation_name)
         with open(source_annotation_path, 'r') as f:
             data = json.loads(f.read())
+            
+        del f
+        
         class_dict = {}
         for n in data['categories']:
             class_dict['%s' % n['id']] = n['name']
@@ -318,6 +328,8 @@ def huawei_segment(dataset: dict) -> None:
                 error_callback=err_call_back))
         pool.close()
         pool.join()
+        
+        del data
 
         total_images_data_dict = {}
         for image_segment in total_image_segment_list:
@@ -331,6 +343,8 @@ def huawei_segment(dataset: dict) -> None:
             else:
                 total_images_data_dict[image_segment.get()[0]].true_segmentation_list.extend(
                     image_segment.get()[1])
+
+        del total_annotations_dict, total_image_segment_list
 
         # 输出读取的source annotation至temp annotation
         process_temp_file_name_list = multiprocessing.Manager().list()
@@ -387,6 +401,7 @@ def yunce_segment(dataset: dict) -> None:
         with open(source_annotation_path, 'r') as f:
             data = json.loads(f.read())
             f.close()
+
         del f
             
         class_dict = {}
@@ -431,6 +446,7 @@ def yunce_segment(dataset: dict) -> None:
             else:
                 total_images_data_dict[image_segment.get()[0]].true_segmentation_list.extend(
                     image_segment.get()[1])
+
         del total_annotations_dict, total_image_segment_list
 
         # 输出读取的source annotation至temp annotation
