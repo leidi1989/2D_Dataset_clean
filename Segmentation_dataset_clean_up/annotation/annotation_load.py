@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2021-11-23 14:34:19
+LastEditTime: 2021-11-24 14:52:38
 '''
 import os
 import json
@@ -415,8 +415,6 @@ def yunce_segment(dataset: dict) -> None:
             if image_segment.get() is None:
                 continue
             if image_segment.get()[0] not in total_images_data_dict:
-                # total_images_data_dict[image_segment.get(
-                # )[0]] = total_annotations_dict[image_segment.get()[0]]
                 try:
                     total_images_data_dict.update({image_segment.get(
                     )[0]: total_annotations_dict[image_segment.get()[0]]})

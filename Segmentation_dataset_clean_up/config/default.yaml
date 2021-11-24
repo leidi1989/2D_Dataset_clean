@@ -1,26 +1,26 @@
 # dataset path
-root: /mnt/data_1/Dataset/Temp/huaweiyun1_fix_20211123
+root: /mnt/data_1/Dataset/Temp/yunce/yunce_parking_total_20211124
 
 # output path
-target: /mnt/data_1/Dataset/Temp/huaweiyun1_fix_20211123_20211123
+target: /mnt/data_1/Dataset/Temp/yunce/yunce_parking_total_20211124_6_classes_20211124
 
 # input labels style: cityscapes, coco2017, huawei_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017, yunce_segment
-srstyle: coco2017
+srstyle: yunce_segment
 
 # output labels style: cityscapes, coco2017, cityscapes_val, cvat_image_1_1
 tarstyle: cityscapes
 
 # images or labels need to rename prefix
-prefix: ""
+prefix: "yunce20211124"
 
 # name delimiter(cityscapes: "@")
 delimiter: "@"
 
 # dataset segment class path
-classes: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_huawei_segmentation_173_classes_20210918.names
+classes: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_infer_20211116.names
 
 # dataset class modify file path
-modifyclassfile: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_huawei_segmentation_173_classes_to_cityscapes_3_classes_road_lane.txt
+modifyclassfile: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_road_lane_parkingline_parking_20211124.txt
 # modifyclassfile: ""
 
 # (train, val, test, redund)
