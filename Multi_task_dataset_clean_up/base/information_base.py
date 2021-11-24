@@ -329,9 +329,17 @@ def segment_sample_statistics(dataset: dict) -> None:
         # 统计全部labels各类别像素点数量
         for n in tqdm(divide_annotation_list):
             image = TEMP_LOAD(dataset, n)
+            image_pixal = image.height*image.width
+            if image == None:
+                print('\nLoad erro: ', n)
+                continue
             for m in image.true_segmentation_list:
-                one_set_class_pixal_dict[m.clss] += polygon_area(
-                    m.segmentation[:-1])
+                area = polygon_area(m.segmentation[:-1])
+                if m.clss != 'unlabel':
+                    one_set_class_pixal_dict[m.clss] += area
+                else:
+                    image_pixal -= area
+            one_set_class_pixal_dict['unlabel'] += image_pixal
         dataset['temp_divide_count_dict_list'].append(one_set_class_pixal_dict)
         for _, value in one_set_class_pixal_dict.items():                       # 计算数据集计数总数
             one_set_total_count += value
