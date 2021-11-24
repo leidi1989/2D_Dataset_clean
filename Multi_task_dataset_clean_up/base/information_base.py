@@ -326,6 +326,8 @@ def segment_sample_statistics(dataset: dict) -> None:
             one_set_class_pixal_dict[one_class] = 0
             # 读取不同类别进占比字典作为键
             one_set_class_prop_dict[one_class] = float(0)
+        if 'unlabel' not in one_set_class_prop_dict:
+            one_set_class_prop_dict.update({'unlabel': 0})
         # 统计全部labels各类别像素点数量
         for n in tqdm(divide_annotation_list):
             image = TEMP_LOAD(dataset, n)
