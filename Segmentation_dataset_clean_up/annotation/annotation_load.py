@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2021-11-24 14:52:38
+LastEditTime: 2021-11-24 16:41:55
 '''
 import os
 import json
@@ -386,6 +386,9 @@ def yunce_segment(dataset: dict) -> None:
             dataset['source_annotations_folder'], source_annotation_name)
         with open(source_annotation_path, 'r') as f:
             data = json.loads(f.read())
+            f.close()
+        del f
+            
         class_dict = {}
         for n in data['categories']:
             class_dict['%s' % n['id']] = n['name']
@@ -409,7 +412,9 @@ def yunce_segment(dataset: dict) -> None:
                 error_callback=err_call_back))
         pool.close()
         pool.join()
-
+        
+        del data
+        
         total_images_data_dict = {}
         for image_segment in total_image_segment_list:
             if image_segment.get() is None:
@@ -426,6 +431,7 @@ def yunce_segment(dataset: dict) -> None:
             else:
                 total_images_data_dict[image_segment.get()[0]].true_segmentation_list.extend(
                     image_segment.get()[1])
+        del total_annotations_dict, total_image_segment_list
 
         # 输出读取的source annotation至temp annotation
         process_temp_file_name_list = multiprocessing.Manager().list()
@@ -447,7 +453,7 @@ def yunce_segment(dataset: dict) -> None:
         fail_count += process_output['fail_count']
         no_segmentation += process_output['no_segmentation']
         temp_file_name_list += process_output['temp_file_name_list']
-
+        
     # 输出读取统计结果
     print('\nSource dataset convert to temp dataset file count: ')
     print('Total annotations:         \t {} '.format(
@@ -460,7 +466,7 @@ def yunce_segment(dataset: dict) -> None:
         if len(dataset['class_list_new']):
             f.write('\n'.join(str(n) for n in dataset['class_list_new']))
         f.close()
-
+        
     return
 
 

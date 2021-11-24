@@ -2,7 +2,7 @@
 root: /mnt/data_1/Dataset/Temp/yunce/yunce_parking_total_20211124
 
 # output path
-target: /mnt/data_1/Dataset/Temp/yunce/yunce_parking_total_20211124_6_classes_20211124
+target: /mnt/data_1/Dataset/Temp/yunce/yunce_parking_total_20211124_6_classes_20211124_test
 
 # input labels style: cityscapes, coco2017, huawei_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017, yunce_segment
 srstyle: yunce_segment
