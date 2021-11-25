@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-06-09 14:54:44
 LastEditors: Leidi
-LastEditTime: 2021-11-22 19:18:53
+LastEditTime: 2021-11-25 09:32:12
 '''
 # 导入需要的库
 import os
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='tool_avi_to_mp4.py')
     parser.add_argument('--avipath', default=r'',
                         type=str, help='avi path')
-    parser.add_argument('--imgpath', default=r'/mnt/data_1/Dataset/detect_output/YOLOP/20211119/whu_cam_front_center_20211015',
+    parser.add_argument('--imgpath', default=r'/home/leidi/hy_program/edgeai-torchvision/data/checkpoints/edgeailite/yunce_parking_6_classes_segmentation_measure/2021-11-25-09-31-48_yunce_parking_6_classes_segmentation_measure_fpn_edgeailite_aspp_regnetx800mf_resize1536x768/validation/Task0',
                         type=str, help='image output path')
     parser.add_argument('--pref', default=r'',
                         type=str, help='rename prefix')

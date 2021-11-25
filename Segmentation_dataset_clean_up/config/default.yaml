@@ -1,17 +1,17 @@
 # dataset path
-root: /mnt/data_1/Dataset/Temp/yunce/yunce_parking_total_20211124
+root: /mnt/data_1/Dataset/dataset_sample/zhuoer_20211124
 
 # output path
-target: /mnt/data_1/Dataset/Temp/yunce/yunce_parking_total_20211124_6_classes_20211124_test
+target: /mnt/data_1/Dataset/dataset_sample/zhuoer_20211124_20211124
 
 # input labels style: cityscapes, coco2017, huawei_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017, yunce_segment
-srstyle: yunce_segment
+srstyle: hy_val
 
 # output labels style: cityscapes, coco2017, cityscapes_val, cvat_image_1_1
-tarstyle: cityscapes
+tarstyle: cityscapes_val
 
 # images or labels need to rename prefix
-prefix: "yunce20211124"
+prefix: "zhuoer20211124"
 
 # name delimiter(cityscapes: "@")
 delimiter: "@"
