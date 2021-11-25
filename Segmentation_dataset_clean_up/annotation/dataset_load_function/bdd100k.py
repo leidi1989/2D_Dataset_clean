@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-11-25 16:37:00
+LastEditTime: 2021-11-25 17:16:27
 '''
 import os
 import re
@@ -32,6 +32,7 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output: 
                  'area/alternative',
                  'area/unknown'
                  ]
+    pair_offset = 150
     source_annotation_path = os.path.join(
         dataset['source_annotations_folder'], source_annotation_name)
     with open(source_annotation_path, 'r') as f:
@@ -110,8 +111,8 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output: 
                 if 3 == c_count:
                     segmentation_point_list.append(temp_point[0])
                     bezier_line = []
-                    for r in range(1, 11):
-                        r = r / 10
+                    for r in range(1, 21):
+                        r = r / 20
                         bezier_line.append(calNextPoints(
                             temp_point, rate=r)[0])
                     segmentation_point_list += bezier_line
@@ -131,7 +132,6 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output: 
         true_segment_list.append(one_true_segment)
 
     # lane单双线标注分类
-    pair_offset = 70
     object_segment_one_line_lane_list = []
     object_segment_double_line_lane_pair_list = []
 
@@ -156,7 +156,7 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output: 
             else:
                 segmentation_point_list = [x[0:-1] for x in line['poly2d']]
                 line_point_list = [line['poly2d'][0][0:-1]]
-                for r in range(1, 20):
+                for r in range(1, 21):
                     r = r / 20
                     line_point_list.append(calNextPoints(
                         segmentation_point_list, rate=r)[0])
@@ -169,33 +169,48 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output: 
 
     # 将线段按单双线标注进行分类
     temp_line = {}
-    for key, value in compair_dict.items():
-        if 1 != len(value):
-            for one_line in value:
-                if not len(temp_line):
-                    temp_line = one_line
+    for compair_key, compair_value in compair_dict.items():
+        if 1 != len(compair_value):
+            lane_class_dict = {}
+            # 对线段进行类别划分
+            for one_line in compair_value:
+                if one_line['category'] not in lane_class_dict:
+                    lane_class_dict.update({one_line['category']:[one_line]})
                 else:
-                    if len(temp_line['poly2d']) != key:
-                        object_segment_one_line_lane_list.append(temp_line)
+                    lane_class_dict[one_line['category']].append(one_line)
+            # 对进行类别划分后的车道线按单双线标注进行分类
+            for key, value in lane_class_dict.items():
+                for one_line in value:
+                    if not len(temp_line):
                         temp_line = one_line
-                    elif 4 == key:
-                        if (abs(temp_line['line_point_list'][0][0] - one_line['line_point_list'][0][0]) <= pair_offset) \
-                                and (temp_line['category'] == one_line['category']):
-                            object_segment_double_line_lane_pair_list.append(
-                                [temp_line, one_line])
-                            temp_line = {}
-                        else:
-                            object_segment_one_line_lane_list.append(temp_line)
-                            temp_line = one_line
                     else:
-                        if (abs(temp_line['line_point_list'][0][0] - one_line['line_point_list'][0][0]) <= pair_offset) \
-                                and (temp_line['category'] == one_line['category']):
-                            object_segment_double_line_lane_pair_list.append(
-                                [temp_line, one_line])
-                            temp_line = {}
-                        else:
+                        if len(temp_line['poly2d']) != compair_key:
                             object_segment_one_line_lane_list.append(temp_line)
                             temp_line = one_line
+                        elif 4 == compair_key:
+                            temp_line_start_point = np.array(temp_line['line_point_list'][0])
+                            one_line_start_point = np.array(one_line['line_point_list'][0])
+                            start_point_dist = dist(temp_line_start_point, one_line_start_point)
+                            if start_point_dist <= pair_offset \
+                                    and (temp_line['category'] == one_line['category']):
+                                object_segment_double_line_lane_pair_list.append(
+                                    [temp_line, one_line])
+                                temp_line = {}
+                            else:
+                                object_segment_one_line_lane_list.append(temp_line)
+                                temp_line = one_line
+                        else:
+                            temp_line_start_point = np.array(temp_line['line_point_list'][0])
+                            one_line_start_point = np.array(one_line['line_point_list'][0])
+                            start_point_dist = dist(temp_line_start_point, one_line_start_point)
+                            if start_point_dist <= pair_offset \
+                                    and (temp_line['category'] == one_line['category']):
+                                object_segment_double_line_lane_pair_list.append(
+                                    [temp_line, one_line])
+                                temp_line = {}
+                            else:
+                                object_segment_one_line_lane_list.append(temp_line)
+                                temp_line = one_line
         else:
             for one_line in value:
                 object_segment_one_line_lane_list.append(one_line)
@@ -207,14 +222,14 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output: 
         # line 1
         segmentation_point_list = [x[0:-1] for x in m['poly2d']]
         line_point_list_1 = [m['poly2d'][0][0:-1]]
-        for r in range(1, 20):
+        for r in range(1, 21):
             r = r / 20
             line_point_list_1.append(calNextPoints(
                 segmentation_point_list, rate=r)[0])
         # line 2
         segmentation_point_list = [x[0:-1] for x in n['poly2d']]
         line_point_list_2 = [n['poly2d'][0][0:-1]]
-        for r in range(1, 20):
+        for r in range(1, 21):
             r = r / 20
             line_point_list_2.append(calNextPoints(
                 segmentation_point_list, rate=r)[0])
@@ -242,7 +257,7 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output: 
         clss = clss.replace(' ', '').lower()
         segmentation_point_list = [x[0:-1] for x in object['poly2d']]
         line_point_list_1 = [object['poly2d'][0][0:-1]]
-        for r in range(1, 20):
+        for r in range(1, 21):
             r = r / 20
             line_point_list_1.append(calNextPoints(
                 segmentation_point_list, rate=r)[0])
