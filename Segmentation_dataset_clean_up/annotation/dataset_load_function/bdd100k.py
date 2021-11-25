@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-11-25 18:39:17
+LastEditTime: 2021-11-25 19:04:12
 '''
 import os
 import re
@@ -32,8 +32,9 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output: 
                  'area/alternative',
                  'area/unknown'
                  ]
-    dist_offset = 100
-    dist_var_offset = 1000
+    start_point_dist_threshhold = 65
+    dist_mean_threshhold = 65
+    dist_var_threshhold = 75
     source_annotation_path = os.path.join(
         dataset['source_annotations_folder'], source_annotation_name)
     with open(source_annotation_path, 'r') as f:
@@ -46,7 +47,7 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output: 
     image_name_new = dataset['file_prefix'] + image_name
 
     # TODO debug
-    # if os.path.splitext(image_name_new)[0] != 'bdd100k@00a2e3ca-62992459':
+    # if os.path.splitext(image_name_new)[0] != 'bdd100k@00b04b30-2e874876':
     #     return
 
     image_path = os.path.join(
@@ -176,7 +177,7 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output: 
             # 对线段进行类别划分
             for one_line in compair_value:
                 if one_line['category'] not in lane_class_dict:
-                    lane_class_dict.update({one_line['category']:[one_line]})
+                    lane_class_dict.update({one_line['category']: [one_line]})
                 else:
                     lane_class_dict[one_line['category']].append(one_line)
             # 对进行类别划分后的车道线按单双线标注进行分类
@@ -191,24 +192,31 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output: 
                         else:
                             total_dist = []
                             for m, n in zip(temp_line['line_point_list'], one_line['line_point_list']):
-                                total_dist.append(dist(np.array(m), np.array(n)))
+                                total_dist.append(
+                                    dist(np.array(m), np.array(n)))
                             total_dist = np.array(total_dist)
                             dist_var = np.var(total_dist)
-                            temp_line_start_point = np.array(temp_line['line_point_list'][0])
-                            one_line_start_point = np.array(one_line['line_point_list'][0])
-                            start_point_dist = dist(temp_line_start_point, one_line_start_point)
-                            if start_point_dist <= dist_offset and dist_var <= dist_var_offset\
+                            dist_mean = np.mean(total_dist)
+                            temp_line_start_point = np.array(
+                                temp_line['line_point_list'][0])
+                            one_line_start_point = np.array(
+                                one_line['line_point_list'][0])
+                            start_point_dist = dist(
+                                temp_line_start_point, one_line_start_point)
+                            if start_point_dist <= start_point_dist_threshhold and dist_mean <= dist_mean_threshhold \
+                                and dist_var <= dist_var_threshhold \
                                     and (temp_line['category'] == one_line['category']):
                                 object_segment_double_line_lane_pair_list.append(
                                     [temp_line, one_line])
                                 temp_line = {}
                             else:
-                                object_segment_one_line_lane_list.append(temp_line)
+                                object_segment_one_line_lane_list.append(
+                                    temp_line)
                                 temp_line = one_line
         else:
             for one_line in compair_value:
                 if not len(temp_line):
-                        temp_line = one_line
+                    temp_line = one_line
                 else:
                     if len(temp_line['poly2d']) != compair_key:
                         object_segment_one_line_lane_list.append(temp_line)
@@ -219,11 +227,16 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output: 
                             total_dist.append(dist(np.array(m), np.array(n)))
                         total_dist = np.array(total_dist)
                         dist_var = np.var(total_dist)
-                        temp_line_start_point = np.array(temp_line['line_point_list'][0])
-                        one_line_start_point = np.array(one_line['line_point_list'][0])
-                        start_point_dist = dist(temp_line_start_point, one_line_start_point)
-                        if start_point_dist <= dist_offset and dist_var <= dist_var_offset\
-                                and (temp_line['category'] == one_line['category']):
+                        dist_mean = np.mean(total_dist)
+                        temp_line_start_point = np.array(
+                            temp_line['line_point_list'][0])
+                        one_line_start_point = np.array(
+                            one_line['line_point_list'][0])
+                        start_point_dist = dist(
+                            temp_line_start_point, one_line_start_point)
+                        if start_point_dist <= start_point_dist_threshhold and dist_mean <= dist_mean_threshhold \
+                                and dist_var <= dist_var_threshhold \
+                        and (temp_line['category'] == one_line['category']):
                             object_segment_double_line_lane_pair_list.append(
                                 [temp_line, one_line])
                             temp_line = {}
