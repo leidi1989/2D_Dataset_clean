@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2021-11-25 13:43:21
+LastEditTime: 2021-11-25 16:38:33
 '''
 from utils.utils import *
 from input import source_dataset
@@ -19,6 +19,7 @@ import os
 import time
 import yaml
 import argparse
+import multiprocessing
 
 
 def main(dataset_info: dict) -> None:
@@ -47,9 +48,9 @@ def main(dataset_info: dict) -> None:
     print('\nStart check target annotations:')
     check(dataset_info)
 
-    print('\nStart update framework:')
-    framework_update.__dict__[
-        dataset_info['target_dataset_style']](dataset_info)
+    # print('\nStart update framework:')
+    # framework_update.__dict__[
+    #     dataset_info['target_dataset_style']](dataset_info)
 
     return
 
@@ -59,7 +60,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='clean.py')
     parser.add_argument('--config', '--c', dest='config', default=r'/home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/config/default.yaml',
                         type=str, help='dataset config file path')
-    parser.add_argument('--workers', '--w', dest='workers', default=8,
+    parser.add_argument('--workers', '--w', dest='workers', default=multiprocessing.cpu_count(),
                         type=int, help='maximum number of dataloader workers(multiprocessing.cpu_count())')
 
     opt = parser.parse_args()

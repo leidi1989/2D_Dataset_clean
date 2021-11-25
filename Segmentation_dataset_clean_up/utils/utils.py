@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2021-11-21 11:51:15
+LastEditTime: 2021-11-25 15:51:06
 '''
 # -*- coding: utf-8 -*-
 import os
@@ -484,6 +484,19 @@ def get_class_pixel_limit(class_pixel_distance_file_path: str) -> dict:
                 return None
 
     return class_pixel_limit_dict
+
+
+def bdd100k_line_sort(line_1: list, line_2: list) -> int:
+    """[bdd100k提取车道线列表排序]
+
+    Args:
+        line_point_list_1 (list): [车道线1]
+        line_point_list_2 (list): [车道线2]
+
+    Returns:
+        int: [排序方式]
+    """
+    return line_1['line_point_list'][0][0]-line_2['line_point_list'][0][0]
 
 
 def calNextPoints(points: list, rate: float) -> list:
