@@ -4,12 +4,13 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-11-15 15:29:30
+LastEditTime: 2021-11-25 18:38:37
 '''
 import os
 import cv2
 import json
 import operator
+import functools
 
 from utils.utils import *
 from base.image_base import *
@@ -30,6 +31,8 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output: 
                  'area/alternative',
                  'area/unknown'
                  ]
+    dist_offset = 100
+    dist_var_offset = 1000
     source_annotation_path = os.path.join(
         dataset['source_annotations_folder'], source_annotation_name)
     with open(source_annotation_path, 'r') as f:
@@ -137,48 +140,103 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output: 
         true_segment_list.append(one_true_segment)
 
     # lane单双线标注分类
-    pair_threshold = 70
-    reverse_threshold = 100
     object_segment_one_line_lane_list = []
     object_segment_double_line_lane_pair_list = []
-    object_segment_lane_list = sorted(
-        object_segment_lane_list, key=operator.itemgetter('poly2d'), reverse=True)
+
+    # 将线段按贝塞尔曲线标注点数量进行分类
     compair_dict = {}
-    # 将线段进行分类
     for line in object_segment_lane_list:
         if len(line['poly2d']) not in compair_dict:
             compair_dict.update({len(line['poly2d']): [line]})
         else:
             compair_dict[len(line['poly2d'])].append(line)
-    temp_line = {}
+
     for key, value in compair_dict.items():
-        if 1 != len(value):
-            for one_line in value:
-                if not len(temp_line):
-                    temp_line = one_line
+        # 对贝塞尔标注线段进行解析并按min_y的x坐标进行排序
+        for line in value:
+            if 2 == key:
+                segmentation_point_list = [x[0:-1] for x in line['poly2d']]
+                line_point_list = [line['poly2d'][0][0:-1]]
+                line_point_list.append(line['poly2d'][1][0:-1])
+                line_point_list.sort(key=lambda line_point: (
+                    line_point[1], -line_point[0]), reverse=True)
+                line.update({'line_point_list': line_point_list})
+            else:
+                segmentation_point_list = [x[0:-1] for x in line['poly2d']]
+                line_point_list = [line['poly2d'][0][0:-1]]
+                for r in range(1, 21):
+                    r = r / 20
+                    line_point_list.append(calNextPoints(
+                        segmentation_point_list, rate=r)[0])
+                line_point_list.sort(key=lambda line_point: (
+                    line_point[1], -line_point[0]))
+                line.update({'line_point_list': line_point_list})
+        # # 对标注线段按min_y的x坐标进行排序
+        compair_dict[key] = sorted(
+            value, key=functools.cmp_to_key(bdd100k_line_sort))
+
+    # 将线段按单双线标注进行分类
+    temp_line = {}
+    for compair_key, compair_value in compair_dict.items():
+        if 1 != len(compair_value):
+            lane_class_dict = {}
+            # 对线段进行类别划分
+            for one_line in compair_value:
+                if one_line['category'] not in lane_class_dict:
+                    lane_class_dict.update({one_line['category']:[one_line]})
                 else:
-                    if len(temp_line['poly2d']) != key:
+                    lane_class_dict[one_line['category']].append(one_line)
+            # 对进行类别划分后的车道线按单双线标注进行分类
+            for key, value in lane_class_dict.items():
+                for one_line in value:
+                    if not len(temp_line):
+                        temp_line = one_line
+                    else:
+                        if len(temp_line['poly2d']) != compair_key:
+                            object_segment_one_line_lane_list.append(temp_line)
+                            temp_line = one_line
+                        else:
+                            total_dist = []
+                            for m, n in zip(temp_line['line_point_list'], one_line['line_point_list']):
+                                total_dist.append(dist(np.array(m), np.array(n)))
+                            total_dist = np.array(total_dist)
+                            dist_var = np.var(total_dist)
+                            temp_line_start_point = np.array(temp_line['line_point_list'][0])
+                            one_line_start_point = np.array(one_line['line_point_list'][0])
+                            start_point_dist = dist(temp_line_start_point, one_line_start_point)
+                            if start_point_dist <= dist_offset and dist_var <= dist_var_offset\
+                                    and (temp_line['category'] == one_line['category']):
+                                object_segment_double_line_lane_pair_list.append(
+                                    [temp_line, one_line])
+                                temp_line = {}
+                            else:
+                                object_segment_one_line_lane_list.append(temp_line)
+                                temp_line = one_line
+        else:
+            for one_line in compair_value:
+                if not len(temp_line):
+                        temp_line = one_line
+                else:
+                    if len(temp_line['poly2d']) != compair_key:
                         object_segment_one_line_lane_list.append(temp_line)
                         temp_line = one_line
-                    elif 4 == key:
-                        if abs(temp_line['poly2d'][0][0] - one_line['poly2d'][0][0]) <= pair_threshold and abs(temp_line['poly2d'][3][0] - one_line['poly2d'][3][0]) <= pair_threshold:
-                            object_segment_double_line_lane_pair_list.append(
-                                [temp_line, one_line])
-                            temp_line = {}
-                        else:
-                            object_segment_one_line_lane_list.append(temp_line)
-                            temp_line = one_line
                     else:
-                        if abs(temp_line['poly2d'][0][0] - one_line['poly2d'][0][0]) <= pair_threshold and abs(temp_line['poly2d'][1][0] - one_line['poly2d'][1][0]) <= pair_threshold:
+                        total_dist = []
+                        for m, n in zip(temp_line['line_point_list'], one_line['line_point_list']):
+                            total_dist.append(dist(np.array(m), np.array(n)))
+                        total_dist = np.array(total_dist)
+                        dist_var = np.var(total_dist)
+                        temp_line_start_point = np.array(temp_line['line_point_list'][0])
+                        one_line_start_point = np.array(one_line['line_point_list'][0])
+                        start_point_dist = dist(temp_line_start_point, one_line_start_point)
+                        if start_point_dist <= dist_offset and dist_var <= dist_var_offset\
+                                and (temp_line['category'] == one_line['category']):
                             object_segment_double_line_lane_pair_list.append(
                                 [temp_line, one_line])
                             temp_line = {}
                         else:
                             object_segment_one_line_lane_list.append(temp_line)
                             temp_line = one_line
-        else:
-            for one_line in value:
-                object_segment_one_line_lane_list.append(one_line)
 
     # object segment double line lane
     for m, n in object_segment_double_line_lane_pair_list:
