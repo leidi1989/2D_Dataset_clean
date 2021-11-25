@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-09 16:05:57
 LastEditors: Leidi
-LastEditTime: 2021-10-21 16:30:30
+LastEditTime: 2021-11-25 13:48:50
 '''
 import os
 import cv2
@@ -109,7 +109,10 @@ def plot_segment_sample_statistics(dataset) -> None:
         dataset ([数据集类]): [数据集类实例]
     """
 
-    x = np.arange(len(dataset['segment_class_list_new']))  # x为类别数量
+    if 'unlabeled' in dataset['class_list_new']:
+        x = np.arange(len(dataset['class_list_new']))  # x为类别数量
+    else:
+        x = np.arange(len(dataset['class_list_new']) + 1)  # x为类别数量
     fig = plt.figure(1, figsize=(
         len(dataset['segment_class_list_new']), 9))   # 图片宽比例为类别个数
 

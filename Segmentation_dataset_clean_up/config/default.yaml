@@ -1,26 +1,26 @@
 # dataset path
-root: /mnt/data_1/Dataset/dataset_sample/zhuoer_202111241
+root: /mnt/data_1/Dataset/Temp/bdd100k_images_annotations_test
 
 # output path
-target: /mnt/data_1/Dataset/dataset_sample/zhuoer_202111241_20211124
+target: /mnt/data_1/Dataset/Temp/bdd100k_images_annotations_test_20211125
 
 # input labels style: cityscapes, coco2017, huawei_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017, yunce_segment
-srstyle: hy_val
+srstyle: bdd100k
 
 # output labels style: cityscapes, coco2017, cityscapes_val, cvat_image_1_1
-tarstyle: cityscapes_val
+tarstyle: cityscapes
 
 # images or labels need to rename prefix
-prefix: "zhuoer20211124"
+prefix: "bdd100k"
 
 # name delimiter(cityscapes: "@")
 delimiter: "@"
 
 # dataset segment class path
-classes: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_infer_20211116.names
+classes: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_bdd100k_11_classes.names
 
 # dataset class modify file path
-modifyclassfile: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_road_lane_parkingline_parking_20211124.txt
+modifyclassfile: ""
 # modifyclassfile: ""
 
 # (train, val, test, redund)
@@ -28,7 +28,7 @@ modifyclassfile: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_cl
 proportion: 0.8,0.1,0.1,0
 
 # check target annotations
-check: 100
+check: 1000
 
 # transparent bounding box mask
 mask: True

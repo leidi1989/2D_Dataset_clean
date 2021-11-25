@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-10 18:38:55
 LastEditors: Leidi
-LastEditTime: 2021-11-24 15:08:25
+LastEditTime: 2021-11-25 13:46:41
 '''
 from utils.utils import *
 from utils.plot import plot_sample_statistics
@@ -222,8 +222,10 @@ def sample_statistics(dataset: dict) -> None:
             one_set_class_pixal_dict[one_class] = 0
             # 读取不同类别进占比字典作为键
             one_set_class_prop_dict[one_class] = float(0)
-        if 'unlabel' not in one_set_class_prop_dict:
-            one_set_class_prop_dict.update({'unlabel': 0})
+        if 'unlabeled' not in one_set_class_pixal_dict:
+            one_set_class_pixal_dict.update({'unlabeled': 0})
+        if 'unlabeled' not in one_set_class_prop_dict:
+            one_set_class_prop_dict.update({'unlabeled': 0})
         # 统计全部labels各类别像素点数量
         for n in tqdm(divide_annotation_list):
             image = TEMP_LOAD(dataset, n)
@@ -233,11 +235,11 @@ def sample_statistics(dataset: dict) -> None:
                 continue
             for m in image.true_segmentation_list:
                 area = polygon_area(m.segmentation[:-1])
-                if m.clss != 'unlabel':
+                if m.clss != 'unlabeled':
                     one_set_class_pixal_dict[m.clss] += area
                 else:
                     image_pixal -= area
-            one_set_class_pixal_dict['unlabel'] += image_pixal
+            one_set_class_pixal_dict['unlabeled'] += image_pixal
         dataset['temp_divide_count_dict_list'].append(one_set_class_pixal_dict)
 
         for _, value in one_set_class_pixal_dict.items():                       # 计算数据集计数总数
