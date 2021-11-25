@@ -1,8 +1,8 @@
 # dataset path
-root: /mnt/data_1/Dataset/dataset_sample/zhuoer_20211124
+root: /mnt/data_1/Dataset/dataset_sample/zhuoer_202111241
 
 # output path
-target: /mnt/data_1/Dataset/dataset_sample/zhuoer_20211124_20211124
+target: /mnt/data_1/Dataset/dataset_sample/zhuoer_202111241_20211124
 
 # input labels style: cityscapes, coco2017, huawei_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017, yunce_segment
 srstyle: hy_val
