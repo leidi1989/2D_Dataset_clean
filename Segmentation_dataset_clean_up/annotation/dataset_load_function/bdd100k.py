@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-11-25 19:04:12
+LastEditTime: 2021-11-25 19:08:20
 '''
 import os
 import re
@@ -32,9 +32,9 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output: 
                  'area/alternative',
                  'area/unknown'
                  ]
-    start_point_dist_threshhold = 65
-    dist_mean_threshhold = 65
-    dist_var_threshhold = 75
+    start_point_dist_threshhold = 100
+    dist_mean_threshhold = 100
+    dist_var_threshhold = 200
     source_annotation_path = os.path.join(
         dataset['source_annotations_folder'], source_annotation_name)
     with open(source_annotation_path, 'r') as f:
