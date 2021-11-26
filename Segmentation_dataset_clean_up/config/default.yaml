@@ -1,8 +1,8 @@
 # dataset path
-root: /mnt/data_1/Dataset/Temp/bdd100k_images_annotations_test
+root: /mnt/data_1/Dataset/Temp/bdd100k_images_annotations
 
 # output path
-target: /mnt/data_1/Dataset/Temp/bdd100k_images_annotations_test_20211125
+target: /mnt/data_1/Dataset/Temp/bdd100k_3_classes_20211126
 
 # input labels style: cityscapes, coco2017, huawei_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017, yunce_segment
 srstyle: bdd100k
@@ -24,11 +24,11 @@ modifyclassfile: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_cl
 # modifyclassfile: ""
 
 # (train, val, test, redund)
-# proportion: 0.95,0.025,0.025,0
-proportion: 0.8,0.1,0.1,0
+proportion: 0.92,0.04,0.04,0
+# proportion: 0.8,0.1,0.1,0
 
 # check target annotations
-check: 1000
+check: 100
 
 # transparent bounding box mask
 mask: True
