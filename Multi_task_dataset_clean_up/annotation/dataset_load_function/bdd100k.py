@@ -4,13 +4,11 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-11-26 15:23:56
+LastEditTime: 2021-11-26 15:27:36
 '''
 import os
 import cv2
 import json
-import operator
-import functools
 
 from utils.utils import *
 from base.image_base import *
@@ -48,7 +46,7 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output: 
                            'lane/singlewhite': 5000,
                            'lane/singleyellow': 5000}
     one_line_expand_offset = 5
-    
+
     source_annotation_path = os.path.join(
         dataset['source_annotations_folder'], source_annotation_name)
     with open(source_annotation_path, 'r') as f:
@@ -242,7 +240,7 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output: 
             r = r / 20
             line_point_list_2.append(calNextPoints(
                 segmentation_point_list, rate=r)[0])
-            
+
         pair_line_dist_0_0 = dist(
             np.array(line_point_list_1[0]), np.array(line_point_list_2[0]))
         pair_line_dist_0_1 = dist(
