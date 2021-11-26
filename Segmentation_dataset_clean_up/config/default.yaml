@@ -20,7 +20,7 @@ delimiter: "@"
 classes: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_bdd100k_11_classes.names
 
 # dataset class modify file path
-modifyclassfile: ""
+modifyclassfile: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_bdd100k_11_classes_to_3_classes_road_lane.txt
 # modifyclassfile: ""
 
 # (train, val, test, redund)
