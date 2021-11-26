@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-11-08 10:30:52
 LastEditors: Leidi
-LastEditTime: 2021-11-22 14:23:11
+LastEditTime: 2021-11-26 19:15:40
 '''
 import os
 from tqdm import tqdm
@@ -265,7 +265,7 @@ def yunce_segment(dataset: dict) -> None:
     for root, dirs, files in tqdm(os.walk(dataset['source_path'])):
         pool = multiprocessing.Pool(dataset['workers'])
         for n in tqdm(files):
-            if n.endswith(dataset['source_image_form']):
+            if n.endswith(dataset['source_image_form']) or n.endswith('png'):
                 pool.apply_async(F.__dict__[dataset['source_dataset_stype']].copy_image,
                                  args=(dataset, root, n,))
         pool.close()

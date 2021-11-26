@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2021-11-26 15:31:53
+LastEditTime: 2021-11-26 19:17:13
 '''
 from utils.utils import *
 from input import source_dataset
@@ -58,7 +58,7 @@ def main(dataset_info: dict) -> None:
 if __name__ == "__main__":
     time_start = time.time()
     parser = argparse.ArgumentParser(prog='clean.py')
-    parser.add_argument('--config', '--c', dest='config', default=r'/home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/config/default.yaml',
+    parser.add_argument('--config', '--c', dest='config', default=r'/mnt/sda/leidi/program/2D_Dataset_clean/Segmentation_dataset_clean_up/config/default.yaml',
                         type=str, help='dataset config file path')
     parser.add_argument('--workers', '--w', dest='workers', default=multiprocessing.cpu_count(),
                         type=int, help='maximum number of dataloader workers(multiprocessing.cpu_count())')
