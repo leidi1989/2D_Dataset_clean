@@ -28,9 +28,7 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output: 
         process_output (dict): [进程通信字典]
     """
 
-    # TODO debug
-    if image_name_new != 'bdd100k@00cf8e3d-4683d983.png':
-        return
+    
     
     area_list = ['area/drivable',
                  'area/alternative',
@@ -64,7 +62,9 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output: 
         '.')[0] + '.' + dataset['temp_image_form']
     image_name_new = dataset['file_prefix'] + image_name
 
-    
+    # TODO debug
+    if image_name_new != 'bdd100k@00cf8e3d-4683d983.png':
+        return
 
     image_path = os.path.join(
         dataset['temp_images_folder'], image_name_new)
