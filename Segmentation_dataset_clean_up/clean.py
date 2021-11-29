@@ -4,11 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-<<<<<<< HEAD
-LastEditTime: 2021-11-29 10:09:57
-=======
-LastEditTime: 2021-11-26 19:17:13
->>>>>>> b91885d453402b93fe639b87e48e3093d980cc2c
+LastEditTime: 2021-11-29 10:46:41
 '''
 from utils.utils import *
 from input import source_dataset
@@ -36,25 +32,25 @@ def main(dataset_info: dict) -> None:
     print('\nStart copy images and annotations:')
     source_dataset.__dict__[dataset_info['source_dataset_stype']](dataset_info)
 
-    # print('\nStart to transform source annotation to temp annotation:')
-    # annotation_load.__dict__[
-    #     dataset_info['source_dataset_stype']](dataset_info)
+    print('\nStart to transform source annotation to temp annotation:')
+    annotation_load.__dict__[
+        dataset_info['source_dataset_stype']](dataset_info)
 
-    # print('\nStart to analyze dataset:')
-    # information(dataset_info)
+    print('\nStart to analyze dataset:')
+    information(dataset_info)
 
-    # print('\nStart output temp dataset annotations to target annotations:')
-    # dataset_info['temp_annotation_path_list'] = temp_annotation_path_list(
-    #     dataset_info['temp_annotations_folder'])
-    # annotation_output.__dict__[
-    #     dataset_info['target_dataset_style']](dataset_info)
+    print('\nStart output temp dataset annotations to target annotations:')
+    dataset_info['temp_annotation_path_list'] = temp_annotation_path_list(
+        dataset_info['temp_annotations_folder'])
+    annotation_output.__dict__[
+        dataset_info['target_dataset_style']](dataset_info)
 
-    # print('\nStart check target annotations:')
-    # check(dataset_info)
+    print('\nStart check target annotations:')
+    check(dataset_info)
 
-    # print('\nStart update framework:')
-    # framework_update.__dict__[
-    #     dataset_info['target_dataset_style']](dataset_info)
+    print('\nStart update framework:')
+    framework_update.__dict__[
+        dataset_info['target_dataset_style']](dataset_info)
 
     return
 
@@ -62,7 +58,7 @@ def main(dataset_info: dict) -> None:
 if __name__ == "__main__":
     time_start = time.time()
     parser = argparse.ArgumentParser(prog='clean.py')
-    parser.add_argument('--config', '--c', dest='config', default=r'/home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/config/default.yaml',
+    parser.add_argument('--config', '--c', dest='config', default=r'/mnt/sda/leidi/program/2D_Dataset_clean/Segmentation_dataset_clean_up/config/default.yaml',
                         type=str, help='dataset config file path')
     parser.add_argument('--workers', '--w', dest='workers', default=multiprocessing.cpu_count(),
                         type=int, help='maximum number of dataloader workers(multiprocessing.cpu_count())')
