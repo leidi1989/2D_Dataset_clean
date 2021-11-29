@@ -1,8 +1,15 @@
 # dataset path
+<<<<<<< HEAD
 root: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_total_20211126
 
 # output path
 target: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_total_20211129_6_classes_20211129
+=======
+root: /mnt/sda/leidi/dataset/Autopilot_lane_dataset/yunce/yunce_parking_total_20211126
+
+# output path
+target: /mnt/sda/leidi/dataset/Autopilot_lane_dataset/yunce/bdd100k_3_classes_20211126
+>>>>>>> b91885d453402b93fe639b87e48e3093d980cc2c
 
 # input labels style: cityscapes, coco2017, huawei_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017, yunce_segment
 srstyle: yunce_segment
@@ -17,6 +24,7 @@ prefix: "yunce"
 delimiter: "@"
 
 # dataset segment class path
+<<<<<<< HEAD
 classes: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_infer_20211116.names
 
 # dataset class modify file path
@@ -26,6 +34,17 @@ modifyclassfile: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_cl
 # (train, val, test, redund)
 # proportion: 0.92,0.04,0.04,0
 proportion: 0.9,0.05,0.05,0
+=======
+classes: /mnt/sda/leidi/program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_infer_20211116.names
+
+# dataset class modify file path
+modifyclassfile: /mnt/sda/leidi/program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_road_lane_parkingline_parking_20211124.txt
+# modifyclassfile: ""
+
+# (train, val, test, redund)
+proportion: 0.9,0.05,0.05,0
+# proportion: 0.8,0.1,0.1,0
+>>>>>>> b91885d453402b93fe639b87e48e3093d980cc2c
 
 # check target annotations
 check: 100
