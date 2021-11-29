@@ -4,15 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-<<<<<<< HEAD
-LastEditTime: 2021-11-29 10:46:41
-=======
-<<<<<<< HEAD
-LastEditTime: 2021-11-29 14:51:17
-=======
-LastEditTime: 2021-11-26 19:17:13
->>>>>>> b91885d453402b93fe639b87e48e3093d980cc2c
->>>>>>> 2b07d0c731a9abf6cdc1a6e4fb83c13f41e73b91
+LastEditTime: 2021-11-29 14:59:52
 '''
 from utils.utils import *
 from input import source_dataset
