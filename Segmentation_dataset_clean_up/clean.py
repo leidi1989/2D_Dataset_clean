@@ -5,7 +5,7 @@ Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
 <<<<<<< HEAD
-LastEditTime: 2021-11-29 10:09:57
+LastEditTime: 2021-11-29 11:18:30
 =======
 LastEditTime: 2021-11-26 19:17:13
 >>>>>>> b91885d453402b93fe639b87e48e3093d980cc2c
@@ -33,12 +33,12 @@ def main(dataset_info: dict) -> None:
         dataset_info (dict): [数据集信息字典]
     """
 
-    print('\nStart copy images and annotations:')
-    source_dataset.__dict__[dataset_info['source_dataset_stype']](dataset_info)
+    # print('\nStart copy images and annotations:')
+    # source_dataset.__dict__[dataset_info['source_dataset_stype']](dataset_info)
 
-    # print('\nStart to transform source annotation to temp annotation:')
-    # annotation_load.__dict__[
-    #     dataset_info['source_dataset_stype']](dataset_info)
+    print('\nStart to transform source annotation to temp annotation:')
+    annotation_load.__dict__[
+        dataset_info['source_dataset_stype']](dataset_info)
 
     # print('\nStart to analyze dataset:')
     # information(dataset_info)
