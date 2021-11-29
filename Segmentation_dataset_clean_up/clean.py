@@ -5,7 +5,7 @@ Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
 <<<<<<< HEAD
-LastEditTime: 2021-11-29 11:18:30
+LastEditTime: 2021-11-29 14:51:17
 =======
 LastEditTime: 2021-11-26 19:17:13
 >>>>>>> b91885d453402b93fe639b87e48e3093d980cc2c
@@ -40,21 +40,21 @@ def main(dataset_info: dict) -> None:
     annotation_load.__dict__[
         dataset_info['source_dataset_stype']](dataset_info)
 
-    # print('\nStart to analyze dataset:')
-    # information(dataset_info)
+    print('\nStart to analyze dataset:')
+    information(dataset_info)
 
-    # print('\nStart output temp dataset annotations to target annotations:')
-    # dataset_info['temp_annotation_path_list'] = temp_annotation_path_list(
-    #     dataset_info['temp_annotations_folder'])
-    # annotation_output.__dict__[
-    #     dataset_info['target_dataset_style']](dataset_info)
+    print('\nStart output temp dataset annotations to target annotations:')
+    dataset_info['temp_annotation_path_list'] = temp_annotation_path_list(
+        dataset_info['temp_annotations_folder'])
+    annotation_output.__dict__[
+        dataset_info['target_dataset_style']](dataset_info)
 
-    # print('\nStart check target annotations:')
-    # check(dataset_info)
+    print('\nStart check target annotations:')
+    check(dataset_info)
 
-    # print('\nStart update framework:')
-    # framework_update.__dict__[
-    #     dataset_info['target_dataset_style']](dataset_info)
+    print('\nStart update framework:')
+    framework_update.__dict__[
+        dataset_info['target_dataset_style']](dataset_info)
 
     return
 
