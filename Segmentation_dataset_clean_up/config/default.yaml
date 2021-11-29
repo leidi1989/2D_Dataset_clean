@@ -20,8 +20,8 @@ delimiter: "@"
 classes: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_infer_20211116.names
 
 # dataset class modify file path
-# modifyclassfile: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_road_lane_parkingline_parking_20211124.txt
-modifyclassfile: ""
+modifyclassfile: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_road_lane_parkingline_parking_20211124.txt
+# modifyclassfile: ""
 
 # (train, val, test, redund)
 # proportion: 0.92,0.04,0.04,0
