@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2021-11-29 14:46:43
+LastEditTime: 2021-11-29 15:24:02
 '''
 import os
 import json
@@ -489,7 +489,7 @@ def yunce_segment(dataset: dict) -> None:
         pool.join()
 
         # 读取目标标注信息
-        pool = multiprocessing.Pool(4)
+        pool = multiprocessing.Pool(dataset['workers'])
         total_image_segment_list = []
         for one_annotation in tqdm(data['annotations']):
             total_image_segment_list.append(pool.apply_async(func=F.__dict__[dataset['source_dataset_stype']].load_image_annotation, args=(

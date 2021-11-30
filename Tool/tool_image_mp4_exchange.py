@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-06-09 14:54:44
 LastEditors: Leidi
-LastEditTime: 2021-11-25 10:46:08
+LastEditTime: 2021-11-30 11:13:51
 '''
 # 导入需要的库
 import os
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='tool_avi_to_mp4.py')
     parser.add_argument('--avipath', default=r'',
                         type=str, help='avi path')
-    parser.add_argument('--imgpath', default=r'/mnt/data_1/Dataset/detect_output/edgeai-torchvision/100epoch_bdd100k_11_classes_to_cityscapes_3_classes_road_lane_20211025/100epoch_whu_20211123_20211124_2021-11-25-10-44-09_bdd100k_3_classes_segmentation_measure_fpn_edgeailite_aspp_regnetx800mf_resize1536x768',
+    parser.add_argument('--imgpath', default=r'/mnt/data_1/Dataset/detect_output/edgeai-torchvision/100epoch_yunce_parking_total_20211126_6_classes_20211129/100epoch_zhuoer_20211124_20211124_2021-11-30-10-54-28_yunce_parking_6_classes_segmentation_measure_fpn_edgeailite_aspp_regnetx800mf_resize768x384',
                         type=str, help='image output path')
     parser.add_argument('--pref', default=r'',
                         type=str, help='rename prefix')
