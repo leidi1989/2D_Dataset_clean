@@ -17,7 +17,7 @@ prefix: "yunce"
 delimiter: "@"
 
 # dataset segment class path
-classes: /mnt/sda/leidi/program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_infer_20211116.names
+classes: /mnt/sda/leidi/program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_no_infer_20211130.names
 
 # dataset class modify file path
 modifyclassfile: /mnt/sda/leidi/program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_road_lane_parkingline_parking_20211124.txt
