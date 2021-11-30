@@ -1,2 +1,2 @@
 road:area/drivable area/alternative
-lane:lane/crosswalk lane/doubleother lane/doublewhite lane/doubleyellow lane/roadcurb lane/singleother lane/singlewhite lane/singleyellow
+lane:lane/doubleother lane/doublewhite lane/doubleyellow lane/singleother lane/singlewhite lane/singleyellow
