@@ -2,7 +2,7 @@
 root: /home/hy/leidi/dataset/Autopilot_lane_dataset/yunce/yunce_parking_total_20211126
 
 # output path
-target: /home/hy/leidi/dataset/Autopilot_lane_dataset/yunce/yunce_parking_total_20211126_3_classes_20211129
+target: /home/hy/leidi/dataset/Autopilot_lane_dataset/yunce/yunce_parking_total_20211126_no_infer_3_classes_20211130
 
 # input labels style: cityscapes, coco2017, huawei_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017, yunce_segment
 srstyle: yunce_segment
