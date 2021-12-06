@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-11 03:28:09
 LastEditors: Leidi
-LastEditTime: 2021-11-12 09:49:31
+LastEditTime: 2021-12-06 16:49:10
 '''
 import os
 import cv2
@@ -245,12 +245,3 @@ def cityscapes_val(dataset: dict) -> None:
         cv2.imwrite(labelIds_output_path, zeros)
 
     return
-
-
-def cvat_image_1_1(dataset: dict) -> None:
-    
-    
-    
-    
-    
-    pass

@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-05 21:50:49
 LastEditors: Leidi
-LastEditTime: 2021-11-15 14:46:44
+LastEditTime: 2021-12-06 16:49:38
 '''
 import os
 import json
@@ -277,6 +277,7 @@ def cvat_image_1_1(dataset: dict) -> None:
                                                 error_callback=err_call_back))
     pool.close()
     pool.join()
+    
     # 将image标签信息添加至annotations中
     for n, image in enumerate(total_image_xml):
         annotation = image.get()
