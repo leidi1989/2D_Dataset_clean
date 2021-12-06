@@ -17,10 +17,10 @@ prefix: "huaweiyun"
 delimiter: "@"
 
 # dataset segment class path
-classes: /mnt/sda/leidi/program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_no_infer_20211130.names
+classes: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_huaweiyun_segmentation_183_classes_20211116.names
 
 # dataset class modify file path
-modifyclassfile: /mnt/sda/leidi/program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_road_lane_parkingline_parking_20211124.txt
+modifyclassfile: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_huaweiyun_segmentation_183_classes_to_3_classes.txt
 # modifyclassfile: ""
 
 # (train, val, test, redund)
