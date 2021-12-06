@@ -5,7 +5,7 @@ Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
 <<<<<<< HEAD
-LastEditTime: 2021-11-29 15:24:02
+LastEditTime: 2021-12-06 16:09:41
 =======
 LastEditTime: 2021-11-29 15:20:37
 >>>>>>> 639f136531bcf525d83fbc7cf4bffb50a83bee29
@@ -289,7 +289,7 @@ def apolloscape_lane_segment(dataset: dict) -> None:
     return
 
 
-def huawei_segment(dataset: dict) -> None:
+def huaweiyun_segment(dataset: dict) -> None:
     """[HUAWEI SEGMENT数据集annotation读取]
 
     Args:

@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-09 21:55:18
 LastEditors: Leidi
-LastEditTime: 2021-11-22 20:19:56
+LastEditTime: 2021-12-06 16:10:08
 '''
 
 
@@ -24,7 +24,7 @@ dataset_file_form = {'coco2017': {'image': 'jpg',
                      'apolloscape_lane_segment': {'image': 'jpg',
                                                   'annotation': 'png'
                                                   },
-                     'huawei_segment': {'image': 'jpg',
+                     'huaweiyun_segment': {'image': 'jpg',
                                         'annotation': 'json'
                                         },
                      'cvat_image_1_1': {'image': 'jpg',
