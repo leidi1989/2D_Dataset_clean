@@ -1,26 +1,26 @@
 # dataset path
-root: /mnt/data_1/Dataset/dataset_sample/qunguang_20211208_cam_front_center
+root: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_total_20211213
 
 # output path
-target: /mnt/data_1/Dataset/dataset_sample/qunguang_20211208_cam_front_center_20211208
+target: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_total_20211213_6_classes_20211213
 
 # input labels style: cityscapes, coco2017, huawei_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017, yunce_segment
-srstyle: hy_val
+srstyle: yunce_segment
 
 # output labels style: cityscapes, coco2017, cityscapes_val, cvat_image_1_1
-tarstyle: cityscapes_val
+tarstyle: cityscapes
 
 # images or labels need to rename prefix
-prefix: "qunguang"
+prefix: "yunce"
 
 # name delimiter(cityscapes: "@")
 delimiter: "@"
 
 # dataset segment class path
-classes: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_huaweiyun_segmentation_183_classes_20211116.names
+classes: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_infer_20211116.names
 
 # dataset class modify file path
-modifyclassfile: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_huaweiyun_segmentation_183_classes_to_3_classes.txt
+modifyclassfile: /home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_road_lane_parkingline_parking_20211124.txt
 # modifyclassfile: ""
 
 # (train, val, test, redund)
