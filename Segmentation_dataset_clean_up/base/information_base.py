@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-10 18:38:55
 LastEditors: Leidi
-LastEditTime: 2021-12-13 16:51:35
+LastEditTime: 2021-12-13 17:17:17
 '''
 from utils.utils import *
 from utils.plot import plot_sample_statistics
@@ -31,11 +31,11 @@ def information(dataset: dict) -> None:
         dataset (dict): [数据集信息字典]
     """
 
-    divide_dataset(dataset)
-    if dataset['target_dataset_style'] == 'cityscapes_val':
-        image_mean_std(dataset)
-        return
-    sample_statistics(dataset)
+    # divide_dataset(dataset)
+    # if dataset['target_dataset_style'] == 'cityscapes_val':
+    #     image_mean_std(dataset)
+    #     return
+    # sample_statistics(dataset)
     image_mean_std(dataset)
     # image_resolution_analysis(dataset)
 
@@ -284,16 +284,10 @@ def get_image_mean_std(dataset: dict, img_filename: str) -> list:
     Returns:
         list: [图片均值和标准差列表]
     """
-    if img_filename.endswith('jpg'):
-        img = cv2.imread(os.path.join(
-            dataset['source_images_folder'], img_filename))
-        img = img / 255.0
-        m, s = cv2.meanStdDev(img)
-    elif img_filename.endswith('png'):
-        img = Image.open(os.path.join(
-            dataset['source_images_folder'], img_filename))
-        img = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
-        m, s = cv2.meanStdDev(img)
+    img = Image.open(os.path.join(
+        dataset['source_images_folder'], img_filename))
+    img = cv2.cvtColor(np.asarray(img.getdata(), dtype='uint8'), cv2.COLOR_RGB2BGR)
+    m, s = cv2.meanStdDev(img / 255.0)
 
     return m.reshape((3,)), s.reshape((3,))
 
