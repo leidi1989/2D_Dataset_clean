@@ -5,3 +5,6 @@ opencv-python
 pyyaml
 tqdm
 matplotlib
+# rospkg
+pycryptodomex
+gnupg

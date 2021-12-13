@@ -1,17 +1,17 @@
 # dataset path
-root: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/huaweiyun/huaweiyun_fix_20211206
+root: /mnt/data_1/Dataset/dataset_sample/qunguang_20211208_cam_front_center
 
 # output path
-target: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/huaweiyun/huaweiyun_fix_20211206_3_classes_20211206
+target: /mnt/data_1/Dataset/dataset_sample/qunguang_20211208_cam_front_center_20211208
 
 # input labels style: cityscapes, coco2017, huawei_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017, yunce_segment
-srstyle: huaweiyun_segment
+srstyle: hy_val
 
 # output labels style: cityscapes, coco2017, cityscapes_val, cvat_image_1_1
-tarstyle: cityscapes
+tarstyle: cityscapes_val
 
 # images or labels need to rename prefix
-prefix: "huaweiyun"
+prefix: "qunguang"
 
 # name delimiter(cityscapes: "@")
 delimiter: "@"
