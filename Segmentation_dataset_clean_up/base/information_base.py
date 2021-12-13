@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-10 18:38:55
 LastEditors: Leidi
-LastEditTime: 2021-11-25 13:46:41
+LastEditTime: 2021-12-13 16:51:35
 '''
 from utils.utils import *
 from utils.plot import plot_sample_statistics
@@ -15,6 +15,7 @@ import cv2
 import math
 import random
 import numpy as np
+from PIL import Image
 from tqdm import tqdm
 import multiprocessing
 import matplotlib
@@ -283,11 +284,16 @@ def get_image_mean_std(dataset: dict, img_filename: str) -> list:
     Returns:
         list: [图片均值和标准差列表]
     """
-
-    img = cv2.imread(os.path.join(
-        dataset['source_images_folder'], img_filename))
-    img = img / 255.0
-    m, s = cv2.meanStdDev(img)
+    if img_filename.endswith('jpg'):
+        img = cv2.imread(os.path.join(
+            dataset['source_images_folder'], img_filename))
+        img = img / 255.0
+        m, s = cv2.meanStdDev(img)
+    elif img_filename.endswith('png'):
+        img = Image.open(os.path.join(
+            dataset['source_images_folder'], img_filename))
+        img = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
+        m, s = cv2.meanStdDev(img)
 
     return m.reshape((3,)), s.reshape((3,))
 

@@ -5,7 +5,7 @@ Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
 <<<<<<< HEAD
-LastEditTime: 2021-12-06 16:09:41
+LastEditTime: 2021-12-13 16:04:45
 =======
 LastEditTime: 2021-11-29 15:20:37
 >>>>>>> 639f136531bcf525d83fbc7cf4bffb50a83bee29
@@ -485,7 +485,7 @@ def yunce_segment(dataset: dict) -> None:
         # 获取data字典中images内的图片信息，file_name、height、width
         total_annotations_dict = multiprocessing.Manager().dict()
         pool = multiprocessing.Pool(dataset['workers'])
-        for image_base_information in tqdm(data['images']):
+        for image_base_information in data['images']:
             pool.apply_async(func=F.__dict__[dataset['source_dataset_stype']].load_image_base_information, args=(
                 dataset, image_base_information, total_annotations_dict,),
                 error_callback=err_call_back)
@@ -531,7 +531,7 @@ def yunce_segment(dataset: dict) -> None:
                                                          "temp_file_name_list": process_temp_file_name_list
                                                          })
         pool = multiprocessing.Pool(dataset['workers'])
-        for _, image in tqdm(total_images_data_dict.items()):
+        for _, image in total_images_data_dict.items():
             pool.apply_async(func=F.__dict__[dataset['source_dataset_stype']].output_temp_annotation, args=(
                 dataset, image, process_output,),
                 error_callback=err_call_back)
