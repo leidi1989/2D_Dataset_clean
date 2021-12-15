@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2021-12-13 17:16:59
+LastEditTime: 2021-12-15 16:39:19
 '''
 from utils.utils import *
 from input import source_dataset
@@ -19,7 +19,6 @@ import os
 import time
 import yaml
 import argparse
-import multiprocessing
 
 
 def main(dataset_info: dict) -> None:
@@ -29,8 +28,8 @@ def main(dataset_info: dict) -> None:
         dataset_info (dict): [数据集信息字典]
     """
 
-    print('\nStart copy images and annotations:')
-    source_dataset.__dict__[dataset_info['source_dataset_stype']](dataset_info)
+    # print('\nStart copy images and annotations:')
+    # source_dataset.__dict__[dataset_info['source_dataset_stype']](dataset_info)
 
     print('\nStart to transform source annotation to temp annotation:')
     annotation_load.__dict__[
@@ -60,7 +59,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='clean.py')
     parser.add_argument('--config', '--c', dest='config', default=r'/home/leidi/hy_program/2D_Dataset_clean/Segmentation_dataset_clean_up/config/default.yaml',
                         type=str, help='dataset config file path')
-    parser.add_argument('--workers', '--w', dest='workers', default=multiprocessing.cpu_count(),
+    parser.add_argument('--workers', '--w', dest='workers', default=8,
                         type=int, help='maximum number of dataloader workers(multiprocessing.cpu_count())')
 
     opt = parser.parse_args()

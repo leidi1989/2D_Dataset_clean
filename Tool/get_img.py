@@ -18,7 +18,7 @@ from cv_bridge import CvBridge
 from cv_bridge import CvBridgeError
 
 image_output_path = r'/mnt/data_1/Data/rosbag/images/qunguang_2021-12-07-11-47-22'
-bag_path = r'/mnt/data_1/Data/rosbag/2021-12-07-11-47-22.bag'
+bag_path = r'/mnt/data_1/Data/rosbag/1209/1209_qunguang1_2_2021-12-09-11-01-17_0.bag'
 
 class ImageCreate():
     def __init__(self):
