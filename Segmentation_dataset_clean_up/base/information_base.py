@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-10 18:38:55
 LastEditors: Leidi
-LastEditTime: 2021-12-15 17:13:35
+LastEditTime: 2021-12-15 18:08:35
 '''
 from utils.utils import *
 from utils.plot import plot_sample_statistics
@@ -299,42 +299,6 @@ def get_image_mean_std(dataset: dict, img_filename: str) -> list:
     return m.reshape((3,)), s.reshape((3,)), name
 
 
-# def image_mean_std(dataset: dict) -> None:
-#     """[计算读取的数据集图片均值、标准差]
-
-#     Args:
-#         dataset (dict): [数据集信息字典]
-#     """
-
-#     img_filenames = os.listdir(dataset['source_images_folder'])
-#     print('Start count images mean and std:')
-#     m_list, s_list = [], []
-#     for img_filename in tqdm(img_filenames):
-#         img = Image.open(os.path.join(
-#             dataset['source_images_folder'], img_filename))
-#         img = cv2.cvtColor(np.asarray(
-#             img.getdata(), dtype='uint8'), cv2.COLOR_RGB2BGR)
-#         m, s = cv2.meanStdDev(img / 255.0)
-#         m_list.append(m)
-#         s_list.append(s)
-
-#     m_array = np.array(m_list)
-#     s_array = np.array(s_list)
-#     m = m_array.mean(axis=0, keepdims=True)
-#     s = s_array.mean(axis=0, keepdims=True)
-
-#     mean_std_file_output_path = os.path.join(
-#         dataset['temp_informations_folder'], 'mean_std.txt')
-#     with open(mean_std_file_output_path, 'w') as f:
-#         f.write('mean: ' + str(m[0][::-1]) + '\n')
-#         f.write('std: ' + str(s[0][::-1]))
-#         f.close()
-#     print('mean: {}'.format(m[0][::-1]))
-#     print('std: {}'.format(s[0][::-1]))
-
-#     return
-
-
 def image_mean_std(dataset: dict) -> None:
     """[计算读取的数据集图片均值、标准差]
 
@@ -371,6 +335,42 @@ def image_mean_std(dataset: dict) -> None:
     print('std: {}'.format(s[0][::-1]))
 
     return
+
+
+# def image_mean_std(dataset: dict) -> None:
+#     """[计算读取的数据集图片均值、标准差]
+
+#     Args:
+#         dataset (dict): [数据集信息字典]
+#     """
+
+#     img_filenames = os.listdir(dataset['source_images_folder'])
+#     print('Start count images mean and std:')
+#     m_list, s_list = [], []
+#     for img_filename in tqdm(img_filenames):
+#         img = Image.open(os.path.join(
+#             dataset['source_images_folder'], img_filename))
+#         img = cv2.cvtColor(np.asarray(
+#             img.getdata(), dtype='uint8'), cv2.COLOR_RGB2BGR)
+#         m, s = cv2.meanStdDev(img / 255.0)
+#         m_list.append(m)
+#         s_list.append(s)
+
+#     m_array = np.array(m_list)
+#     s_array = np.array(s_list)
+#     m = m_array.mean(axis=0, keepdims=True)
+#     s = s_array.mean(axis=0, keepdims=True)
+
+#     mean_std_file_output_path = os.path.join(
+#         dataset['temp_informations_folder'], 'mean_std.txt')
+#     with open(mean_std_file_output_path, 'w') as f:
+#         f.write('mean: ' + str(m[0][::-1]) + '\n')
+#         f.write('std: ' + str(s[0][::-1]))
+#         f.close()
+#     print('mean: {}'.format(m[0][::-1]))
+#     print('std: {}'.format(s[0][::-1]))
+
+#     return
 
 
 # def image_resolution_analysis(dataset: dict) -> None:
