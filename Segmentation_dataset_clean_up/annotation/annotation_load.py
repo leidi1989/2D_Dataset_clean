@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2021-12-13 16:52:32
+LastEditTime: 2021-12-15 17:23:37
 '''
 import os
 import json
@@ -160,7 +160,7 @@ def coco2017(dataset: dict) -> None:
             dataset['source_annotations_folder'], source_annotation_name)
         with open(source_annotation_path, 'r') as f:
             data = json.loads(f.read())
-        
+
         del f
 
         class_dict = {}
@@ -186,7 +186,7 @@ def coco2017(dataset: dict) -> None:
                 error_callback=err_call_back))
         pool.close()
         pool.join()
-        
+
         del data
 
         total_images_data_dict = {}
@@ -201,7 +201,7 @@ def coco2017(dataset: dict) -> None:
             else:
                 total_images_data_dict[image_true_segment.get()[0]].true_segmentation_list.extend(
                     image_true_segment.get()[1])
-        
+
         del total_annotations_dict, total_image_segment_list
 
         # 输出读取的source annotation至temp annotation
@@ -302,9 +302,9 @@ def huaweiyun_segment(dataset: dict) -> None:
             dataset['source_annotations_folder'], source_annotation_name)
         with open(source_annotation_path, 'r') as f:
             data = json.loads(f.read())
-            
+
         del f
-        
+
         class_dict = {}
         for n in data['categories']:
             class_dict['%s' % n['id']] = n['name']
@@ -328,7 +328,7 @@ def huaweiyun_segment(dataset: dict) -> None:
                 error_callback=err_call_back))
         pool.close()
         pool.join()
-        
+
         del data
 
         total_images_data_dict = {}
@@ -403,11 +403,11 @@ def huaweiyun_segment(dataset: dict) -> None:
 #             f.close()
 
 #         del f
-            
+
 #         class_dict = {}
 #         for n in data['categories']:
 #             class_dict['%s' % n['id']] = n['name']
-            
+
 #         annotation_dict = {}
 #         for n in tqdm(data['annotations']):
 #             source_image_name = os.path.splitext(n['image_name'])[0]
@@ -430,13 +430,13 @@ def huaweiyun_segment(dataset: dict) -> None:
 #                 error_callback=err_call_back)
 #         pool.close()
 #         pool.join()
-        
+
 #         # 更新输出统计
 #         success_count += process_output['success_count']
 #         fail_count += process_output['fail_count']
 #         no_segmentation += process_output['no_segmentation']
 #         temp_file_name_list += process_output['temp_file_name_list']
-        
+
 #     # 输出读取统计结果
 #     print('\nSource dataset convert to temp dataset file count: ')
 #     print('Total annotations:         \t {} '.format(
@@ -449,12 +449,12 @@ def huaweiyun_segment(dataset: dict) -> None:
 #         if len(dataset['class_list_new']):
 #             f.write('\n'.join(str(n) for n in dataset['class_list_new']))
 #         f.close()
-        
+
 #     return
 
 
-def yunce_segment(dataset: dict) -> None:
-    """[HUAWEI SEGMENT数据集annotation读取]
+def yunce_segment_coco(dataset: dict) -> None:
+    """[yunce_segment_coco数据集annotation读取]
 
     Args:
         dataset (dict): [数据集信息字典]
@@ -473,7 +473,7 @@ def yunce_segment(dataset: dict) -> None:
             f.close()
 
         del f
-            
+
         class_dict = {}
         for n in data['categories']:
             class_dict['%s' % n['id']] = n['name']
@@ -491,15 +491,15 @@ def yunce_segment(dataset: dict) -> None:
         # 读取目标标注信息
         pool = multiprocessing.Pool(dataset['workers'])
         total_image_segment_list = []
-        for one_annotation in tqdm(data['annotations']):
+        for one_annotation in data['annotations']:
             total_image_segment_list.append(pool.apply_async(func=F.__dict__[dataset['source_dataset_stype']].load_image_annotation, args=(
                 dataset, one_annotation, class_dict, total_annotations_dict,),
                 error_callback=err_call_back))
         pool.close()
         pool.join()
-        
+
         del data
-        
+
         total_images_data_dict = {}
         for image_segment in total_image_segment_list:
             if image_segment.get() is None:
@@ -511,7 +511,8 @@ def yunce_segment(dataset: dict) -> None:
                     total_images_data_dict[image_segment.get()[0]].true_segmentation_list.extend(
                         image_segment.get()[1])
                 except:
-                    print('\nGet temp information erro:', image_segment.get()[0])
+                    print('\nGet temp information erro:',
+                          image_segment.get()[0])
                     continue
             else:
                 total_images_data_dict[image_segment.get()[0]].true_segmentation_list.extend(
@@ -539,7 +540,7 @@ def yunce_segment(dataset: dict) -> None:
         fail_count += process_output['fail_count']
         no_segmentation += process_output['no_segmentation']
         temp_file_name_list += process_output['temp_file_name_list']
-        
+
     # 输出读取统计结果
     print('\nSource dataset convert to temp dataset file count: ')
     print('Total annotations:         \t {} '.format(
@@ -552,7 +553,51 @@ def yunce_segment(dataset: dict) -> None:
         if len(dataset['class_list_new']):
             f.write('\n'.join(str(n) for n in dataset['class_list_new']))
         f.close()
-        
+
+    return
+
+
+def yunce_segment_coco_one_image(dataset: dict) -> None:
+    """[yunce_segment_coco_one_image数据集annotation读取]
+
+    Args:
+        dataset (dict): [数据集信息字典]
+    """
+
+    process_temp_file_name_list = multiprocessing.Manager().list()
+    process_output = multiprocessing.Manager().dict({"success_count": 0,
+                                                     "fail_count": 0,
+                                                     "no_segmentation": 0,
+                                                     "temp_file_name_list": process_temp_file_name_list
+                                                     })
+    pool = multiprocessing.Pool(dataset['workers'])
+    for source_annotation_name in tqdm(os.listdir(dataset['source_annotations_folder'])):
+        pool.apply_async(func=F.__dict__[dataset['source_dataset_stype']].load_annotation,
+                         args=(dataset, source_annotation_name,
+                               process_output,),
+                         error_callback=err_call_back)
+    pool.close()
+    pool.join()
+
+    # 输出读取统计结果
+    print('\nSource dataset convert to temp dataset file count: ')
+    print('Total annotations:         \t {} '.format(
+        len(os.listdir(dataset['source_annotations_folder']))))
+    print('Convert fail:              \t {} '.format(
+        process_output['fail_count']))
+    print('No segmentation delete images: \t {} '.format(
+        process_output['no_segmentation']))
+    print('Convert success:           \t {} '.format(
+        process_output['success_count']))
+    dataset['temp_file_name_list'] = [
+        x for x in process_output['temp_file_name_list']]
+    # 输出分割类别至temp informations folder
+    with open(os.path.join(dataset['temp_informations_folder'], 'segment_classes.names'), 'w') as f:
+        if len(dataset['class_list_new']):
+            f.write('\n'.join(str(n)
+                              for n in dataset['class_list_new']))
+        f.close()
+
     return
 
 

@@ -2,10 +2,10 @@
 root: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_total_20211213
 
 # output path
-target: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_total_20211213_6_classes_20211213
+target: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_total_20211213_6_classes_20211215
 
-# input labels style: cityscapes, coco2017, huawei_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017, yunce_segment
-srstyle: yunce_segment
+# input labels style: cityscapes, coco2017, huawei_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017, yunce_segment_coco, yunce_segment_coco_one_image
+srstyle: yunce_segment_coco_one_image
 
 # output labels style: cityscapes, coco2017, cityscapes_val, cvat_image_1_1
 tarstyle: cityscapes

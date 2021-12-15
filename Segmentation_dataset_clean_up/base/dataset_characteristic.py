@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-09 21:55:18
 LastEditors: Leidi
-LastEditTime: 2021-12-06 16:10:08
+LastEditTime: 2021-12-15 17:15:48
 '''
 
 
@@ -25,14 +25,17 @@ dataset_file_form = {'coco2017': {'image': 'jpg',
                                                   'annotation': 'png'
                                                   },
                      'huaweiyun_segment': {'image': 'jpg',
-                                        'annotation': 'json'
-                                        },
+                                           'annotation': 'json'
+                                           },
                      'cvat_image_1_1': {'image': 'jpg',
                                         'annotation': 'xml'
                                         },
-                     'yunce_segment': {'image': 'jpg',
-                                       'annotation': 'json'
-                                       },
+                     'yunce_segment_coco': {'image': 'jpg',
+                                            'annotation': 'json'
+                                            },
+                     'yunce_segment_coco_one_image': {'image': 'jpg',
+                                                      'annotation': 'json'
+                                                      },
                      'hy_val': {'image': 'png',
                                 'annotation': 'json'
                                 },
