@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-10 18:38:55
 LastEditors: Leidi
-LastEditTime: 2021-11-25 13:49:16
+LastEditTime: 2021-12-17 18:13:26
 '''
 from utils.utils import *
 from base.image_base import *
@@ -55,7 +55,7 @@ def temp_file_name(dataset: dict) -> list:
     temp_file_name_list = []    # 暂存数据集文件名称列表
     print('Get temp file name list:')
     for n in tqdm(os.listdir(dataset['temp_annotations_folder'])):
-        temp_file_name_list.append(n.split(os.sep)[-1].split('.')[0])
+        temp_file_name_list.append(os.path.splitext(n)[0])
 
     return temp_file_name_list
 
@@ -160,7 +160,7 @@ def divide_dataset(dataset: dict) -> None:
                 if dataset['source_dataset_stype'] != 'cityscapes_val':
                     random.shuffle(set_one_path['image_name_list'])
                 for n in tqdm(set_one_path['image_name_list']):
-                    file_name = n.split(os.sep)[-1].split('.')[0]
+                    file_name = os.path.splitext(n)[0]
                     f.write('%s\n' % file_name)
                     if set_name == 'train' or set_name == 'val':
                         trainval_list.append(file_name)
@@ -302,7 +302,7 @@ def segment_sample_statistics(dataset: dict) -> None:
         with open(n, 'r') as f:
             annotation_path_list = []
             for m in f.read().splitlines():
-                file_name = m.split(os.sep)[-1].split('.')[0]
+                file_name = os.path.splitext(m.split(os.sep)[-1])[0]
                 annotation_path = os.path.join(dataset['temp_annotations_folder'],
                                                file_name + '.' + dataset['temp_annotation_form'])
                 annotation_path_list.append(annotation_path)

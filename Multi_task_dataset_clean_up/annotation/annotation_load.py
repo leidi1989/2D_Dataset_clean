@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2021-12-17 17:28:15
+LastEditTime: 2021-12-17 17:57:15
 '''
 import os
 import json
@@ -382,7 +382,7 @@ def yunce_segment_coco_one_image(dataset: dict) -> None:
     process_temp_file_name_list = multiprocessing.Manager().list()
     process_output = multiprocessing.Manager().dict({"success_count": 0,
                                                      "fail_count": 0,
-                                                     "no_segmentation": 0,
+                                                     "no_detect_segmentation": 0,
                                                      "temp_file_name_list": process_temp_file_name_list
                                                      })
     pool = multiprocessing.Pool(dataset['workers'])
@@ -401,16 +401,21 @@ def yunce_segment_coco_one_image(dataset: dict) -> None:
     print('Convert fail:              \t {} '.format(
         process_output['fail_count']))
     print('No segmentation delete images: \t {} '.format(
-        process_output['no_segmentation']))
+        process_output['no_detect_segmentation']))
     print('Convert success:           \t {} '.format(
         process_output['success_count']))
     dataset['temp_file_name_list'] = [
         x for x in process_output['temp_file_name_list']]
-    # 输出分割类别至temp informations folder
-    with open(os.path.join(dataset['temp_informations_folder'], 'segment_classes.names'), 'w') as f:
-        if len(dataset['class_list_new']):
+    # 输出真实框、分割类别至temp informations folder
+    with open(os.path.join(dataset['temp_informations_folder'], 'detect_classes.names'), 'w') as f:
+        if len(dataset['detect_class_list_new']):
             f.write('\n'.join(str(n)
-                              for n in dataset['class_list_new']))
+                              for n in dataset['detect_class_list_new']))
+        f.close()
+    with open(os.path.join(dataset['temp_informations_folder'], 'segment_classes.names'), 'w') as f:
+        if len(dataset['segment_class_list_new']):
+            f.write('\n'.join(str(n)
+                              for n in dataset['segment_class_list_new']))
         f.close()
 
     return

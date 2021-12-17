@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2021-11-25 18:35:22
+LastEditTime: 2021-12-17 18:10:40
 '''
 # -*- coding: utf-8 -*-
 import os
@@ -192,7 +192,7 @@ def temp_file_name(temp_annotations_folder: str) -> list:
     temp_file_name_list = []    # 暂存数据集全量文件名称列表
     print('Get temp file name list:')
     for n in tqdm(os.listdir(temp_annotations_folder)):
-        temp_file_name_list.append(n.split(os.sep)[-1].split('.')[0])
+        temp_file_name_list.append(os.path.splitext(n)[0])
 
     return temp_file_name_list
 

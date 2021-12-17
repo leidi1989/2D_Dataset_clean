@@ -11,10 +11,10 @@ srstyle: yunce_segment_coco_one_image
 tarstyle: bdd100k
 
 # images or labels need to rename prefix
-prefix: yunce
+prefix: "yunce"
 
 # name delimiter
-delimiter: "_"
+delimiter: "@"
 
 # dataset detect class path
 detect_classes: /home/leidi/hy_program/2D_Dataset_clean/Multi_task_dataset_clean_up/data/detect/detect_classes_yunce_segmentation_184_classes_infer_20211116.names
@@ -31,7 +31,7 @@ segment_classes: /home/leidi/hy_program/2D_Dataset_clean/Multi_task_dataset_clea
 segment_modify_class_file: ""
 
 # (train, val, test, redund)
-proportion: 0.92,0.04,0.04,0
+proportion: 0.9,0.05,0.05,0
 
 # check target annotations
 check: 100

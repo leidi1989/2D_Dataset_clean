@@ -4,13 +4,19 @@ Version:
 Author: Leidi
 Date: 2021-08-09 21:55:18
 LastEditors: Leidi
-LastEditTime: 2021-09-28 11:26:35
+LastEditTime: 2021-12-17 17:31:38
 '''
 
 # 输入数据集图片、annotation文件格式
 dataset_file_form = {'huawei_segment': {'image': 'jpg',
                                         'annotation': 'json'
                                         },
+                     'yunce_segment_coco': {'image': 'jpg',
+                                            'annotation': 'json'
+                                            },
+                     'yunce_segment_coco_one_image': {'image': 'jpg',
+                                                      'annotation': 'json'
+                                                      },
                      'bdd100k': {'image': 'jpg',
                                  'annotation': 'json',
                                  'detect_annotation': 'json',
