@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2021-12-17 18:22:55
+LastEditTime: 2021-12-17 18:26:20
 '''
 import os
 import json
@@ -317,23 +317,23 @@ def yunce_segment_coco(dataset: dict) -> None:
 
         total_images_data_dict = {}
         for image_detect_segment in total_image_detect_segment_list:
-            if image_segment.get() is None:
+            if image_detect_segment.get() is None:
                 continue
-            if image_segment.get()[0] not in total_images_data_dict:
+            if image_detect_segment.get()[0] not in total_images_data_dict:
                 try:
-                    total_images_data_dict.update({image_segment.get(
-                    )[0]: total_annotations_dict[image_segment.get()[0]]})
-                    total_images_data_dict[image_segment.get()[0]].true_segmentation_list.extend(
-                        image_segment.get()[1])
+                    total_images_data_dict.update({image_detect_segment.get(
+                    )[0]: total_annotations_dict[image_detect_segment.get()[0]]})
+                    total_images_data_dict[image_detect_segment.get()[0]].true_segmentation_list.extend(
+                        image_detect_segment.get()[1])
                 except:
                     print('\nGet temp information erro:',
-                          image_segment.get()[0])
+                          image_detect_segment.get()[0])
                     continue
             else:
-                total_images_data_dict[image_segment.get()[0]].true_segmentation_list.extend(
-                    image_segment.get()[1])
+                total_images_data_dict[image_detect_segment.get()[0]].true_segmentation_list.extend(
+                    image_detect_segment.get()[1])
 
-        del total_annotations_dict, total_image_segment_list
+        del total_annotations_dict, image_detect_segment
 
         # 输出读取的source annotation至temp annotation
         process_temp_file_name_list = multiprocessing.Manager().list()
