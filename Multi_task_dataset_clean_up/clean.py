@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2021-12-15 16:40:48
+LastEditTime: 2021-12-17 17:24:14
 '''
 from utils.utils import *
 from base.check_base import check
@@ -28,8 +28,8 @@ def main(dataset_info: dict) -> None:
         dataset_info (dict): [数据集信息字典]
     """
 
-    # print('\nStart copy images and annotations:')
-    # source_dataset.__dict__[dataset_info['source_dataset_stype']](dataset_info)
+    print('\nStart copy images and annotations:')
+    source_dataset.__dict__[dataset_info['source_dataset_stype']](dataset_info)
 
     print('\nStart to transform source annotation to temp annotation:')
     annotation_load.__dict__[

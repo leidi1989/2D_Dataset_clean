@@ -1,32 +1,34 @@
 # dataset path
-root: /mnt/data_1/Dataset/Temp/bdd100k_images_annotations
+root: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_total_20211213
 
 # output path
-target: /mnt/data_1/Dataset/Temp/bdd100k_multi_task_d7_s1_l1_classes_20211130
+target: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_total_20211213_mutil_task_20211217
 
-# input labels style: huawei_segment, bdd100k
-srstyle: bdd100k
+# input labels style: huawei_segment, bdd100k, yunce_segment_coco, yunce_segment_coco_one_image
+srstyle: yunce_segment_coco_one_image
 
 # output labels style: bdd100k, yolop
-tarstyle: yolop
+tarstyle: bdd100k
 
 # images or labels need to rename prefix
-prefix: bdd100k
+prefix: yunce
 
 # name delimiter
 delimiter: "_"
 
 # dataset detect class path
-detect_classes: /home/leidi/hy_program/2D_Dataset_clean/Multi_task_dataset_clean_up/data/detect/detect_classes_bdd100k_10_classes.names
+detect_classes: /home/leidi/hy_program/2D_Dataset_clean/Multi_task_dataset_clean_up/data/detect/detect_classes_yunce_segmentation_184_classes_infer_20211116.names
 
 # dataset detect class modify file path
-detect_modify_class_file: /home/leidi/hy_program/2D_Dataset_clean/Multi_task_dataset_clean_up/data/detect/detect_classes_bdd100k_10_classes_to_hy_7_classes.txt
+# detect_modify_class_file: /home/leidi/hy_program/2D_Dataset_clean/Multi_task_dataset_clean_up/data/detect/detect_classes_bdd100k_10_classes_to_hy_7_classes.txt
+detect_modify_class_file: ""
 
 # dataset segment class path
-segment_classes: /home/leidi/hy_program/2D_Dataset_clean/Multi_task_dataset_clean_up/data/segment/segment_classes_bdd100k_11_classes.names
+segment_classes: /home/leidi/hy_program/2D_Dataset_clean/Multi_task_dataset_clean_up/data/detect/detect_classes_yunce_segmentation_184_classes_infer_20211116.names
 
 # dataset segment class modify file path
-segment_modify_class_file: /home/leidi/hy_program/2D_Dataset_clean/Multi_task_dataset_clean_up/data/segment/segment_classes_bdd100k_11_classes_to_yolop_2_classes.txt
+# segment_modify_class_file: /home/leidi/hy_program/2D_Dataset_clean/Multi_task_dataset_clean_up/data/segment/segment_classes_bdd100k_11_classes_to_yolop_2_classes.txt
+segment_modify_class_file: ""
 
 # (train, val, test, redund)
 proportion: 0.92,0.04,0.04,0
