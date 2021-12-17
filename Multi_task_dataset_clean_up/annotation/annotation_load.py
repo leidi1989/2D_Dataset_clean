@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2021-12-17 17:57:15
+LastEditTime: 2021-12-17 18:22:55
 '''
 import os
 import json
@@ -305,9 +305,9 @@ def yunce_segment_coco(dataset: dict) -> None:
 
         # 读取目标标注信息
         pool = multiprocessing.Pool(dataset['workers'])
-        total_image_segment_list = []
+        total_image_detect_segment_list = []
         for one_annotation in data['annotations']:
-            total_image_segment_list.append(pool.apply_async(func=F.__dict__[dataset['source_dataset_stype']].load_image_annotation, args=(
+            total_image_detect_segment_list.append(pool.apply_async(func=F.__dict__[dataset['source_dataset_stype']].load_image_annotation, args=(
                 dataset, one_annotation, class_dict, total_annotations_dict,),
                 error_callback=err_call_back))
         pool.close()
@@ -316,7 +316,7 @@ def yunce_segment_coco(dataset: dict) -> None:
         del data
 
         total_images_data_dict = {}
-        for image_segment in total_image_segment_list:
+        for image_detect_segment in total_image_detect_segment_list:
             if image_segment.get() is None:
                 continue
             if image_segment.get()[0] not in total_images_data_dict:

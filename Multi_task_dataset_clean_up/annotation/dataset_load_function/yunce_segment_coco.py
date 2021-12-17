@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-11-29 14:49:41
+LastEditTime: 2021-12-17 18:24:50
 '''
 import os
 from PIL import Image
@@ -126,27 +126,33 @@ def load_image_annotation(dataset: dict, one_annotation: dict, class_dict: dict,
         cls = 'static_object.concave.fire_hydrant'
     if cls == 'static_object.concave.firehydrant_infer':
         cls = 'static_object.concave.fire_hydrant_infer'
-    if cls not in dataset['source_class_list']:
-        return
+    true_box_list = []
     true_segmentation_list = []
-    segment = []
-    c = 0
-    for n in one_annotation['segmentation']:
-        if 0 == c:
-            segment.append([])
-            segment[-1].append(n)
-            c += 1
-        else:
-            segment[-1].append(n)
-            c = 0
-    if 0 == one_annotation['iscrowd']:
-        true_segmentation_list.append(TRUE_SEGMENTATION(
-            cls, segment, one_annotation['area']))
-    else:
-        true_segmentation_list.append(TRUE_SEGMENTATION(
-            cls, segment, one_annotation['area'], 1))
+    if cls in dataset['source_detect_class_list']:
+        true_box_list.append(
+            TRUE_BOX(cls, one_annotation['bbox'][0], one_annotation['bbox'][1],
+                     one_annotation['bbox'][0] + one_annotation['bbox'][2],
+                     one_annotation['bbox'][1] + one_annotation['bbox'][3]))
 
-    return ann_image_id, true_segmentation_list
+    if cls in dataset['source_segment_class_list']:
+        segment = []
+        c = 0
+        for n in one_annotation['segmentation']:
+            if 0 == c:
+                segment.append([])
+                segment[-1].append(n)
+                c += 1
+            else:
+                segment[-1].append(n)
+                c = 0
+        if 0 == one_annotation['iscrowd']:
+            true_segmentation_list.append(TRUE_SEGMENTATION(
+                cls, segment, one_annotation['area']))
+        else:
+            true_segmentation_list.append(TRUE_SEGMENTATION(
+                cls, segment, one_annotation['area'], 1))
+
+    return ann_image_id, true_box_list, true_segmentation_list
 
 
 def output_temp_annotation(dataset: dict, image: IMAGE, process_output: dict) -> None:
@@ -166,11 +172,11 @@ def output_temp_annotation(dataset: dict, image: IMAGE, process_output: dict) ->
     modify_true_segmentation_list(image, dataset['modify_class_dict'])
     if dataset['class_pixel_distance_dict'] is not None:
         class_segmentation_pixel_limit(dataset, image.true_segmentation_list)
-    if 0 == len(image.true_segmentation_list):
+    if 0 == len(image.true_segmentation_list) and 0 == len(image.true_box_list):
         print('{} no true segmentation, has been delete.'.format(
             image.image_name_new))
         os.remove(image.image_path)
-        process_output['no_segmentation'] += 1
+        process_output['no_detect_segmentation'] += 1
         process_output['fail_count'] += 1
         return
     if TEMP_OUTPUT(temp_annotation_output_path, image):

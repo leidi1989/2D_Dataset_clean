@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-12-17 18:14:56
+LastEditTime: 2021-12-17 18:21:58
 '''
 import os
 from PIL import Image
@@ -58,7 +58,8 @@ def load_annotation(dataset: dict, source_annotations_name: str, process_output)
             if cls in dataset['source_detect_class_list']:
                 true_box_list.append(
                     TRUE_BOX(cls, obj['bbox'][0], obj['bbox'][1],
-                             obj['bbox'][0]+obj['bbox'][2], obj['bbox'][1]+obj['bbox'][3]))
+                             obj['bbox'][0] + obj['bbox'][2],
+                             obj['bbox'][1] + obj['bbox'][3]))
             # segment
             if cls in dataset['source_segment_class_list']:
                 segment = []
