@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-10 18:38:55
 LastEditors: Leidi
-LastEditTime: 2021-11-08 16:47:40
+LastEditTime: 2021-12-20 16:48:24
 '''
 from utils.utils import *
 from base.image_base import *
@@ -188,7 +188,8 @@ def divide_dataset(dataset: dict) -> None:
     return
 
 
-def get_temp_annotations_classes_count(dataset: dict, temp_annotation_path: str, process_output: dict) -> None:
+def get_temp_annotations_classes_count(dataset: dict, temp_annotation_path: str,
+                                       process_output: dict, process_total_annotation_detect_class_count_dict: dict) -> None:
     """[获取暂存标签信息]
 
     Args:
@@ -200,8 +201,10 @@ def get_temp_annotations_classes_count(dataset: dict, temp_annotation_path: str,
     for m in image.true_box_list:
         if m.clss in process_output:
             process_output[m.clss] += 1
+            process_total_annotation_detect_class_count_dict[m.clss] += 1
         else:
             process_output.update({m.clss: 1})
+            process_total_annotation_detect_class_count_dict.update({m.clss: 1})
 
     return
 
@@ -216,7 +219,7 @@ def sample_statistics(dataset: dict) -> None:
     set_name_list = ['total_distibution.txt', 'train_distibution.txt',
                      'val_distibution.txt', 'test_distibution.txt',
                      'redund_distibution.txt']
-
+    total_annotation_detect_count_name = 'total_annotation_detect_count.txt'
     divide_file_annotation_path = []
     for n in dataset['temp_divide_file_list']:
         with open(n, 'r') as f:
@@ -249,9 +252,11 @@ def sample_statistics(dataset: dict) -> None:
         # 统计全部labels各类别数量
         process_output = multiprocessing.Manager().dict()
         pool = multiprocessing.Pool(dataset['workers'])
+        process_total_annotation_detect_class_count_dict = multiprocessing.Manager().dict()
         for n in tqdm(divide_annotation_list):
-            pool.apply_async(func=get_temp_annotations_classes_count, args=(dataset, n, process_output,),
-                                error_callback=err_call_back)
+            pool.apply_async(func=get_temp_annotations_classes_count, args=(
+                dataset, n, process_output, process_total_annotation_detect_class_count_dict),
+                error_callback=err_call_back)
         pool.close()
         pool.join()
         for key in one_set_class_count_dict.keys():

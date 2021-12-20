@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-10 18:38:55
 LastEditors: Leidi
-LastEditTime: 2021-12-17 18:13:26
+LastEditTime: 2021-12-20 16:49:10
 '''
 from utils.utils import *
 from base.image_base import *
@@ -60,7 +60,8 @@ def temp_file_name(dataset: dict) -> list:
     return temp_file_name_list
 
 
-def get_TEMP_LOAD(dataset: dict, temp_annotation_path: str, process_output: dict) -> None:
+def get_temp_annotations_classes_count(dataset: dict, temp_annotation_path: str,
+                  process_output: dict, process_total_annotation_detect_class_count_dict: dict) -> None:
     """[获取暂存标签信息]
 
     Args:
@@ -72,8 +73,10 @@ def get_TEMP_LOAD(dataset: dict, temp_annotation_path: str, process_output: dict
     for m in image.true_box_list:
         if m.clss in process_output:
             process_output[m.clss] += 1
+            process_total_annotation_detect_class_count_dict[m.clss] += 1
         else:
             process_output.update({m.clss: 1})
+            process_total_annotation_detect_class_count_dict.update({m.clss: 1})
 
     return
 
@@ -210,7 +213,7 @@ def detect_sample_statistics(dataset: dict) -> None:
     set_name_list = ['detect_total_distibution.txt', 'detect_train_distibution.txt',
                      'detect_val_distibution.txt', 'detect_test_distibution.txt',
                      'detect_redund_distibution.txt']
-
+    total_annotation_detect_count_name = 'total_annotation_detect_count.txt'
     divide_file_annotation_path = []
     for n in dataset['temp_divide_file_list']:
         with open(n, 'r') as f:
@@ -233,18 +236,24 @@ def detect_sample_statistics(dataset: dict) -> None:
         one_set_class_count_dict = {}
         # 声明不同集的类别占比字典
         one_set_class_prop_dict = {}
+        # 全部标注统计
+        total_annotation_detect_class_count_dict = {}
+        total_annotation_detect_class_prop_dict = {}
         for one_class in dataset['detect_class_list_new']:
             # 读取不同类别进计数字典作为键
             one_set_class_count_dict[one_class] = 0
             # 读取不同类别进占比字典作为键
             one_set_class_prop_dict[one_class] = float(0)
-
+            if divide_distribution_file == 'total_distibution.txt':
+                total_annotation_detect_class_count_dict[one_class] = 0
+                total_annotation_detect_class_prop_dict[one_class] = float(0)
         # 统计全部labels各类别数量
         process_output = multiprocessing.Manager().dict()
+        process_total_annotation_detect_class_count_dict = multiprocessing.Manager().dict()
         pool = multiprocessing.Pool(dataset['workers'])
         for n in tqdm(divide_annotation_list):
-            pool.apply_async(func=get_TEMP_LOAD, args=(
-                dataset, n, process_output,),
+            pool.apply_async(func=get_temp_annotations_classes_count, args=(
+                dataset, n, process_output, process_total_annotation_detect_class_count_dict,),
                 error_callback=err_call_back)
         pool.close()
         pool.join()
@@ -252,7 +261,6 @@ def detect_sample_statistics(dataset: dict) -> None:
             if key in process_output:
                 one_set_class_count_dict[key] = process_output[key]
         dataset['temp_divide_count_dict_list'].append(one_set_class_count_dict)
-
         # 声明单数据集计数总数
         one_set_total_count = 0
         for _, value in one_set_class_count_dict.items():                                                       # 计算数据集计数总数
@@ -265,6 +273,20 @@ def detect_sample_statistics(dataset: dict) -> None:
                     float(value) / float(one_set_total_count)) * 100                                            # 计算个类别在此数据集占比
         dataset['temp_divide_proportion_dict_list'].append(
             one_set_class_prop_dict)
+        # 统计标注数量
+        if divide_distribution_file == 'total_distibution.txt':
+            total_annotation_count = 0
+            for key, value in process_total_annotation_detect_class_count_dict.items():                       # 计算数据集计数总数
+                total_annotation_detect_class_count_dict[key] = value
+                total_annotation_count += value
+            for key, value in total_annotation_detect_class_count_dict.items():
+                if 0 == total_annotation_count:
+                    total_annotation_detect_class_prop_dict[key] = 0
+                else:
+                    total_annotation_detect_class_prop_dict[key] = (
+                        float(value) / float(total_annotation_count)) * 100            # 计算个类别在此数据集占比
+            total_annotation_detect_class_count_dict.update({'total': total_annotation_count})
+        
         # 记录每个集的类别分布
         with open(os.path.join(dataset['temp_informations_folder'],
                                divide_distribution_file), 'w') as dist_txt:
@@ -280,6 +302,22 @@ def detect_sample_statistics(dataset: dict) -> None:
                 dist_txt.write(str(key) + ':' +
                                str('%0.2f%%' % value) + '\n')
                 print(str(key) + ':' + str('%0.2f%%' % value))
+        # 记录统计标注数量
+        if divide_distribution_file == 'total_distibution.txt':
+            with open(os.path.join(dataset['temp_informations_folder'],
+                                   total_annotation_detect_count_name), 'w') as dist_txt:
+                print('\n%s set class pixal count:' %
+                      total_annotation_detect_count_name.split('_')[0])
+                for key, value in total_annotation_detect_class_count_dict.items():
+                    dist_txt.write(str(key) + ':' + str(value) + '\n')
+                    print(str(key) + ':' + str(value))
+                print('\n%s set porportion:' %
+                      divide_distribution_file.split('_')[0])
+                dist_txt.write('\n')
+                for key, value in total_annotation_detect_class_prop_dict.items():
+                    dist_txt.write(str(key) + ':' +
+                                   str('%0.2f%%' % value) + '\n')
+                    print(str(key) + ':' + str('%0.2f%%' % value))
 
     plot_detect_sample_statistics(dataset)    # 绘图
 
@@ -297,6 +335,7 @@ def segment_sample_statistics(dataset: dict) -> None:
     set_name_list = ['segment_total_distibution.txt', 'segment_train_distibution.txt',
                      'segment_val_distibution.txt', 'segment_test_distibution.txt',
                      'segment_redund_distibution.txt']
+    total_annotation_segment_count_name = 'total_annotation_segment_count.txt'
     divide_file_annotation_path = []
     for n in dataset['temp_divide_file_list']:
         with open(n, 'r') as f:
@@ -319,6 +358,9 @@ def segment_sample_statistics(dataset: dict) -> None:
         one_set_class_pixal_dict = {}
         # 声明不同集的类别占比字典
         one_set_class_prop_dict = {}
+        # 全部标注统计
+        total_annotation_segment_class_count_dict = {}
+        total_annotation_segment_class_prop_dict = {}
         # 声明单数据集像素点计数总数
         one_set_total_count = 0
         for one_class in dataset['segment_class_list_new']:
@@ -330,6 +372,9 @@ def segment_sample_statistics(dataset: dict) -> None:
             one_set_class_pixal_dict.update({'unlabeled': 0})
         if 'unlabeled' not in one_set_class_prop_dict:
             one_set_class_prop_dict.update({'unlabeled': 0})
+        if divide_distribution_file == 'total_distibution.txt':
+            total_annotation_segment_class_count_dict[one_class] = 0
+            total_annotation_segment_class_prop_dict[one_class] = float(0)
         # 统计全部labels各类别像素点数量
         for n in tqdm(divide_annotation_list):
             image = TEMP_LOAD(dataset, n)
@@ -341,8 +386,13 @@ def segment_sample_statistics(dataset: dict) -> None:
                 area = polygon_area(m.segmentation[:-1])
                 if m.clss != 'unlabeled':
                     one_set_class_pixal_dict[m.clss] += area
+                    if divide_distribution_file == 'total_distibution.txt':
+                        total_annotation_segment_class_count_dict[m.clss] += 1
                 else:
                     image_pixal -= area
+                    if divide_distribution_file == 'total_distibution.txt' and \
+                            'unlabeled' in total_annotation_segment_class_count_dict:
+                        total_annotation_segment_class_count_dict[m.clss] += 1
             one_set_class_pixal_dict['unlabeled'] += image_pixal
         dataset['temp_divide_count_dict_list'].append(one_set_class_pixal_dict)
         for _, value in one_set_class_pixal_dict.items():                       # 计算数据集计数总数
@@ -355,6 +405,18 @@ def segment_sample_statistics(dataset: dict) -> None:
                     float(value) / float(one_set_total_count)) * 100            # 计算个类别在此数据集占比
         dataset['temp_divide_proportion_dict_list'].append(
             one_set_class_prop_dict)
+        # 统计标注数量
+        if divide_distribution_file == 'total_distibution.txt':
+            total_annotation_count = 0
+            for _, value in total_annotation_segment_class_count_dict.items():                       # 计算数据集计数总数
+                total_annotation_count += value
+            for key, value in total_annotation_segment_class_count_dict.items():
+                if 0 == total_annotation_count:
+                    total_annotation_segment_class_prop_dict[key] = 0
+                else:
+                    total_annotation_segment_class_prop_dict[key] = (
+                        float(value) / float(total_annotation_count)) * 100            # 计算个类别在此数据集占比
+            total_annotation_segment_class_count_dict.update({'total': total_annotation_count})
         # 记录每个集的类别分布
         with open(os.path.join(dataset['temp_informations_folder'],
                                divide_distribution_file), 'w') as dist_txt:
@@ -370,6 +432,22 @@ def segment_sample_statistics(dataset: dict) -> None:
                 dist_txt.write(str(key) + ':' +
                                str('%0.2f%%' % value) + '\n')
                 print(str(key) + ':' + str('%0.2f%%' % value))
+        # 记录统计标注数量
+        if divide_distribution_file == 'total_distibution.txt':
+            with open(os.path.join(dataset['temp_informations_folder'],
+                                   total_annotation_segment_count_name), 'w') as dist_txt:
+                print('\n%s set class pixal count:' %
+                      total_annotation_segment_count_name.split('_')[0])
+                for key, value in total_annotation_segment_class_count_dict.items():
+                    dist_txt.write(str(key) + ':' + str(value) + '\n')
+                    print(str(key) + ':' + str(value))
+                print('\n%s set porportion:' %
+                      divide_distribution_file.split('_')[0])
+                dist_txt.write('\n')
+                for key, value in total_annotation_segment_class_prop_dict.items():
+                    dist_txt.write(str(key) + ':' +
+                                   str('%0.2f%%' % value) + '\n')
+                    print(str(key) + ':' + str('%0.2f%%' % value))
 
     plot_segment_sample_statistics(dataset)    # 绘图
 
