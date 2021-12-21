@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-11 03:28:09
 LastEditors: Leidi
-LastEditTime: 2021-12-20 17:31:44
+LastEditTime: 2021-12-21 20:15:03
 '''
 import os
 import cv2
@@ -12,11 +12,13 @@ import shutil
 import numpy as np
 from tqdm import tqdm
 import multiprocessing
+from shutil import copyfile
 
 from base.image_base import *
 from utils.utils import check_output_path, err_call_back
 
 import out.framwork_update_function as F
+
 
 def cityscapes(dataset: dict) -> None:
     """[生成cityscapes组织结构数据集]
@@ -24,7 +26,7 @@ def cityscapes(dataset: dict) -> None:
     Args:
         dataset (dict): [数据集信息字典]
     """
-    
+
     # 官方数值
     # colors = [
     #     [128, 64, 128], [244, 35, 232], [70, 70, 70], [
@@ -93,7 +95,7 @@ def cityscapes(dataset: dict) -> None:
     #                     }
     class_names_dict = {}
     for x, cls in enumerate(dataset['class_list_new']):
-        class_names_dict.update({cls:x})
+        class_names_dict.update({cls: x})
 
     # 获取全量数据编号字典
     file_name_dict = {}
@@ -145,35 +147,40 @@ def coco2017(dataset: dict) -> None:
     Args:
         dataset (dict): [数据集信息字典]
     """
-    
+
     # 调整image
-    print('Change images folder.')
-    image_output_path = check_output_path(
-        os.path.join(dataset['output_path'], 'images'))
-    os.rename(dataset['temp_images_folder'], image_output_path)
-
+    print('Clean dataset folder!')
+    output_root = check_output_path(
+        os.path.join(dataset['target_path'], 'coco2017'))
+    shutil.rmtree(output_root)
+    output_root = check_output_path(
+        os.path.join(dataset['target_path'], 'coco2017'))
+    image_output_folder = check_output_path(
+        os.path.join(output_root, 'images'))
+    annotations_output_folder = check_output_path(
+        os.path.join(output_root, 'annotations'))
     # 调整ImageSets
-    print('Change ImageSets folder:')
-    imagesets_path = check_output_path(
-        os.path.join(dataset['output_path'], 'ImageSets'))
-    for n in dataset['temp_divide_file_list']:
-        print('Update {} '.format(n.split(os.sep)[-1]))
-        output_list = []
-        with open(n, 'r') as f:
-            annotation_path_list = f.read().splitlines()
-            for m in tqdm(annotation_path_list):
-                output_list.append(m.replace('temp_images', 'images'))
-            f.close()
-        with open(os.path.join(imagesets_path, n.split(os.sep)[-1]), 'w') as f:
-            for m in output_list:
-                f.write('%s\n' % m)
-            f.close()
-        os.remove(n)
-    # 调整文件夹
-    print('Update folder.')
-    os.rename(dataset['temp_information_folder'], os.path.join(
-        dataset['output_path'], 'Dataset_information'))
+    print('Start copy images:')
+    image_list = []
+    with open(dataset['temp_divide_file_list'][0], 'r') as f:
+        for n in f.readlines():
+            image_list.append(n.replace('\n', ''))
+    pool = multiprocessing.Pool(dataset['workers'])
+    for image_input_path in tqdm(image_list):
+        image_output_path = image_input_path.replace(
+            dataset['temp_images_folder'], image_output_folder)
+        pool.apply_async(func=F.__dict__[dataset['target_dataset_style']].copy_image,
+                         args=(image_input_path, image_output_path,), error_callback=err_call_back)
+    pool.close()
+    pool.join()
 
+    print('Start copy annotations:')
+    for root, dirs, files in os.walk(dataset['target_annotations_folder']):
+        for n in tqdm(files):
+            annotations_input_path = os.path.join(root, n)
+            annotations_output_path = annotations_input_path.replace(
+            dataset['target_annotations_folder'], annotations_output_folder)
+            shutil.copy(annotations_input_path, annotations_output_path)
     return
 
 
@@ -183,7 +190,7 @@ def cityscapes_val(dataset: dict) -> None:
     Args:
         dataset (dict): [数据集信息字典]
     """
-    
+
     # 获取全量数据编号字典
     file_name_dict = {}
     print('Collect file name dict.')
@@ -248,5 +255,5 @@ def cityscapes_val(dataset: dict) -> None:
 
 
 def cvat_image_1_1(dataset: dict) -> None:
-    
+
     pass

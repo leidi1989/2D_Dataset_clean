@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-19 15:55:16
 LastEditors: Leidi
-LastEditTime: 2021-12-21 19:19:37
+LastEditTime: 2021-12-21 19:47:55
 '''
 import os
 import json
@@ -19,9 +19,19 @@ from utils.convertion_function import *
 from annotation.annotation_temp import TEMP_LOAD
 
 
-def annotation_output(dataset: dict, coco: dict, n: int, temp_annotation_path: str,
+def annotation_get_temp(dataset: dict, coco: dict, n: int, temp_annotation_path: str,
                       process_images: list, process_annotations: list, process_annotation_count: dict) -> None:
+    """[获取暂存标注信息]
 
+    Args:
+        dataset (dict): [数据集信息字典]
+        coco (dict): [coco汇总字典]
+        n (int): [图片id]
+        temp_annotation_path (str): [暂存标签路径]
+        process_images (list): [images进程间通信字典]
+        process_annotations (list): [annotations进程间通信字典]
+        process_annotation_count (dict): [annotation_count进程间通信字典]
+    """
     image = TEMP_LOAD(dataset, temp_annotation_path)
     if image == None:
         return
