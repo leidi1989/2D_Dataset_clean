@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2021-12-17 18:10:40
+LastEditTime: 2021-12-21 16:12:46
 '''
 # -*- coding: utf-8 -*-
 import os
@@ -284,7 +284,7 @@ def total_file(temp_informations_folder: str) -> list:
     try:
         with open(os.path.join(temp_informations_folder, 'total.txt'), 'r') as f:
             for n in tqdm(f.read().splitlines()):
-                total_list.append(n.split(os.sep)[-1].split('.')[0])
+                total_list.append(os.path.splitext(n.split(os.sep)[-1])[0])
             f.close()
 
         total_file_name_path = os.path.join(

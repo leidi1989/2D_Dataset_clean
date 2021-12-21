@@ -1,3 +1,11 @@
+'''
+Description: 
+Version: 
+Author: Leidi
+Date: 2021-10-19 14:12:46
+LastEditors: Leidi
+LastEditTime: 2021-12-21 16:20:49
+'''
 # -*- coding: utf-8 -*-
 import xml.etree.ElementTree as ET
 import os
@@ -28,7 +36,7 @@ def to_yolo(output_path, data_list, class_list):
                 one_image_bbox.append([cls_id, bb])
             else:
                 print('\nErro! class not in classes.names image: %s!' % one_image.image_name)
-        image_name = one_image.image_name.split('.')[0]     # 获取图片名称
+        image_name = os.path.splitext(one_image.image_name)[0]     # 获取图片名称
         with open(os.path.join(output_path, image_name + '.txt'), 'w') as one_image_label:   # 创建图片对应txt格式的label文件
             for one_bbox in one_image_bbox:
                 one_image_label.write(str(one_bbox[0]) + " " +
@@ -58,7 +66,7 @@ def yolo_to_yolo(output_path, data_list, class_list):
                 one_image_bbox.append([cls_id, bb])
             else:
                 print('\nErro image: %s!\n' % one_image.image_name)
-        image_name = one_image.image_name.split('.')[0]     # 获取图片名称
+        image_name = os.path.splitext(one_image.image_name)[0]     # 获取图片名称
         with open(os.path.join(output_path, image_name + '.txt'), 'w') as one_image_label:   # 创建图片对应txt格式的label文件
             for one_bbox in one_image_bbox:
                 one_image_label.write(str(one_bbox[0]) + " " +

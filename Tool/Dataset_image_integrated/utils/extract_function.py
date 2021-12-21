@@ -639,7 +639,7 @@ def from_sjt(input_path, class_list):
         src_lab_dir = os.path.join(src_lab_path, src_lab_path_one)
         with open(src_lab_dir, 'r', encoding='unicode_escape') as f:
             data = js.load(f)
-        img_name = src_lab_path_one.split('.')[0] + '.jpg'
+        img_name = os.path.splitext(src_lab_path_one)[0] + '.jpg'
         img_path = os.path.join(image_path, img_name)
         img = cv2.imread(img_path)
         height, width, channels = img.shape     # 读取每张图片的shape
@@ -683,7 +683,7 @@ def to_pascal(output_path, images_data_list):
     for image_data in tqdm(images_data_list):
         if image_data == None:
             continue
-        with codecs.open(os.path.join(output_path, image_data.image_name.split('.')[0] + ".xml"), "w", "utf-8") as xml:
+        with codecs.open(os.path.join(output_path, os.path.splitext(image_data.image_name)[0] + ".xml"), "w", "utf-8") as xml:
             xml.write('<annotation>\n')
             xml.write('\t<folder>' + 'WH_data' + '</folder>\n')
             xml.write('\t<filename>' + image_data.image_name + '</filename>\n')

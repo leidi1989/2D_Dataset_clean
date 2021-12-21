@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2021-10-21 20:09:15
+LastEditTime: 2021-12-21 16:20:07
 '''
 # -*- coding: utf-8 -*-
 import os
@@ -194,7 +194,7 @@ def get_names_list_path(input_path):
 
     clss_path = ''
     for a in os.listdir(input_path):
-        if a.split('.')[-1] == 'names':
+        if os.path.splitext(a)[-1] == 'names':
             clss_path = os.path.join(input_path, a)
 
     return clss_path

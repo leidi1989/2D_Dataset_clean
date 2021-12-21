@@ -55,7 +55,7 @@ def load_cut_image(cut_bbox_image_list):
     print('Start extract cut images:')
     for one_cut_image in tqdm(cut_bbox_image_list):
         img = cv2.imread(one_cut_image)     # 读取cut_image图片
-        image_style = one_cut_image.split('.')[-1]
+        image_style = os.path.splitext(one_cut_image)[-1]
         image_name = one_cut_image.split(os.sep)[-1]        # 获取图片名称
         image_path = one_cut_image      # 获取图片路径
         height = img.shape[0]       # 获取图片高

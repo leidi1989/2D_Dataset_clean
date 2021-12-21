@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:02
 LastEditors: Leidi
-LastEditTime: 2021-10-21 20:09:01
+LastEditTime: 2021-12-21 16:15:34
 '''
 # -*- coding: utf-8 -*-
 import argparse
@@ -42,7 +42,7 @@ def checklabels(output_path, input_label_style, masks, check):
         if check_count != check_count_total:
             label_path = os.path.join(labels_path, one_label)   # 获取标签地址
             image_name = one_label.replace('.txt', '.%s' % img_tpye)
-            drow_image_path = os.path.join(image_path, one_label.split('.')[
+            drow_image_path = os.path.join(image_path, os.path.splitext(one_label)[
                                         0] + '.%s' % img_tpye)     # 获取标签对应图片地址
             img = cv2.imread(drow_image_path)  # 读取对应标签图片
             a = img.shape
@@ -88,7 +88,7 @@ def checklabels(output_path, input_label_style, masks, check):
                         print(image_name + " ValueError: " +
                             str(cls) + "is not in list")
 
-                    path = os.path.join(savepath, one_label.split('.')[0] + '.jpg')
+                    path = os.path.join(savepath, os.path.splitext(one_label)[0] + '.jpg')
                     cv2.imwrite(path, img)
                     pic_num += 1
             check_count += 1

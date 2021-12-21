@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-05-19 09:20:40
 LastEditors: Leidi
-LastEditTime: 2021-07-28 11:22:27
+LastEditTime: 2021-12-21 16:16:04
 '''
 # 批量修改图片文件名
 # -*- coding: utf-8 -*-
@@ -28,7 +28,7 @@ def png_to_jpg(output_path):
     output_path_images = check_output_path(output_path, 'JPEGImages')
     images_count = 0
     for one_image in tqdm(os.listdir(output_path_images)):
-        if one_image.split('.')[-1] != 'png':
+        if os.path.splitext(one_image)[-1] != 'png':
             continue
         in_image = os.path.join(output_path_images, one_image)
         out_image = os.path.join(output_path_images, one_image.replace('.png', '.jpg'))

@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-07-09 10:19:01
 LastEditors: Leidi
-LastEditTime: 2021-10-21 20:08:45
+LastEditTime: 2021-12-21 16:13:28
 '''
 # 批量修改图片文件名
 # -*- coding: utf-8 -*-
@@ -46,7 +46,7 @@ def images_move(input_path, output_path, name_pre, input_label_style):
             re_fileName = pickup_image_from_function(
                 input_label_style, root, fileName)  # 判断图片命名格式
             # 判断图片格式
-            if fileName.split('.')[-1] == check_image_type(input_label_style):
+            if os.path.splitext(fileName)[-1] == check_image_type(input_label_style):
                 source_file = os.path.join(root, fileName)     # 源文件
                 if name_pre == None:
                     name_pre = ''

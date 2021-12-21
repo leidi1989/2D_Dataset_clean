@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-09 00:59:33
 LastEditors: Leidi
-LastEditTime: 2021-11-22 10:33:04
+LastEditTime: 2021-12-21 16:12:53
 '''
 import os
 import cv2
@@ -30,7 +30,7 @@ def TEMP_LOAD(dataset: dict, temp_annotation_path: str) -> IMAGE:
         image_name = temp_annotation_path.split(
             os.sep)[-1].replace('.json', '.' + dataset['temp_image_form'])
         image_path = os.path.join(dataset['temp_images_folder'], image_name)
-        if image_path.split('.')[-1] == 'png':
+        if os.path.splitext(image_path)[-1] == 'png':
             img = Image.open(image_path)
             height, width = img.height, img.width
             channels = 3

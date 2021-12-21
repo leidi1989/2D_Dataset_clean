@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2021-09-14 18:08:15
+LastEditTime: 2021-12-21 16:12:35
 '''
 # -*- coding: utf-8 -*-
 import os
@@ -23,7 +23,7 @@ def png_jpg(image_path: str, image_output_path: str) -> int:
         int: [description]
     """
 
-    if image_path.split('.')[-1] != 'png':
+    if os.path.splitext(image_path)[-1] != 'png':
         return 0
     image_output_path = image_output_path.replace('.png', '.jpg')
     img = Image.open(image_path)
@@ -55,7 +55,7 @@ def jpg_png(image_path: str, image_output_path: str) -> int:
         int: [description]
     """
 
-    if image_path.split('.')[-1] != 'jpg':
+    if os.path.splitext(image_path)[-1] != 'jpg':
         return 0
     image_output_path = image_output_path.replace('.jpg', '.png')
     img = Image.open(image_path)

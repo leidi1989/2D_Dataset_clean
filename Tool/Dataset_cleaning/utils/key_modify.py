@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2021-08-02 11:39:39
+LastEditTime: 2021-12-21 16:19:42
 '''
 # -*- coding: utf-8 -*-
 import os
@@ -19,8 +19,7 @@ def hy_change_filename(output_path, root, fileName, name_pre):
     """更换json文件内key的值，若更换成功返回更名计数"""
 
     key = 'imageName'
-    filename = str(fileName).split('.')     # 读取文件类型
-    if filename[-1] == 'json':
+    if os.path.splitext(str(fileName))[-1] == 'json':
         with open(os.path.join(root, fileName), 'r+', encoding='unicode_escape') as f:
             data = js.load(f, strict=False)
         name_count = 0
@@ -44,8 +43,7 @@ def hy_highway_change_filename(output_path, root, fileName, name_pre):
     """更换xml文件内key节点值，若更换成功返回计数1，否则为0"""
 
     key = 'filename'
-    filename = str(fileName).split('.')     # 读取文件类型
-    if filename[-1] == 'xml':
+    if os.path.splitext(str(fileName))[-1] == 'xml':
         tree = ET.parse(os.path.join(root, fileName))   # 从xml文件中读取数据
         xmlroot = tree.getroot()    # 用getroot获取根节点，根节点也是Element对象
         name = xmlroot.find(key)    # 从根节点中搜寻key命名的节点
@@ -62,20 +60,19 @@ def pascal_change_filename(output_path, root, fileName, name_pre):
     """更换xml文件内key节点值，若更换成功返回计数1，否则为0"""
 
     key = 'filename'
-    filename = str(fileName).split('.')     # 读取文件类型
-    if filename[-1] == 'xml':
+    if os.path.splitext(str(fileName))[-1] == 'xml':
         tree = ET.parse(os.path.join(root, fileName))   # 从xml文件中读取数据
         xmlroot = tree.getroot()    # 用getroot获取根节点，根节点也是Element对象
         name = xmlroot.find(key)    # 从根节点中搜寻key命名的节点
         if name == None:    # 判断name是否存在
             return 0
         if name_pre == None:
-            name.text = fileName.split('.')[0] + '.jpg'     # 修改节点名称为key的节点值
+            name.text = os.path.splitext(fileName)[0] + '.jpg'     # 修改节点名称为key的节点值
             # 按输出路径存储修改后的xml文件
             tree.write(os.path.join(output_path, fileName))
         else:
             name.text = name_pre + \
-                fileName.split('.')[0] + '.jpg'     # 修改节点名称为key的节点值
+                os.path.splitext(fileName)[0] + '.jpg'     # 修改节点名称为key的节点值
             tree.write(os.path.join(output_path, name_pre + fileName))
 
     return 1
@@ -98,8 +95,7 @@ def coco_change_filename(output_path, root, fileName, name_pre):
     """更换json文件名称，并移动至source label"""
 
     key = 'file_name'
-    filename = str(fileName).split('.')     # 读取文件类型
-    if filename[-1] == 'json':
+    if os.path.splitext(str(fileName))[-1] == 'json':
         # , encoding='unicode_escape'
         with open(os.path.join(root, fileName), 'r+', encoding='unicode_escape') as f:
             data = js.loads(f)
@@ -124,8 +120,7 @@ def cctsdb_change_filename(output_path, root, fileName, name_pre):
     """更换txt文件名称，并移动至source label"""
 
     key = 'file_name'
-    filename = str(fileName).split('.')     # 读取文件类型
-    if filename[-1] == 'txt':
+    if os.path.splitext(str(fileName))[-1] == 'txt':
         with open(os.path.join(root, fileName), 'r+') as f:
             data_all = f.readlines()
             name_count = 0
@@ -205,8 +200,7 @@ def sjt_change_filename(output_path, root, fileName, name_pre):
 def nuscenes_change_filename(output_path, root, fileName, name_pre):
     """更换nuscenes标签转换为json文件后的标签中的图片名称"""
     key = 'filename'
-    filename = str(fileName).split('.')     # 读取文件类型
-    if filename[-1] == 'json':
+    if os.path.splitext(str(fileName))[-1] == 'json':
         # , encoding='unicode_escape'
         with open(os.path.join(root, fileName), 'r+', encoding='utf8') as f:
             data = js.load(f)

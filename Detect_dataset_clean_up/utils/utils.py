@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2021-10-29 11:36:06
+LastEditTime: 2021-12-21 16:10:40
 '''
 # -*- coding: utf-8 -*-
 import os
@@ -204,7 +204,7 @@ def temp_file_name(temp_annotations_folder: str) -> list:
     temp_file_name_list = []
     print('Get temp file name list:')
     for n in tqdm(os.listdir(temp_annotations_folder)):
-        temp_file_name_list.append(n.split(os.sep)[-1].split('.')[0])
+        temp_file_name_list.append(os.path.splitext(n.split(os.sep)[-1])[0])
 
     return temp_file_name_list
 
@@ -255,7 +255,7 @@ def total_file(temp_informations_folder: str) -> list:
     try:
         with open(os.path.join(temp_informations_folder, 'total.txt'), 'r') as f:
             for n in tqdm(f.read().splitlines()):
-                total_list.append(n.split(os.sep)[-1].split('.')[0])
+                total_list.append(os.path.splitext(n.split(os.sep)[-1])[0])
             f.close()
 
         total_file_name_path = os.path.join(

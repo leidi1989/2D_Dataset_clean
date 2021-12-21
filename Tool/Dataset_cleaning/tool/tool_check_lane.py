@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2021-05-15 17:56:03
+LastEditTime: 2021-12-21 16:15:50
 '''
 # -*- coding: utf-8 -*-
 import os
@@ -219,7 +219,7 @@ def main():
             # print("***************************")
 
             # 遍历所有图片
-            # infos.sort(key = lambda x: int(x['imageName'].split('.')[0])) ##文件名按数字排序
+            # infos.sort(key = lambda x: int(os.path.splitext(x['imageName'])[0])) ##文件名按数字排序
             for info in tqdm(infos):
                 a1 = info['Data']
                 image_name = info['imageName']

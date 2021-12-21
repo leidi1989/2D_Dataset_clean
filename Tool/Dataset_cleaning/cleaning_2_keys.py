@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-07-09 10:19:01
 LastEditors: Leidi
-LastEditTime: 2021-10-21 20:08:49
+LastEditTime: 2021-12-21 16:15:03
 '''
 # -*- coding: utf-8 -*-
 import argparse
@@ -22,8 +22,7 @@ def source_label_change_key(input_path, output_path, name_pre, input_label_style
     change_count = 0
     for root, dirs, files in os.walk(input_path):
         for fileName in tqdm(files):   # 遍历文件夹中所有文件
-            filename = str(fileName).split('.')     # 读取文件类型
-            if filename[-1] == check_src_lab_type(input_label_style):   # 判断label格式
+            if os.path.splitext(str(fileName))[-1] == check_src_lab_type(input_label_style):   # 判断label格式
                 count_temp = pickup_move_function(input_label_style, 
                                                   output_path_src_lab, root, fileName, name_pre)   # 对应不同类别进行更名
                 change_count += count_temp

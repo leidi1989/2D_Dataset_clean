@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-18 14:26:58
 LastEditors: Leidi
-LastEditTime: 2021-09-24 17:09:33
+LastEditTime: 2021-12-21 16:13:12
 '''
 import os
 import cv2
@@ -76,5 +76,5 @@ for x in tqdm(os.listdir(image_in_folder)):
         M = cv2.getPerspectiveTransform(pts1, pts2)
         dst = cv2.warpPerspective(image, M, dst_space, 1)
         image_output_path = image_out_path.split(
-            '.')[0] + str(n) + '.' + image_out_path.split('.')[-1]
+            '.')[0] + str(n) + '.' + os.path.splitext(image_out_path)[-1]
         cv2.imwrite(image_output_path, dst)

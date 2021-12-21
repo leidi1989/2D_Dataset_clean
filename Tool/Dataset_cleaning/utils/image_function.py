@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2021-10-21 20:09:11
+LastEditTime: 2021-12-21 16:16:43
 '''
 # -*- coding: utf-8 -*-
 import os
@@ -107,7 +107,7 @@ def png_to_jpg(output_path):
     images_count = 0
     wrong_images_count = 0
     for one_image in tqdm(os.listdir(output_path_images)):
-        if one_image.split('.')[-1] != 'png':
+        if os.path.splitext(one_image)[-1] != 'png':
             continue
         in_image = os.path.join(output_path_images, one_image)
         out_image = os.path.join(output_path_images, one_image.replace('.png', '.jpg'))

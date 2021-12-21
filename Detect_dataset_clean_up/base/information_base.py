@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-10 18:38:55
 LastEditors: Leidi
-LastEditTime: 2021-12-20 16:48:24
+LastEditTime: 2021-12-21 16:10:12
 '''
 from utils.utils import *
 from base.image_base import *
@@ -46,7 +46,7 @@ def temp_file_name(dataset: dict) -> list:
     temp_file_name_list = []
     print('Get temp file name list:')
     for n in tqdm(os.listdir(dataset['temp_annotations_folder'])):
-        temp_file_name_list.append(n.split(os.sep)[-1].split('.')[0])
+        temp_file_name_list.append(os.path.splitext(n.split(os.sep)[-1])[0])
 
     return temp_file_name_list
 
@@ -141,7 +141,7 @@ def divide_dataset(dataset: dict) -> None:
             if len(set_one_path):
                 random.shuffle(set_one_path['image_name_list'])
                 for n in tqdm(set_one_path['image_name_list']):
-                    file_name = n.split(os.sep)[-1].split('.')[0]
+                    file_name = os.path.splitext(n.split(os.sep)[-1])[0]
                     f.write('%s\n' % file_name)
                     if set_name == 'train' or set_name == 'val':
                         trainval_list.append(file_name)

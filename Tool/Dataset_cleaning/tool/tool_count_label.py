@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2021-05-15 17:56:06
+LastEditTime: 2021-12-21 16:15:56
 '''
 import json as js
 import cv2
@@ -58,7 +58,7 @@ for json_path in tqdm(dirs):
     with open(json_path, 'r') as f:
         data = js.load(f)
 
-        # data.sort(key = lambda x: int(x['imageName'].split('.')[0])) ##文件名按数字排序
+        # data.sort(key = lambda x: int(os.path.splitext(x['imageName'])[0])) ##文件名按数字排序
         for d in data:
             img = cv2.imread(os.path.join(pic_path, d['imageName']))
             if d["Data"] == []:

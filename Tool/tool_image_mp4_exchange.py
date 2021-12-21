@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-06-09 14:54:44
 LastEditors: Leidi
-LastEditTime: 2021-12-15 19:33:01
+LastEditTime: 2021-12-21 16:13:17
 '''
 # 导入需要的库
 import os
@@ -62,11 +62,11 @@ def img2mp4(image_folder_path: str, mp4fps: int) -> None:
     mp4_name = root[-1]+'.mp4'
     mp4_file_path = os.path.join(output_folder, mp4_name)
 
-    if first_image_path.split('.')[-1] == 'jpg':
+    if os.path.splitext(first_image_path)[-1] == 'jpg':
         img = cv2.imread(first_image_path)  # 读取第一张图片
         imgInfo = img.shape
         size = (imgInfo[1], imgInfo[0])  # 获取图片宽高度信息
-    if first_image_path.split('.')[-1] == 'png':
+    if os.path.splitext(first_image_path)[-1] == 'png':
         img = Image.open(first_image_path)
         size = (img.width, img.height)
         img = np.array(img)

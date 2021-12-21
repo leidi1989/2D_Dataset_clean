@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-19 15:55:16
 LastEditors: Leidi
-LastEditTime: 2021-10-27 15:33:51
+LastEditTime: 2021-12-21 16:12:59
 '''
 import os
 import shutil
@@ -30,7 +30,7 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output) 
     image_name = source_annotation_name.split(
         os.sep)[-1].replace('.json', '.png')
     image_name_new = dataset['file_prefix'] + image_name
-    file_name_new = image_name_new.split('.')[0]
+    file_name_new = os.path.splitext(image_name_new)[0]
     process_output['temp_file_name_list'].append(file_name_new)
     process_output['success_count'] += 1
 

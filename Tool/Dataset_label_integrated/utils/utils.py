@@ -98,7 +98,7 @@ def get_names_list_path(input_path):
 
     clss_path = ''
     for a in os.listdir(input_path):
-        if a.split('.')[-1]=='names':
+        if os.path.splitext(a)[-1]=='names':
             clss_path = os.path.join(input_path, a)
     
     return clss_path

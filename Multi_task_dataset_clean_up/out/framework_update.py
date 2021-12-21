@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-11 03:28:09
 LastEditors: Leidi
-LastEditTime: 2021-11-15 15:28:43
+LastEditTime: 2021-12-21 16:12:27
 '''
 from base.image_base import *
 from utils.utils import check_output_path
@@ -47,7 +47,7 @@ def bdd100k(dataset: dict) -> None:
         print('Create annotation file to {} folder:'.format(dataset_name))
         with open(n, 'r') as f:
             for x in tqdm(f.read().splitlines()):
-                file = x.split(os.sep)[-1].split('.')[0]
+                file = os.path.splitext(x.split(os.sep)[-1])[0]
                 annotation_load_path = os.path.join(
                     dataset['target_annotations_folder'], file + '.' + dataset['target_annotation_form'])
                 # 调整image
@@ -108,7 +108,7 @@ def yolop(dataset: dict) -> None:
         print('Create annotation file to {} folder:'.format(dataset_name))
         with open(n, 'r') as f:
             for x in tqdm(f.read().splitlines()):
-                file = x.split(os.sep)[-1].split('.')[0]
+                file = os.path.splitext(x.split(os.sep)[-1])[0]
                 annotation_load_path = os.path.join(
                     dataset['target_annotations_folder'], file + '.' + dataset['target_annotation_form'])
                 # 调整image
@@ -265,7 +265,7 @@ def yolop(dataset: dict) -> None:
 #     print('Collect file name dict.')
 #     with open(dataset['temp_divide_file_list'][0], 'r') as f:
 #         for x, n in enumerate(f.read().splitlines()):
-#             file_name = n.split(os.sep)[-1].split('.')[0]
+#             file_name = os.path.splitext(n.split(os.sep)[-1])[0]
 #             file_name_dict[file_name] = x
 #         f.close()
 
@@ -289,11 +289,11 @@ def yolop(dataset: dict) -> None:
 
 #     print('Create annotation file to output folder：')
 #     for n in tqdm(dataset['temp_divide_file_list'][1:4]):
-#         dataset_name = n.split(os.sep)[-1].split('.')[0]
+#         dataset_name = os.path.splitext(n.split(os.sep)[-1])[0]
 #         print('Create annotation file to {} folder:'.format(dataset_name))
 #         with open(n, 'r') as f:
 #             for x in tqdm(f.read().splitlines()):
-#                 file = x.split(os.sep)[-1].split('.')[0]
+#                 file = os.path.splitext(x.split(os.sep)[-1])[0]
 #                 file_out = dataset['dataset_prefix'] + '_000000_' + \
 #                     str(format(file_name_dict[file], '06d'))
 #                 # 调整image
@@ -333,14 +333,14 @@ def yolop(dataset: dict) -> None:
 #     # 调整annotation为_gtFine_labelIds.png
 #     print('Create labelIds.png to output folder：')
 #     for n in tqdm(dataset['temp_divide_file_list'][1:4]):
-#         dataset_name = n.split(os.sep)[-1].split('.')[0]
+#         dataset_name = os.path.splitext(n.split(os.sep)[-1])[0]
 #         print('Create labelTrainIds.png to {} folder:'.format(dataset_name))
 #         with open(n, 'r') as f:
 #             for x in tqdm(f.read().splitlines()):
-#                 file = x.split(os.sep)[-1].split('.')[0] + \
+#                 file = os.path.splitext(x.split(os.sep)[-1])[0] + \
 #                     '.' + dataset['target_annotation_form']
-#                 file_name_list = x.split(
-#                     os.sep)[-1].split('.')[0].split(dataset['prefix_delimiter'])
+#                 file_name_list = os.path.splitext(x.split(
+#                     os.sep)[-1])[0].split(dataset['prefix_delimiter'])
 #                 file_name = file_name_list[0] + '_999999_9' + file_name_list[1]
 #                 file_out = file_name + '_gtFine_labelIds' + \
 #                     '.' + dataset['target_image_form']
@@ -436,7 +436,7 @@ def yolop(dataset: dict) -> None:
 #     file_name_dict = {}
 #     print('Collect file name dict.')
 #     for x, n in enumerate(sorted(os.listdir(dataset['temp_images_folder']))):
-#         file_name = n.split(os.sep)[-1].split('.')[0]
+#         file_name = os.path.splitext(n.split(os.sep)[-1])[0]
 #         file_name_dict[file_name] = x
 
 #     output_root = check_output_path(os.path.join(
@@ -459,7 +459,7 @@ def yolop(dataset: dict) -> None:
 
 #     print('Create annotation file to output folder：')
 #     for x in tqdm(os.listdir(dataset['temp_images_folder'])):
-#         file = x.split(os.sep)[-1].split('.')[0]
+#         file = os.path.splitext(x.split(os.sep)[-1])[0]
 #         file_out = dataset['dataset_prefix'] + '_000000_' + \
 #             str(format(file_name_dict[file], '06d'))
 #         # 调整image

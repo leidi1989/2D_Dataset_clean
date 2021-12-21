@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-03 22:18:39
 LastEditors: Leidi
-LastEditTime: 2021-10-23 01:12:25
+LastEditTime: 2021-12-21 16:10:27
 '''
 import os
 import shutil
@@ -92,7 +92,7 @@ def temp_image(dataset: dict) -> None:
     for root, dirs, files in tqdm(os.walk(dataset['source_path'])):
         pool = multiprocessing.Pool(dataset['workers'])
         for n in tqdm(files):
-            if n.split('.')[-1] == dataset['source_image_form']:
+            if os.path.splitext(n)[-1] == dataset['source_image_form']:
                 pool.apply_async(copy_image,
                                  args=(dataset, root, n),)
 
@@ -114,7 +114,7 @@ def temp_annotation(dataset: dict) -> None:
     for root, dirs, files in tqdm(os.walk(dataset['source_path'])):
         pool = multiprocessing.Pool(dataset['workers'])
         for n in tqdm(files):
-            if n.split('.')[-1] == dataset['source_annotation_form']:
+            if os.path.splitext(n)[-1] == dataset['source_annotation_form']:
                 pool.apply_async(copy_annotation,
                                  args=(dataset, root, n),)
         pool.close()
