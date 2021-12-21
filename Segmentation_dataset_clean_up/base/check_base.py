@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-03 22:18:39
 LastEditors: Leidi
-LastEditTime: 2021-11-08 19:12:05
+LastEditTime: 2021-12-21 20:42:44
 '''
 import shutil
 
@@ -20,7 +20,6 @@ def check(dataset: dict) -> None:
         dataset (dict): [数据集信息字典]
     """
 
-    print('Start check output annotation:')
     dataset['check_images_list'] = annotation_check.__dict__[
         dataset['target_dataset_style']](dataset)
     shutil.rmtree(dataset['check_annotation_output_folder'])

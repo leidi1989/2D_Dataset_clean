@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2021-12-21 19:43:06
+LastEditTime: 2021-12-21 20:41:21
 '''
 import os
 import cv2
@@ -126,7 +126,7 @@ def coco2017(dataset: dict) -> list:
     for _, n in images_data_dict.items():
         images_data_list.append(n)
     random.shuffle(images_data_list)
-    check_images_count = max(
+    check_images_count = min(
         dataset['target_annotation_check_count'], len(images_data_list))
     check_images_list = images_data_list[0:check_images_count]
 
