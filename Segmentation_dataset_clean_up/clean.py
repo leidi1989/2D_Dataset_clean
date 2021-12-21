@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2021-12-21 16:00:24
+LastEditTime: 2021-12-21 19:35:32
 '''
 from utils.utils import *
 from input import source_dataset
@@ -31,25 +31,25 @@ def main(dataset_info: dict) -> None:
     # print('\nStart copy images and annotations:')
     # source_dataset.__dict__[dataset_info['source_dataset_stype']](dataset_info)
 
-    print('\nStart to transform source annotation to temp annotation:')
-    annotation_load.__dict__[
-        dataset_info['source_dataset_stype']](dataset_info)
+    # print('\nStart to transform source annotation to temp annotation:')
+    # annotation_load.__dict__[
+    #     dataset_info['source_dataset_stype']](dataset_info)
 
-    print('\nStart to analyze dataset:')
-    information(dataset_info)
+    # print('\nStart to analyze dataset:')
+    # information(dataset_info)
 
-    print('\nStart output temp dataset annotations to target annotations:')
-    dataset_info['temp_annotation_path_list'] = temp_annotation_path_list(
-        dataset_info['temp_annotations_folder'])
-    annotation_output.__dict__[
-        dataset_info['target_dataset_style']](dataset_info)
+    # print('\nStart output temp dataset annotations to target annotations:')
+    # dataset_info['temp_annotation_path_list'] = temp_annotation_path_list(
+    #     dataset_info['temp_annotations_folder'])
+    # annotation_output.__dict__[
+    #     dataset_info['target_dataset_style']](dataset_info)
 
     print('\nStart check target annotations:')
     check(dataset_info)
 
-    print('\nStart update framework:')
-    framework_update.__dict__[
-        dataset_info['target_dataset_style']](dataset_info)
+    # print('\nStart update framework:')
+    # framework_update.__dict__[
+    #     dataset_info['target_dataset_style']](dataset_info)
 
     return
 

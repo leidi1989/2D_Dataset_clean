@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-10 18:38:55
 LastEditors: Leidi
-LastEditTime: 2021-12-21 16:08:26
+LastEditTime: 2021-12-21 16:49:27
 '''
 from utils.utils import *
 from utils.plot import plot_sample_statistics
@@ -144,7 +144,7 @@ def divide_dataset(dataset: dict) -> None:
                 if dataset['target_dataset_style'] != 'cityscapes_val':
                     random.shuffle(set_one_path['image_name_list'])
                 for n in tqdm(set_one_path['image_name_list']):
-                    file_name = os.path.splitext(n.split(os.sep)[-1])[0]
+                    file_name = n.split(os.sep)[-1]
                     f.write('%s\n' % file_name)
                     if set_name == 'train' or set_name == 'val':
                         trainval_list.append(file_name)
