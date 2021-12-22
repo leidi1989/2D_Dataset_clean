@@ -4,18 +4,15 @@ Version:
 Author: Leidi
 Date: 2021-12-22 18:21:36
 LastEditors: Leidi
-LastEditTime: 2021-12-22 18:30:14
+LastEditTime: 2021-12-22 18:35:18
 '''
+import cv2
+import re
 import os
 import os.path
-import re
-import cv_bridge
-import roslib
-import rosbag
 import rospy
-import cv2
-import time
-from sensor_msgs.msg import Image
+import rosbag
+import argparse
 from cv_bridge import CvBridge
 from cv_bridge import CvBridgeError
 
@@ -68,6 +65,22 @@ class ImageCreate():
                 
     
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(prog='tool_rosbag_to_image.py')
+    parser.add_argument('--avipath', default=r'',
+                        type=str, help='avi path')
+    parser.add_argument('--imgpath', default=r'/mnt/data_1/Dataset/detect_output/YOLOP/20211209/cam_front_center_20210918_output_20211209',
+                        type=str, help='image output path')
+    parser.add_argument('--pref', default=r'',
+                        type=str, help='rename prefix')
+    parser.add_argument('--mode', default='',
+                        type=str, help='image output')
+    parser.add_argument('--time', default=1,
+                        type=int, help='the time of create image, secend')
+    parser.add_argument('--mp4fps', default=30,
+                        type=int, help='the fps of concate images.')
+    opt = parser.parse_args()
+
+
     path=r'/mnt/data_1/Data/rosbag/images/qunguang_2021-12-07-11-47-22'
     path2 =  r'/mnt/data_1/Data/rosbag/qunguang/20211209/'
     num_count = 15
