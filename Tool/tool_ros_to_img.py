@@ -4,16 +4,25 @@ Version:
 Author: Leidi
 Date: 2021-12-08 16:34:03
 LastEditors: Leidi
-LastEditTime: 2021-12-22 17:17:51
+LastEditTime: 2021-12-22 18:20:01
 '''
 import cv2
 import rospy
 import rosbag
 import argparse
-from tqdm import tqdm
 from cv_bridge import CvBridge
 from cv_bridge import CvBridgeError
 
+
+# bag_file = r'/mnt/data_1/Data/rosbag/qunguang/20211220/_2021-12-20-16-50-26_0.bag'
+# bag = rosbag.Bag(bag_file, 'r')
+
+# bridge = CvBridge()
+# bag_data = bag.read_messages('/cam_front_center/csi_cam/image_raw/compressed')
+# for topic, msg, t in bag_data:
+#     cv_image = bridge.compressed_imgmsg_to_cv2(msg, "bgr8")
+#     cv2.imshow("Image window", cv_image)
+#     cv2.waitKey(0)
 
 image_output_path = r'/mnt/data_1/Data/rosbag/images/qunguang_2021-12-07-11-47-22'
 bag_path = r'/mnt/data_1/Data/rosbag/qunguang/20211209/1209_qunguang1_2_2021-12-09-11-01-17_1.bag'
@@ -25,8 +34,8 @@ class ImageCreate():
         i = 0
         num = 0
         with rosbag.Bag(bag_path, 'r') as bag:
-            for topic, msg, t in tqdm(bag.read_messages()):
-                if topic == '/cam_left_front/csi_cam/image_raw/compressed':
+            for topic, msg, t in bag.read_messages():
+                if topic == '/cam_front_center/csi_cam/image_raw/compressed':
                     i += 1
                     if i % 3 != 0:
                         continue
