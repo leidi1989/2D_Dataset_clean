@@ -4,18 +4,18 @@ Version:
 Author: Leidi
 Date: 2021-08-11 03:28:09
 LastEditors: Leidi
-LastEditTime: 2021-12-22 14:16:25
+LastEditTime: 2021-12-22 15:57:28
 '''
-from base.image_base import *
-from utils.utils import check_output_path
-from annotation.annotation_temp import TEMP_LOAD
-from utils.plot import plot_segment_annotation, plot_pick_class_segment_annotation
-
 import os
-import cv2
 import shutil
-import numpy as np
 from tqdm import tqdm
+import multiprocessing
+
+from base.image_base import *
+import out.framwork_update_function as F
+from annotation.annotation_temp import TEMP_LOAD
+from utils.utils import check_output_path, err_call_back
+from utils.plot import plot_segment_annotation, plot_pick_class_segment_annotation
 
 
 def bdd100k(dataset: dict) -> None:
@@ -42,7 +42,7 @@ def bdd100k(dataset: dict) -> None:
             dataset_division_folder_path = os.path.join(output_folder_path, m)
             check_output_path(dataset_division_folder_path)
 
-    print('Create annotation file to output folder：')
+    print('Create annotation file to output folder:')
     for n in tqdm(dataset['temp_divide_file_list'][1:4]):
         dataset_name = os.path.splitext(n.split(os.sep)[-1])[0]
         print('Create annotation file to {} folder:'.format(dataset_name))
@@ -104,7 +104,7 @@ def yolop(dataset: dict) -> None:
             dataset_division_folder_path = os.path.join(output_folder_path, m)
             check_output_path(dataset_division_folder_path)
 
-    print('Create annotation file to output folder：')
+    print('Create annotation file to output folder:')
     for n in tqdm(dataset['temp_divide_file_list'][1:4]):
         dataset_name = os.path.splitext(n.split(os.sep)[-1])[0]
         print('Create annotation file to {} folder:'.format(dataset_name))
@@ -157,11 +157,43 @@ def yolop(dataset: dict) -> None:
 
 
 def coco2017(dataset: dict) -> None:
-    """[将数据集转换为coco组织格式]
+    """[生成COCO 2017组织格式的数据集]
 
     Args:
         dataset (dict): [数据集信息字典]
     """
-    pass
 
+    # 调整image
+    print('Clean dataset folder!')
+    output_root = check_output_path(
+        os.path.join(dataset['target_path'], 'coco2017'))
+    shutil.rmtree(output_root)
+    output_root = check_output_path(
+        os.path.join(dataset['target_path'], 'coco2017'))
+    image_output_folder = check_output_path(
+        os.path.join(output_root, 'images'))
+    annotations_output_folder = check_output_path(
+        os.path.join(output_root, 'annotations'))
+    # 调整ImageSets
+    print('Start copy images:')
+    image_list = []
+    with open(dataset['temp_divide_file_list'][0], 'r') as f:
+        for n in f.readlines():
+            image_list.append(n.replace('\n', ''))
+    pool = multiprocessing.Pool(dataset['workers'])
+    for image_input_path in tqdm(image_list):
+        image_output_path = image_input_path.replace(
+            dataset['temp_images_folder'], image_output_folder)
+        pool.apply_async(func=F.__dict__[dataset['target_dataset_style']].copy_image,
+                         args=(image_input_path, image_output_path,), error_callback=err_call_back)
+    pool.close()
+    pool.join()
+
+    print('Start copy annotations:')
+    for root, dirs, files in os.walk(dataset['target_annotations_folder']):
+        for n in tqdm(files):
+            annotations_input_path = os.path.join(root, n)
+            annotations_output_path = annotations_input_path.replace(
+                dataset['target_annotations_folder'], annotations_output_folder)
+            shutil.copy(annotations_input_path, annotations_output_path)
     return

@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-11 03:28:09
 LastEditors: Leidi
-LastEditTime: 2021-12-21 20:15:03
+LastEditTime: 2021-12-22 15:58:59
 '''
 import os
 import cv2
@@ -12,7 +12,6 @@ import shutil
 import numpy as np
 from tqdm import tqdm
 import multiprocessing
-from shutil import copyfile
 
 from base.image_base import *
 from utils.utils import check_output_path, err_call_back
@@ -179,7 +178,7 @@ def coco2017(dataset: dict) -> None:
         for n in tqdm(files):
             annotations_input_path = os.path.join(root, n)
             annotations_output_path = annotations_input_path.replace(
-            dataset['target_annotations_folder'], annotations_output_folder)
+                dataset['target_annotations_folder'], annotations_output_folder)
             shutil.copy(annotations_input_path, annotations_output_path)
     return
 
