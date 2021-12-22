@@ -2,7 +2,7 @@
 root: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_total_20211213
 
 # output path
-target: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_total_20211213_mutil_task_20211217
+target: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_total_20211213_mutil_task_20211222
 
 # input labels style: huaweiyun_segment, bdd100k, yunce_segment_coco, yunce_segment_coco_one_image
 srstyle: yunce_segment_coco_one_image
@@ -11,7 +11,7 @@ srstyle: yunce_segment_coco_one_image
 tarstyle: bdd100k
 
 # images or labels need to rename prefix
-prefix: "yunce"
+prefix: yunce
 
 # name delimiter
 delimiter: "@"
