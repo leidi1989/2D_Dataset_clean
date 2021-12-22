@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-11-08 10:30:52
 LastEditors: Leidi
-LastEditTime: 2021-12-22 14:33:55
+LastEditTime: 2021-12-22 16:40:57
 '''
 import os
 from tqdm import tqdm
@@ -47,7 +47,7 @@ def apolloscape_lane_segment(dataset: dict) -> None:
     return
 
 
-def huawei_segment(dataset: dict) -> None:
+def huaweiyun_segment(dataset: dict) -> None:
     """[拷贝huawei_segment数据集中的image及annotation至temp文件夹]
 
     Args:
