@@ -1,38 +1,38 @@
 # dataset path
-root: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_total_20211213
+root: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/huaweiyun/huaweiyun_fix_20211206
 
 # output path
-target: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_total_20211213_mutil_task_20211222
+target: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/huaweiyun/huaweiyun_fix_20211206_mutil_task_20211222
 
 # input labels style: huaweiyun_segment, bdd100k, yunce_segment_coco, yunce_segment_coco_one_image
-srstyle: yunce_segment_coco_one_image
+srstyle: huaweiyun_segment
 
 # output labels style: bdd100k, yolop, coco2017
 tarstyle: coco2017
 
 # images or labels need to rename prefix
-prefix: yunce
+prefix: huaweiyun
 
 # name delimiter
 delimiter: "@"
 
 # dataset detect class path
-detect_classes: /home/leidi/hy_program/2D_Dataset_clean/Multi_task_dataset_clean_up/data/detect/detect_classes_yunce_segmentation_184_classes_infer_20211116.names
+detect_classes: /home/leidi/hy_program/2D_Dataset_clean/Multi_task_dataset_clean_up/data/detect/detect_classes_huaweiyun_173_classes_20210918.names
 
 # dataset detect class modify file path
 # detect_modify_class_file: /home/leidi/hy_program/2D_Dataset_clean/Multi_task_dataset_clean_up/data/detect/detect_classes_bdd100k_10_classes_to_hy_7_classes.txt
 detect_modify_class_file: ""
 
 # dataset segment class path
-segment_classes: /home/leidi/hy_program/2D_Dataset_clean/Multi_task_dataset_clean_up/data/detect/detect_classes_yunce_segmentation_184_classes_infer_20211116.names
+segment_classes: /home/leidi/hy_program/2D_Dataset_clean/Multi_task_dataset_clean_up/data/segment/segment_classes_huaweiyun_173_classes_20210918.names
 
 # dataset segment class modify file path
 # segment_modify_class_file: /home/leidi/hy_program/2D_Dataset_clean/Multi_task_dataset_clean_up/data/segment/segment_classes_bdd100k_11_classes_to_yolop_2_classes.txt
 segment_modify_class_file: ""
 
 # (train, val, test, redund)
-# proportion: 0.9,0.05,0.05,0
-proportion: 0.8,0.1,0.1,0
+proportion: 0.9,0.05,0.05,0
+# proportion: 0.8,0.1,0.1,0
 
 # check target annotations
 check: 100
