@@ -4,14 +4,10 @@ Version:
 Author: Leidi
 Date: 2021-10-19 15:55:16
 LastEditors: Leidi
-LastEditTime: 2021-12-22 10:39:28
+LastEditTime: 2021-12-22 10:54:54
 '''
-import os
-import json
 import time
 import numpy as np
-from tqdm import tqdm
-import xml.etree.ElementTree as ET
 
 from utils.utils import *
 from base.image_base import *
