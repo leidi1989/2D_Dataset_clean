@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2021-12-22 15:18:18
+LastEditTime: 2021-12-22 15:51:00
 '''
 from utils.utils import *
 from base.check_base import check
@@ -38,14 +38,14 @@ def main(dataset_info: dict) -> None:
     # print('\nStart to analyze dataset:')
     # information(dataset_info)
 
-    print('\nStart output temp dataset annotations to target annotations:')
-    dataset_info['temp_annotation_path_list'] = temp_annotation_path_list(
-        dataset_info['temp_annotations_folder'])
-    annotation_output.__dict__[
-        dataset_info['target_dataset_style']](dataset_info)
+    # print('\nStart output temp dataset annotations to target annotations:')
+    # dataset_info['temp_annotation_path_list'] = temp_annotation_path_list(
+    #     dataset_info['temp_annotations_folder'])
+    # annotation_output.__dict__[
+    #     dataset_info['target_dataset_style']](dataset_info)
 
-    # print('\nStart check target annotations:')
-    # check(dataset_info)
+    print('\nStart check target annotations:')
+    check(dataset_info)
 
     # print('\nStart update framework:')
     # framework_update.__dict__[
