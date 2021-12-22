@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-09 10:38:13
 LastEditors: Leidi
-LastEditTime: 2021-10-28 16:19:13
+LastEditTime: 2021-12-22 17:12:30
 '''
 import os
 import json
@@ -24,5 +24,5 @@ for root, dirs, files in tqdm(os.walk(file)):
             with open(file) as f:
                 data = json.load(f)
                 box_count += len(data['dataList'])
-print('Total images：{}'.format(image_count))
-print('Total boxs：{}'.format(box_count))
+print('Total images: {}'.format(image_count))
+print('Total boxs: {}'.format(box_count))

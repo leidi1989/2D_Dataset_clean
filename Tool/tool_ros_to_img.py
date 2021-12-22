@@ -4,18 +4,19 @@ Version:
 Author: Leidi
 Date: 2021-12-08 16:34:03
 LastEditors: Leidi
-LastEditTime: 2021-12-22 11:08:48
+LastEditTime: 2021-12-22 17:17:51
 '''
-from tqdm import tqdm
-import rosbag
-import rospy
 import cv2
+import rospy
+import rosbag
+import argparse
+from tqdm import tqdm
 from cv_bridge import CvBridge
 from cv_bridge import CvBridgeError
 
 
 image_output_path = r'/mnt/data_1/Data/rosbag/images/qunguang_2021-12-07-11-47-22'
-bag_path = r'/mnt/data_1/Data/rosbag/1209/1209_qunguang1_2_2021-12-09-11-01-17_0.bag'
+bag_path = r'/mnt/data_1/Data/rosbag/qunguang/20211209/1209_qunguang1_2_2021-12-09-11-01-17_1.bag'
 
 
 class ImageCreate():
@@ -67,7 +68,22 @@ class ImageCreate():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(prog='tool_avi_to_mp4.py')
+    parser.add_argument('--avipath', default=r'',
+                        type=str, help='avi path')
+    parser.add_argument('--imgpath', default=r'/mnt/data_1/Dataset/detect_output/YOLOP/20211209/cam_front_center_20210918_output_20211209',
+                        type=str, help='image output path')
+    parser.add_argument('--pref', default=r'',
+                        type=str, help='rename prefix')
+    parser.add_argument('--mode', default='',
+                        type=str, help='image output')
+    parser.add_argument('--time', default=1,
+                        type=int, help='the time of create image, secend')
+    parser.add_argument('--mp4fps', default=30,
+                        type=int, help='the fps of concate images.')
+    opt = parser.parse_args()
+
     try:
         image_creator = ImageCreate()
-    except rospy.ROSInterruptException:
-        pass
+    except rospy.ROSInterruptException as e:
+        print(e)
