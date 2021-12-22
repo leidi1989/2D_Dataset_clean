@@ -4,7 +4,7 @@ root: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_tot
 # output path
 target: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_total_20211213_mutil_task_20211217
 
-# input labels style: huawei_segment, bdd100k, yunce_segment_coco, yunce_segment_coco_one_image
+# input labels style: huaweiyun_segment, bdd100k, yunce_segment_coco, yunce_segment_coco_one_image
 srstyle: yunce_segment_coco_one_image
 
 # output labels style: bdd100k, yolop

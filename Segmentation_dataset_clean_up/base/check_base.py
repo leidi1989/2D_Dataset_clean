@@ -4,13 +4,13 @@ Version:
 Author: Leidi
 Date: 2021-08-03 22:18:39
 LastEditors: Leidi
-LastEditTime: 2021-12-22 09:31:44
+LastEditTime: 2021-12-22 13:45:32
 '''
 import shutil
 
 from utils.utils import *
-from utils.plot import plot_true_segmentation
 from annotation import annotation_check
+from utils.plot import plot_true_segmentation
 
 
 def check(dataset: dict) -> None:

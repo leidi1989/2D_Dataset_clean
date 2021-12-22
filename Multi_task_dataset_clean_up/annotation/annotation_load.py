@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2021-12-22 11:25:40
+LastEditTime: 2021-12-22 13:46:28
 '''
 import os
 import json
@@ -14,7 +14,7 @@ from utils.utils import *
 import annotation.dataset_load_function as F
 
 
-def huawei_segment(dataset: dict) -> None:
+def huaweiyun_segment(dataset: dict) -> None:
     """[华为标注分割数据集annotation读取]
 
     Args:
