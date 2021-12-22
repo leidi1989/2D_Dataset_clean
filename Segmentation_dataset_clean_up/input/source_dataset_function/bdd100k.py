@@ -4,12 +4,12 @@ Version:
 Author: Leidi
 Date: 2021-11-08 10:33:42
 LastEditors: Leidi
-LastEditTime: 2021-11-29 10:38:19
+LastEditTime: 2021-12-22 14:51:40
 '''
 import os
 import shutil
 
-from utils.image_form_transform import image_transform_function
+from utils import image_form_transform
 
 
 def copy_image(dataset: dict, root: str, n: str) -> None:
@@ -29,8 +29,8 @@ def copy_image(dataset: dict, root: str, n: str) -> None:
     if image_suffix != dataset['target_image_form']:
         dataset['transform_type'] = image_suffix + \
             '_' + dataset['target_image_form']
-        image_transform_function(
-            dataset['transform_type'], image, temp_image)
+        image_form_transform.__dict__[
+            dataset['transform_type']](image, temp_image)
         return
     else:
         shutil.copy(image, temp_image)

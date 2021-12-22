@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-11 03:28:09
 LastEditors: Leidi
-LastEditTime: 2021-12-22 11:29:54
+LastEditTime: 2021-12-22 14:16:25
 '''
 from base.image_base import *
 from utils.utils import check_output_path
@@ -92,7 +92,7 @@ def yolop(dataset: dict) -> None:
                  'da_seg_annotations', 'll_seg_annotations']
     data_divion_name = ['train', 'val', 'test']
     output_folder_path_list = []
-    
+
     # 创建cityscapes组织结构
     print('Clean dataset folder!')
     shutil.rmtree(output_root)
@@ -141,7 +141,7 @@ def yolop(dataset: dict) -> None:
                 #     shutil.copy(annotation_load_path,
                 #                 detect_annotation_output_path)
                 shutil.copy(annotation_load_path,
-                                detect_annotation_output_path)
+                            detect_annotation_output_path)
                 # 调整annotation为路面语义分割标签，*.png
                 road_class_list = ['road']
                 road_color = 127
@@ -152,5 +152,16 @@ def yolop(dataset: dict) -> None:
                 lane_color = 255
                 plot_pick_class_segment_annotation(
                     dataset, image, lane_segment_annotation_output_path, lane_class_list, lane_color)
+
+    return
+
+
+def coco2017(dataset: dict) -> None:
+    """[将数据集转换为coco组织格式]
+
+    Args:
+        dataset (dict): [数据集信息字典]
+    """
+    pass
 
     return

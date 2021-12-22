@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2021-12-15 15:25:57
+LastEditTime: 2021-12-22 14:54:07
 '''
 # -*- coding: utf-8 -*-
 from PIL import Image
@@ -62,25 +62,3 @@ def jpg_png(image_path: str, image_output_path: str) -> int:
             return 0
     else:
         return 0
-
-
-def function_miss(*args) -> None:
-    """提示添加缺失的图片格式转换函数"""
-    print("\n无图片格式转换函数，请添加转换函数。")
-
-
-image_transform_function_dict = {'png_jpg': png_jpg,
-                                 'jpg_png': jpg_png}
-
-
-def image_transform_function(transform_type: str, *args):
-    """[根据输入类别挑选数据集图片类型转换函数]
-
-    Args:
-        transform_type (str): [转换类型]
-
-    Returns:
-        [function]: [转换函数]
-    """
-
-    return image_transform_function_dict.get(transform_type, function_miss)(*args)

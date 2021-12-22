@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-05 21:50:49
 LastEditors: Leidi
-LastEditTime: 2021-12-22 11:27:06
+LastEditTime: 2021-12-22 15:20:35
 '''
 import time
 from tqdm import tqdm
@@ -117,7 +117,7 @@ def coco2017(dataset) -> None:
         }
         
         # 将class_list_new转换为coco格式字典
-        for n, cls in enumerate(dataset['class_list_new']):
+        for n, cls in enumerate(dataset['detect_class_list_new'] + dataset['segment_class_list_new']):
             category_item = {'supercategory': 'none',
                              'id': n,
                              'name': cls}

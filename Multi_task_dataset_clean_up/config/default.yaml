@@ -7,8 +7,8 @@ target: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_t
 # input labels style: huaweiyun_segment, bdd100k, yunce_segment_coco, yunce_segment_coco_one_image
 srstyle: yunce_segment_coco_one_image
 
-# output labels style: bdd100k, yolop
-tarstyle: bdd100k
+# output labels style: bdd100k, yolop, coco2017
+tarstyle: coco2017
 
 # images or labels need to rename prefix
 prefix: yunce
@@ -31,7 +31,8 @@ segment_classes: /home/leidi/hy_program/2D_Dataset_clean/Multi_task_dataset_clea
 segment_modify_class_file: ""
 
 # (train, val, test, redund)
-proportion: 0.9,0.05,0.05,0
+# proportion: 0.9,0.05,0.05,0
+proportion: 0.8,0.1,0.1,0
 
 # check target annotations
 check: 100

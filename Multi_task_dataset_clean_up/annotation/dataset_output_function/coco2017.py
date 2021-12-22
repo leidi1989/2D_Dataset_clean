@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-19 15:55:16
 LastEditors: Leidi
-LastEditTime: 2021-12-22 13:45:48
+LastEditTime: 2021-12-22 15:33:17
 '''
 import time
 import numpy as np
@@ -55,19 +55,36 @@ def get_annotation(dataset: dict, n: int, temp_annotation_path: str, process_ann
     image = TEMP_LOAD(dataset, temp_annotation_path)
     if image == None:
         return
-    
+
     # 获取图片分割信息
     one_image_annotations_list = []
-    for true_segmentation in image.true_segmentation_list:
-        segmentation = np.asarray(
-            true_segmentation.segmentation).flatten().tolist()
-        one_image_annotations_list.append({'segmentation': [segmentation],
-                                           'bbox': [],
-                                           'area': 0,
-                                           'iscrowd': true_segmentation.iscrowd,
-                                           'image_id': n,
-                                           'category_id': dataset['class_list_new'].index(true_segmentation.clss),
-                                           'id': process_annotation_count['annotation_count']})
-        process_annotation_count['annotation_count'] += 1
+    if len(image.true_segmentation_list):
+        for true_segmentation in image.true_segmentation_list:
+            segmentation = np.asarray(
+                true_segmentation.segmentation).flatten().tolist()
+            one_image_annotations_list.append({'segmentation': [segmentation],
+                                               'bbox': [],
+                                               'area': 0,
+                                               'iscrowd': true_segmentation.iscrowd,
+                                               'image_id': n,
+                                               'category_id': (dataset['detect_class_list_new'] + dataset['segment_class_list_new']).index(true_segmentation.clss),
+                                               'id': process_annotation_count['annotation_count']})
+            process_annotation_count['annotation_count'] += 1
+
+    if len(image.true_box_list):
+        for true_box in image.true_box_list:
+            bbox = [true_box.xmin,
+                    true_box.ymin,
+                    true_box.xmax-true_box.xmin,
+                    true_box.ymax-true_box.ymin,
+                    ]
+            one_image_annotations_list.append({'segmentation': [],
+                                               'bbox': bbox,
+                                               'area': 0,
+                                               'iscrowd': 0,
+                                               'image_id': n,
+                                               'category_id': (dataset['detect_class_list_new'] + dataset['segment_class_list_new']).index(true_segmentation.clss),
+                                               'id': process_annotation_count['annotation_count']})
+            process_annotation_count['annotation_count'] += 1
 
     return one_image_annotations_list

@@ -4,13 +4,13 @@ Version:
 Author: Leidi
 Date: 2021-08-09 21:55:18
 LastEditors: Leidi
-LastEditTime: 2021-12-22 13:46:18
+LastEditTime: 2021-12-22 14:32:00
 '''
 
 # 输入数据集图片、annotation文件格式
 dataset_file_form = {'huaweiyun_segment': {'image': 'jpg',
-                                        'annotation': 'json'
-                                        },
+                                           'annotation': 'json'
+                                           },
                      'yunce_segment_coco': {'image': 'jpg',
                                             'annotation': 'json'
                                             },
@@ -26,7 +26,12 @@ dataset_file_form = {'huaweiyun_segment': {'image': 'jpg',
                                'annotation': 'json',
                                'detect_annotation': 'json',
                                'segment_annotation': 'png'
-                               }
+                               },
+                     'coco2017': {'image': 'jpg',
+                                  'annotation': 'json',
+                                  'detect_annotation': 'json',
+                                  'segment_annotation': 'json'
+                                  }
                      }
 
 # 暂存数据集图片、annotation文件格式
