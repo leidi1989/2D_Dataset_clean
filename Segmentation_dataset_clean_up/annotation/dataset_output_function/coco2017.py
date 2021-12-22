@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-19 15:55:16
 LastEditors: Leidi
-LastEditTime: 2021-12-22 10:54:54
+LastEditTime: 2021-12-22 10:57:54
 '''
 import time
 import numpy as np
@@ -24,7 +24,7 @@ def get_image_information(dataset: dict, coco: dict, n: int, temp_annotation_pat
         n (int): [图片id]
         temp_annotation_path (str): [暂存标签路径]
     """
-    
+
     image = TEMP_LOAD(dataset, temp_annotation_path)
     if image == None:
         return
@@ -51,7 +51,7 @@ def get_annotation(dataset: dict, n: int, temp_annotation_path: str, process_ann
         temp_annotation_path (str): [暂存标签路径]
         process_annotation_count (dict): [annotation_count进程间通信字典]
     """
-    
+
     image = TEMP_LOAD(dataset, temp_annotation_path)
     if image == None:
         return
@@ -61,11 +61,11 @@ def get_annotation(dataset: dict, n: int, temp_annotation_path: str, process_ann
         segmentation = np.asarray(
             true_segmentation.segmentation).flatten().tolist()
         one_image_annotations_list.append({'segmentation': [segmentation],
-                                 'area': 0,
-                                 'iscrowd': true_segmentation.iscrowd,
-                                 'image_id': n,
-                                 'category_id': dataset['class_list_new'].index(true_segmentation.clss),
-                                 'id': process_annotation_count['annotation_count']})
+                                           'area': 0,
+                                           'iscrowd': true_segmentation.iscrowd,
+                                           'image_id': n,
+                                           'category_id': dataset['class_list_new'].index(true_segmentation.clss),
+                                           'id': process_annotation_count['annotation_count']})
         process_annotation_count['annotation_count'] += 1
 
     return one_image_annotations_list

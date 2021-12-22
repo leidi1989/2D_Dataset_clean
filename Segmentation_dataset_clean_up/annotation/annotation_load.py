@@ -1,11 +1,11 @@
-'''
+"""
 Description: 
 Version: 
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2021-12-15 17:23:37
-'''
+LastEditTime: 2021-12-22 10:59:52
+"""
 import os
 import json
 import multiprocessing
@@ -22,10 +22,10 @@ def cvat_image_1_1(dataset: dict) -> None:
     """
 
     process_temp_file_name_list = multiprocessing.Manager().list()
-    process_output = multiprocessing.Manager().dict({"success_count": 0,
-                                                     "fail_count": 0,
-                                                     "no_segmentation": 0,
-                                                     "temp_file_name_list": process_temp_file_name_list
+    process_output = multiprocessing.Manager().dict({'success_count': 0,
+                                                     'fail_count': 0,
+                                                     'no_segmentation': 0,
+                                                     'temp_file_name_list': process_temp_file_name_list
                                                      })
     pool = multiprocessing.Pool(dataset['workers'])
     for source_annotation_name in tqdm(os.listdir(dataset['source_annotations_folder'])):
@@ -65,10 +65,10 @@ def cityscapes(dataset: dict) -> None:
     """
 
     process_temp_file_name_list = multiprocessing.Manager().list()
-    process_output = multiprocessing.Manager().dict({"success_count": 0,
-                                                     "fail_count": 0,
-                                                     "no_segmentation": 0,
-                                                     "temp_file_name_list": process_temp_file_name_list
+    process_output = multiprocessing.Manager().dict({'success_count': 0,
+                                                     'fail_count': 0,
+                                                     'no_segmentation': 0,
+                                                     'temp_file_name_list': process_temp_file_name_list
                                                      })
     pool = multiprocessing.Pool(dataset['workers'])
     for source_annotations_name in tqdm(os.listdir(dataset['source_annotations_folder'])):
@@ -107,10 +107,10 @@ def bdd100k(dataset: dict) -> None:
     """
 
     process_temp_file_name_list = multiprocessing.Manager().list()
-    process_output = multiprocessing.Manager().dict({"success_count": 0,
-                                                     "fail_count": 0,
-                                                     "no_segmentation": 0,
-                                                     "temp_file_name_list": process_temp_file_name_list
+    process_output = multiprocessing.Manager().dict({'success_count': 0,
+                                                     'fail_count': 0,
+                                                     'no_segmentation': 0,
+                                                     'temp_file_name_list': process_temp_file_name_list
                                                      })
     pool = multiprocessing.Pool(dataset['workers'])
     for source_annotation_name in tqdm(os.listdir(dataset['source_annotations_folder'])):
@@ -206,10 +206,10 @@ def coco2017(dataset: dict) -> None:
 
         # 输出读取的source annotation至temp annotation
         process_temp_file_name_list = multiprocessing.Manager().list()
-        process_output = multiprocessing.Manager().dict({"success_count": 0,
-                                                         "fail_count": 0,
-                                                         "no_segmentation": 0,
-                                                         "temp_file_name_list": process_temp_file_name_list
+        process_output = multiprocessing.Manager().dict({'success_count': 0,
+                                                         'fail_count': 0,
+                                                         'no_segmentation': 0,
+                                                         'temp_file_name_list': process_temp_file_name_list
                                                          })
         pool = multiprocessing.Pool(dataset['workers'])
         for _, image in tqdm(total_images_data_dict.items()):
@@ -250,10 +250,10 @@ def apolloscape_lane_segment(dataset: dict) -> None:
     """
 
     process_temp_file_name_list = multiprocessing.Manager().list()
-    process_output = multiprocessing.Manager().dict({"success_count": 0,
-                                                     "fail_count": 0,
-                                                     "no_segmentation": 0,
-                                                     "temp_file_name_list": process_temp_file_name_list
+    process_output = multiprocessing.Manager().dict({'success_count': 0,
+                                                     'fail_count': 0,
+                                                     'no_segmentation': 0,
+                                                     'temp_file_name_list': process_temp_file_name_list
                                                      })
     pool = multiprocessing.Pool(dataset['workers'])
     for source_annotation_name in tqdm(os.listdir(dataset['source_annotations_folder'])):
@@ -348,10 +348,10 @@ def huaweiyun_segment(dataset: dict) -> None:
 
         # 输出读取的source annotation至temp annotation
         process_temp_file_name_list = multiprocessing.Manager().list()
-        process_output = multiprocessing.Manager().dict({"success_count": 0,
-                                                         "fail_count": 0,
-                                                         "no_segmentation": 0,
-                                                         "temp_file_name_list": process_temp_file_name_list
+        process_output = multiprocessing.Manager().dict({'success_count': 0,
+                                                         'fail_count': 0,
+                                                         'no_segmentation': 0,
+                                                         'temp_file_name_list': process_temp_file_name_list
                                                          })
         pool = multiprocessing.Pool(dataset['workers'])
         for _, image in tqdm(total_images_data_dict.items()):
@@ -381,76 +381,6 @@ def huaweiyun_segment(dataset: dict) -> None:
         f.close()
 
     return
-
-
-# def yunce_segment(dataset: dict) -> None:
-#     """[HUAWEI SEGMENT数据集annotation读取]
-
-#     Args:
-#         dataset (dict): [数据集信息字典]
-#     """
-
-#     success_count = 0
-#     fail_count = 0
-#     no_segmentation = 0
-#     temp_file_name_list = []
-
-#     for source_annotation_name in tqdm(os.listdir(dataset['source_annotations_folder'])):
-#         source_annotation_path = os.path.join(
-#             dataset['source_annotations_folder'], source_annotation_name)
-#         with open(source_annotation_path, 'r') as f:
-#             data = json.loads(f.read())
-#             f.close()
-
-#         del f
-
-#         class_dict = {}
-#         for n in data['categories']:
-#             class_dict['%s' % n['id']] = n['name']
-
-#         annotation_dict = {}
-#         for n in tqdm(data['annotations']):
-#             source_image_name = os.path.splitext(n['image_name'])[0]
-#             if source_image_name not in annotation_dict:
-#                 annotation_dict.update({source_image_name:[n]})
-#             else:
-#                 annotation_dict[source_image_name].append(n)
-
-#         # 获取data字典中images内的图片信息，file_name、height、width
-#         process_temp_file_name_list = multiprocessing.Manager().list()
-#         process_output = multiprocessing.Manager().dict({"success_count": 0,
-#                                                          "fail_count": 0,
-#                                                          "no_segmentation": 0,
-#                                                          "temp_file_name_list": process_temp_file_name_list
-#                                                          })
-#         pool = multiprocessing.Pool(dataset['workers'])
-#         for source_image_name, image_annotation in tqdm(annotation_dict.items()):
-#             pool.apply_async(func=F.__dict__[dataset['source_dataset_stype']].load_image_annotation, args=(
-#                 dataset, source_image_name, image_annotation, process_output,),
-#                 error_callback=err_call_back)
-#         pool.close()
-#         pool.join()
-
-#         # 更新输出统计
-#         success_count += process_output['success_count']
-#         fail_count += process_output['fail_count']
-#         no_segmentation += process_output['no_segmentation']
-#         temp_file_name_list += process_output['temp_file_name_list']
-
-#     # 输出读取统计结果
-#     print('\nSource dataset convert to temp dataset file count: ')
-#     print('Total annotations:         \t {} '.format(
-#         len(os.listdir(dataset['source_annotations_folder']))))
-#     print('Convert fail:              \t {} '.format(fail_count))
-#     print('No segmentation delete images: \t {} '.format(no_segmentation))
-#     print('Convert success:           \t {} '.format(success_count))
-#     dataset['temp_file_name_list'] = temp_file_name_list
-#     with open(os.path.join(dataset['temp_informations_folder'], 'classes.names'), 'w') as f:
-#         if len(dataset['class_list_new']):
-#             f.write('\n'.join(str(n) for n in dataset['class_list_new']))
-#         f.close()
-
-#     return
 
 
 def yunce_segment_coco(dataset: dict) -> None:
@@ -522,10 +452,10 @@ def yunce_segment_coco(dataset: dict) -> None:
 
         # 输出读取的source annotation至temp annotation
         process_temp_file_name_list = multiprocessing.Manager().list()
-        process_output = multiprocessing.Manager().dict({"success_count": 0,
-                                                         "fail_count": 0,
-                                                         "no_segmentation": 0,
-                                                         "temp_file_name_list": process_temp_file_name_list
+        process_output = multiprocessing.Manager().dict({'success_count': 0,
+                                                         'fail_count': 0,
+                                                         'no_segmentation': 0,
+                                                         'temp_file_name_list': process_temp_file_name_list
                                                          })
         pool = multiprocessing.Pool(dataset['workers'])
         for _, image in total_images_data_dict.items():
@@ -565,10 +495,10 @@ def yunce_segment_coco_one_image(dataset: dict) -> None:
     """
 
     process_temp_file_name_list = multiprocessing.Manager().list()
-    process_output = multiprocessing.Manager().dict({"success_count": 0,
-                                                     "fail_count": 0,
-                                                     "no_segmentation": 0,
-                                                     "temp_file_name_list": process_temp_file_name_list
+    process_output = multiprocessing.Manager().dict({'success_count': 0,
+                                                     'fail_count': 0,
+                                                     'no_segmentation': 0,
+                                                     'temp_file_name_list': process_temp_file_name_list
                                                      })
     pool = multiprocessing.Pool(dataset['workers'])
     for source_annotation_name in tqdm(os.listdir(dataset['source_annotations_folder'])):
@@ -609,10 +539,10 @@ def hy_val(dataset: dict) -> None:
     """
 
     process_temp_file_name_list = multiprocessing.Manager().list()
-    process_output = multiprocessing.Manager().dict({"success_count": 0,
-                                                     "fail_count": 0,
-                                                     "no_segmentation": 0,
-                                                     "temp_file_name_list": process_temp_file_name_list
+    process_output = multiprocessing.Manager().dict({'success_count': 0,
+                                                     'fail_count': 0,
+                                                     'no_segmentation': 0,
+                                                     'temp_file_name_list': process_temp_file_name_list
                                                      })
     pool = multiprocessing.Pool(dataset['workers'])
     for source_annotation_name in tqdm(os.listdir(dataset['source_annotations_folder'])):
@@ -643,25 +573,3 @@ def hy_val(dataset: dict) -> None:
         f.close()
 
     return
-
-
-# annotation_load_function_dict = {'coco2017': COCO_2017_LOAD,
-#                                  'cityscapes': CITYSCAPES_LOAD,
-#                                  'bdd100k': BDD100K_LOAD,
-#                                  'apolloscape_lane_segment': APOLLOSCAPE_LANE_SEGMENT_LOAD,
-#                                  'huawei_segment': HUAWEI_SEGMENT_LOAD,
-#                                  'hy_val': CITYSCAPESVAL_LOAD
-#                                  }
-
-
-# def annotation_load_function(dataset_stype: str, *args):
-#     """[获取指定类别数据集annotation提取函数。]
-
-#     Args:
-#         dataset_style (str): [输出数据集类别。]
-
-#     Returns:
-#         [function]: [返回指定类别数据集读取函数。]
-#     """
-
-#     return annotation_load_function_dict.get(dataset_stype)(*args)
