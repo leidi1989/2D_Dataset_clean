@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2021-12-21 16:15:56
+LastEditTime: 2021-12-22 10:49:06
 '''
 import json as js
 import cv2
@@ -21,19 +21,19 @@ values = ['car tail', 'car full', 'pedestrian',
           'special vehicle full', 'engineering vehicle tail',
           'engineering vehicle full', 'pushcart', 'other vehicle tail', 'other vehicle full',
           'cone barrel', 'road stake', 'passage pole', 'trash', 'water barriers', 'billboard', 'finger plate',
-          "traffic light", "Danger signs", "speed limit", "no parking", "parking lot", "motorway", "bicycle lane",
-          "no entry", "pedestrian crossing", "warning sign", "polygon"]
+          'traffic light', 'Danger signs', 'speed limit', 'no parking', 'parking lot', 'motorway', 'bicycle lane',
+          'no entry', 'pedestrian crossing', 'warning sign', 'polygon']
 # 不同类别的框用不同颜色区分
 colors = [[random.randint(0, 255) for _ in range(3)] for _ in range(38)]
 # 统计各个类别的框数
 nums = [[] for _ in range(39)]
 
 label_num = 1
-# package = "highway/night-time"
+# package = 'highway/night-time'
 # total_path = os.path.abspath('.')
-# image_path = os.path.join(total_path + "/" + package + "/" + str(label_num))
-# label_path = os.path.join(total_path + "/" + package +
-#                           "/" + str(label_num) + "-label")
+# image_path = os.path.join(total_path + '/' + package + '/' + str(label_num))
+# label_path = os.path.join(total_path + '/' + package +
+#                           '/' + str(label_num) + '-label')
 # dirs = os.listdir(label_path)
 
 package = r'D:\DataSets\cdx\cdx\urban\sunny-time\3_input'
@@ -49,8 +49,8 @@ dirs = os.listdir(label_path)
 total_box_count = 0
 for json_path in tqdm(dirs):
     json_path = os.path.join(label_path, json_path)
-    # savepath = os.path.join(total_path + "/" + package +
-                            # "/" + str(label_num) + "-show")
+    # savepath = os.path.join(total_path + '/' + package +
+                            # '/' + str(label_num) + '-show')
     if not os.path.exists(savepath):
         os.makedirs(savepath)
 
@@ -61,11 +61,11 @@ for json_path in tqdm(dirs):
         # data.sort(key = lambda x: int(os.path.splitext(x['imageName'])[0])) ##文件名按数字排序
         for d in data:
             img = cv2.imread(os.path.join(pic_path, d['imageName']))
-            if d["Data"] == []:
+            if d['Data'] == []:
                 break
-            for box in d["Data"]["svgArr"]:
+            for box in d['Data']['svgArr']:
                 # 画车线
-                if box["tool"] == 'polygon':
+                if box['tool'] == 'polygon':
                     pointx = []
                     pointy = []
                     cls = 'polygon'
@@ -92,8 +92,8 @@ for json_path in tqdm(dirs):
                                     cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 0))
                         total_box_count += 1
                     except ValueError:
-                        print(d['imageName'] + " ValueError: " +
-                              cls + "is not in list")
+                        print(d['imageName'] + ' ValueError: ' +
+                              cls + 'is not in list')
                         pass
 
             path = os.path.join(savepath, d['imageName'])

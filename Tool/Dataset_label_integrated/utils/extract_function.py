@@ -140,9 +140,9 @@ def from_hy_dataset(input_path, class_list):
             img = cv2.imread(img_path)
             height, width, channels = img.shape     # 读取每张图片的shape
             # 读取json文件中的每个真实框的class、xy信息
-            if len(d["Data"]):
-                for num, box in zip(range(len(d["Data"]["svgArr"])), d["Data"]["svgArr"]):
-                    if box["tool"] == 'rectangle':
+            if len(d['Data']):
+                for num, box in zip(range(len(d['Data']['svgArr'])), d['Data']['svgArr']):
+                    if box['tool'] == 'rectangle':
                         x = [float(box['data'][0]['x']), float(box['data'][1]['x']),
                              float(box['data'][2]['x']), float(box['data'][3]['x'])]
                         y = [float(box['data'][0]['y']), float(box['data'][1]['y']),
@@ -158,7 +158,7 @@ def from_hy_dataset(input_path, class_list):
                         true_box_name = locals()    # 定义true_box_name为局部变量
                         if xmax > xmin and ymax > ymin:
                             truebox_dict_list.append(true_box(cls, min(x), min(y), max(
-                                x), max(y), box["tool"]))  # 使用动态名称变量将单个真实框加入单张图片真实框列表
+                                x), max(y), box['tool']))  # 使用动态名称变量将单个真实框加入单张图片真实框列表
             one_image = per_image(d[key], img_path, int(
                 height), int(width), int(channels), truebox_dict_list)
             one_image.get_true_box_mask()   # 获取真实框在图像上的掩码图

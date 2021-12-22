@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-12-21 16:09:39
+LastEditTime: 2021-12-22 10:43:54
 '''
 import os
 import cv2
@@ -40,8 +40,8 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output,
         return
     height, width, channels = img.shape     # 读取每张图片的shape
     true_box_dict_list = []  # 声明每张图片真实框列表
-    if len(data["boxs"]):
-        for one_box in data["boxs"]:
+    if len(data['boxs']):
+        for one_box in data['boxs']:
             # 读取json文件中的每个真实框的class、xy信息
             x = one_box['x']
             y = one_box['y']

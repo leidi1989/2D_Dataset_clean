@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2021-11-03 10:31:08
+LastEditTime: 2021-12-22 10:46:42
 '''
 import os
 import csv
@@ -25,10 +25,10 @@ def YOLO_LOAD(dataset: dict):
 
     pool = multiprocessing.Pool(dataset['workers'])
     process_temp_file_name_list = multiprocessing.Manager().list()
-    process_output = multiprocessing.Manager().dict({"success_count": 0,
-                                                     "fail_count": 0,
-                                                     "no_true_box_count": 0,
-                                                     "temp_file_name_list": process_temp_file_name_list
+    process_output = multiprocessing.Manager().dict({'success_count': 0,
+                                                     'fail_count': 0,
+                                                     'no_true_box_count': 0,
+                                                     'temp_file_name_list': process_temp_file_name_list
                                                      })
     for source_annotations_name in tqdm(os.listdir(dataset['source_annotations_folder'])):
         pool.apply_async(func=yolo.load_annotation,
@@ -66,10 +66,10 @@ def PASCAL_VOC_LOAD(dataset: dict) -> None:
 
     pool = multiprocessing.Pool(dataset['workers'])
     process_temp_file_name_list = multiprocessing.Manager().list()
-    process_output = multiprocessing.Manager().dict({"success_count": 0,
-                                                     "fail_count": 0,
-                                                     "no_true_box_count": 0,
-                                                     "temp_file_name_list": process_temp_file_name_list
+    process_output = multiprocessing.Manager().dict({'success_count': 0,
+                                                     'fail_count': 0,
+                                                     'no_true_box_count': 0,
+                                                     'temp_file_name_list': process_temp_file_name_list
                                                      })
     for source_annotations_name in tqdm(os.listdir(dataset['source_annotations_folder'])):
         pool.apply_async(func=pascal_voc.load_annotation,

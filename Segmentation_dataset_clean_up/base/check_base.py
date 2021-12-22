@@ -4,12 +4,12 @@ Version:
 Author: Leidi
 Date: 2021-08-03 22:18:39
 LastEditors: Leidi
-LastEditTime: 2021-12-21 20:42:44
+LastEditTime: 2021-12-22 09:31:44
 '''
 import shutil
 
 from utils.utils import *
-from utils.plot import plot_true_box
+from utils.plot import plot_true_segmentation
 from annotation import annotation_check
 
 
@@ -24,6 +24,6 @@ def check(dataset: dict) -> None:
         dataset['target_dataset_style']](dataset)
     shutil.rmtree(dataset['check_annotation_output_folder'])
     check_output_path(dataset['check_annotation_output_folder'])
-    plot_true_box(dataset)
+    plot_true_segmentation(dataset)
 
     return

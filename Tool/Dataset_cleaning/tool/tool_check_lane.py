@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2021-12-21 16:15:50
+LastEditTime: 2021-12-22 10:44:57
 '''
 # -*- coding: utf-8 -*-
 import os
@@ -235,7 +235,7 @@ def main():
                     # print("load img error")
                     sys.exit()
 
-                svgArr = a1["svgArr"]
+                svgArr = a1['svgArr']
 
                 lane_box = [[]]
                 lane_flag = []  # 用来标记实线和虚线，1代表实线，0代表虚线

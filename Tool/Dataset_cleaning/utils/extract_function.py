@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2021-12-21 16:16:21
+LastEditTime: 2021-12-22 10:45:29
 '''
 # -*- coding: utf-8 -*-
 import os
@@ -171,9 +171,9 @@ def from_hy_dataset(input_path, class_list):
             img = cv2.imread(img_path)
             height, width, channels = img.shape     # 读取每张图片的shape
             # 读取json文件中的每个真实框的class、xy信息
-            if len(d["Data"]):
-                for num, box in zip(range(len(d["Data"]["svgArr"])), d["Data"]["svgArr"]):
-                    if box["tool"] == 'rectangle':
+            if len(d['Data']):
+                for num, box in zip(range(len(d['Data']['svgArr'])), d['Data']['svgArr']):
+                    if box['tool'] == 'rectangle':
                         x = [float(box['data'][0]['x']), float(box['data'][1]['x']),
                              float(box['data'][2]['x']), float(box['data'][3]['x'])]
                         y = [float(box['data'][0]['y']), float(box['data'][1]['y']),
@@ -187,7 +187,7 @@ def from_hy_dataset(input_path, class_list):
                         if cls not in class_list:
                             continue
                         truebox_dict_list.append(true_box(cls, min(x), min(y), max(
-                            x), max(y), box["tool"]))  # 将单个真实框加入单张图片真实框列表
+                            x), max(y), box['tool']))  # 将单个真实框加入单张图片真实框列表
             one_image = per_image(d[key], img_path, int(
                 height), int(width), int(channels), truebox_dict_list)
             total_images_data_list.append(one_image)    # 将单张图对象添加进全数据集数据列表中
@@ -777,8 +777,8 @@ def from_sjt(input_path, class_list):
         img = cv2.imread(img_path)
         height, width, channels = img.shape     # 读取每张图片的shape
         truebox_dict_list = []  # 声明每张图片真实框列表
-        if len(data["boxs"]):
-            for one_box in data["boxs"]:
+        if len(data['boxs']):
+            for one_box in data['boxs']:
                 # 读取json文件中的每个真实框的class、xy信息
                 x = one_box['x']
                 y = one_box['y']

@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-10-28 14:43:56
+LastEditTime: 2021-12-22 10:43:40
 '''
 import os
 import cv2
@@ -34,9 +34,9 @@ def load_annotation(dataset: dict, one_data: dict, process_output) -> None:
         return
     height, width, channels = img.shape     # 读取每张图片的shape
     # 读取json文件中的每个真实框的class、xy信息
-    if len(one_data["Data"]):
-        for box in one_data["Data"]["svgArr"]:
-            if box["tool"] == 'rectangle':
+    if len(one_data['Data']):
+        for box in one_data['Data']['svgArr']:
+            if box['tool'] == 'rectangle':
                 x = [float(box['data'][0]['x']), float(box['data'][1]['x']),
                      float(box['data'][2]['x']), float(box['data'][3]['x'])]
                 y = [float(box['data'][0]['y']), float(box['data'][1]['y']),
@@ -50,7 +50,7 @@ def load_annotation(dataset: dict, one_data: dict, process_output) -> None:
                 if cls not in dataset['source_class_list']:
                     continue
                 true_box_dict_list.append(
-                    TRUE_BOX(cls, xmin, ymin, xmax, ymax, box["tool"]))  # 将单个真实框加入单张图片真实框列表
+                    TRUE_BOX(cls, xmin, ymin, xmax, ymax, box['tool']))  # 将单个真实框加入单张图片真实框列表
 
     image = IMAGE(image_name, image_name_new, image_path, int(
         height), int(width), int(channels), true_box_dict_list)

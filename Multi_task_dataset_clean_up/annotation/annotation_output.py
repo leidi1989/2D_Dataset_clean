@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-05 21:50:49
 LastEditors: Leidi
-LastEditTime: 2021-12-21 20:24:19
+LastEditTime: 2021-12-22 10:44:15
 '''
 import time
 from tqdm import tqdm
@@ -60,7 +60,7 @@ def coco2017(dataset) -> None:
     """
 
     print('Start output target annotations:')
-    for dataset_temp_annotation_path_list in tqdm(dataset["temp_divide_file_list"][1:-1]):
+    for dataset_temp_annotation_path_list in tqdm(dataset['temp_divide_file_list'][1:-1]):
         # 声明coco字典及基础信息
         coco = {"info": {"description": "COCO 2017 Dataset",
                          "url": "http://cocodataset.org",
@@ -116,22 +116,22 @@ def coco2017(dataset) -> None:
             'categories': []
         }
         # 将class_list_new'转换为coco格式字典
-        for n, cls in enumerate(dataset["class_list_new"]):
+        for n, cls in enumerate(dataset['class_list_new']):
             category_item = {"supercategory": 'none',
                              "id": n,
                              "name": cls}
-            coco["categories"].append(category_item)
+            coco['categories'].append(category_item)
 
         annotation_output_path = os.path.join(
-            dataset["target_annotations_folder"], os.path.splitext(
+            dataset['target_annotations_folder'], os.path.splitext(
                 dataset_temp_annotation_path_list.split(os.sep)[-1])[0]
-            + str(2017) + '.' + dataset["target_annotation_form"])
+            + str(2017) + '.' + dataset['target_annotation_form'])
         annotation_path_list = []
         with open(dataset_temp_annotation_path_list, 'r') as f:
             for n in f.readlines():
                 annotation_path_list.append(n.replace('\n', '')
-                                            .replace(dataset["source_images_folder"], dataset["temp_annotations_folder"])
-                                            .replace(dataset["target_image_form"], dataset["temp_annotation_form"]))
+                                            .replace(dataset['source_images_folder'], dataset['temp_annotations_folder'])
+                                            .replace(dataset['target_image_form'], dataset['temp_annotation_form']))
         # 读取标签并转换coco格式为字典
         pool = multiprocessing.Pool(dataset['workers'])
         process_images = multiprocessing.Manager().list()
@@ -139,7 +139,7 @@ def coco2017(dataset) -> None:
         process_annotation_count = multiprocessing.Manager().dict(
             {"annotation_count": 0})
         for n, temp_annotation_path in tqdm(enumerate(annotation_path_list)):
-            pool.apply_async(func=F.__dict__[dataset["target_dataset_style"]].annotation_get_temp,
+            pool.apply_async(func=F.__dict__[dataset['target_dataset_style']].annotation_get_temp,
                              args=(dataset, coco, n,
                                    temp_annotation_path, process_images, process_annotations, process_annotation_count,),
                              error_callback=err_call_back)
@@ -147,10 +147,10 @@ def coco2017(dataset) -> None:
         pool.join()
 
         for n in process_images:
-            coco["images"].append(n)
+            coco['images'].append(n)
 
         for n in process_annotations:
-            coco["annotations"].append(n)
+            coco['annotations'].append(n)
 
         json.dump(coco, open(annotation_output_path, 'w'))
 

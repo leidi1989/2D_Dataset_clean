@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-09 16:05:57
 LastEditors: Leidi
-LastEditTime: 2021-11-25 13:47:33
+LastEditTime: 2021-12-22 09:31:42
 '''
 import os
 import cv2
@@ -105,7 +105,7 @@ def plot_sample_statistics(dataset) -> None:
     return
 
 
-def plot_true_box(dataset: dict) -> None:
+def plot_true_segmentation(dataset: dict) -> None:
     """[绘制每张图片的真实分割检测图]
 
     Args:
