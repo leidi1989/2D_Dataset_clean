@@ -1,11 +1,11 @@
-'''
+"""
 Description: 
 Version: 
 Author: Leidi
 Date: 2021-06-09 14:54:44
 LastEditors: Leidi
-LastEditTime: 2021-12-21 16:13:17
-'''
+LastEditTime: 2021-12-22 11:09:48
+"""
 # 导入需要的库
 import os
 import cv2
@@ -71,7 +71,7 @@ def img2mp4(image_folder_path: str, mp4fps: int) -> None:
         size = (img.width, img.height)
         img = np.array(img)
         
-    fourcc = cv2.VideoWriter_fourcc(*"mp4v")   # 视频写入编码器
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')   # 视频写入编码器
     videoWrite = cv2.VideoWriter(mp4_file_path, fourcc, mp4fps, size)
     # 根据图片的大小，创建写入对象(文件名，支持的编码器，帧频，视频大小(图片大小))
     for name in tqdm(image_list):

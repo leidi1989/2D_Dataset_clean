@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-18 09:34:21
 LastEditors: Leidi
-LastEditTime: 2021-12-21 16:13:05
+LastEditTime: 2021-12-22 11:08:56
 '''
 import os
 import cv2
@@ -20,6 +20,7 @@ def image_blur(image_folder: str, blur_lever: int,  dataset: dict = None) -> Non
         blur_scale (int): [description]
         dataset (dict, optional): [description]. Defaults to None.
     """
+    
     print('Start image blur:')
     for n in tqdm(os.listdir(image_folder)):
         if os.path.splitext(n)[-1] == 'jpg':
