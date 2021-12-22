@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-10 18:38:55
 LastEditors: Leidi
-LastEditTime: 2021-12-21 16:10:12
+LastEditTime: 2021-12-22 16:59:19
 '''
 from utils.utils import *
 from base.image_base import *
@@ -252,7 +252,8 @@ def sample_statistics(dataset: dict) -> None:
         # 统计全部labels各类别数量
         process_output = multiprocessing.Manager().dict()
         pool = multiprocessing.Pool(dataset['workers'])
-        process_total_annotation_detect_class_count_dict = multiprocessing.Manager().dict()
+        process_total_annotation_detect_class_count_dict = multiprocessing.Manager(
+        ).dict({x: 0 for x in dataset['class_list_new']})
         for n in tqdm(divide_annotation_list):
             pool.apply_async(func=get_temp_annotations_classes_count, args=(
                 dataset, n, process_output, process_total_annotation_detect_class_count_dict),

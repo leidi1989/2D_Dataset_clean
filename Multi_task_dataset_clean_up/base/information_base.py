@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-10 18:38:55
 LastEditors: Leidi
-LastEditTime: 2021-12-20 16:49:10
+LastEditTime: 2021-12-22 16:56:49
 '''
 from utils.utils import *
 from base.image_base import *
@@ -61,7 +61,7 @@ def temp_file_name(dataset: dict) -> list:
 
 
 def get_temp_annotations_classes_count(dataset: dict, temp_annotation_path: str,
-                  process_output: dict, process_total_annotation_detect_class_count_dict: dict) -> None:
+                                       process_output: dict, process_total_annotation_detect_class_count_dict: dict) -> None:
     """[获取暂存标签信息]
 
     Args:
@@ -76,7 +76,8 @@ def get_temp_annotations_classes_count(dataset: dict, temp_annotation_path: str,
             process_total_annotation_detect_class_count_dict[m.clss] += 1
         else:
             process_output.update({m.clss: 1})
-            process_total_annotation_detect_class_count_dict.update({m.clss: 1})
+            process_total_annotation_detect_class_count_dict.update({
+                                                                    m.clss: 1})
 
     return
 
@@ -249,7 +250,8 @@ def detect_sample_statistics(dataset: dict) -> None:
                 total_annotation_detect_class_prop_dict[one_class] = float(0)
         # 统计全部labels各类别数量
         process_output = multiprocessing.Manager().dict()
-        process_total_annotation_detect_class_count_dict = multiprocessing.Manager().dict()
+        process_total_annotation_detect_class_count_dict = multiprocessing.Manager(
+        ).dict({x: 0 for x in dataset['detect_class_list_new']})
         pool = multiprocessing.Pool(dataset['workers'])
         for n in tqdm(divide_annotation_list):
             pool.apply_async(func=get_temp_annotations_classes_count, args=(
@@ -285,8 +287,9 @@ def detect_sample_statistics(dataset: dict) -> None:
                 else:
                     total_annotation_detect_class_prop_dict[key] = (
                         float(value) / float(total_annotation_count)) * 100            # 计算个类别在此数据集占比
-            total_annotation_detect_class_count_dict.update({'total': total_annotation_count})
-        
+            total_annotation_detect_class_count_dict.update(
+                {'total': total_annotation_count})
+
         # 记录每个集的类别分布
         with open(os.path.join(dataset['temp_informations_folder'],
                                divide_distribution_file), 'w') as dist_txt:
@@ -416,7 +419,8 @@ def segment_sample_statistics(dataset: dict) -> None:
                 else:
                     total_annotation_segment_class_prop_dict[key] = (
                         float(value) / float(total_annotation_count)) * 100            # 计算个类别在此数据集占比
-            total_annotation_segment_class_count_dict.update({'total': total_annotation_count})
+            total_annotation_segment_class_count_dict.update(
+                {'total': total_annotation_count})
         # 记录每个集的类别分布
         with open(os.path.join(dataset['temp_informations_folder'],
                                divide_distribution_file), 'w') as dist_txt:
