@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-19 15:55:16
 LastEditors: Leidi
-LastEditTime: 2021-10-20 17:28:52
+LastEditTime: 2021-12-22 11:24:16
 '''
 import os
 import json
@@ -39,7 +39,7 @@ def annotation_output(dataset: dict, temp_annotation_path: str) -> None:
                'id': i,
                'attributes': {'occluded': False if 0 == n.difficult else str(n.difficult),
                               'truncated': False if 0 == n.occlusion else str(n.occlusion),
-                              'trafficLightColor': "none"
+                              'trafficLightColor': 'none'
                               },
                'box2d': {'x1': int(n.xmin),
                          'y1': int(n.ymin),

@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-03 22:18:39
 LastEditors: Leidi
-LastEditTime: 2021-11-15 15:29:58
+LastEditTime: 2021-12-22 11:28:25
 '''
 from utils.utils import *
 from annotation.annotation_output import *
@@ -14,7 +14,7 @@ from annotation.annotation_check import annotation_check_function
 import shutil
 import matplotlib
 import matplotlib.pyplot as plt
-matplotlib.rc("font", family='AR PL UMing CN')
+matplotlib.rc('font', family='AR PL UMing CN')
 plt.switch_backend('agg')
 
 
@@ -23,14 +23,14 @@ def check(dataset: dict) -> None:
 
     Args:
         dataset (dict): [数据集信息字典]
-    """   
-    
+    """
+
     dataset['check_images_list'] = image_list(dataset)
     shutil.rmtree(dataset['check_annotation_output_folder'])
     check_output_path(dataset['check_annotation_output_folder'])
     plot_true_box(dataset)
     plot_true_segment(dataset)
-    
+
     return
 
 
@@ -42,6 +42,6 @@ def image_list(dataset: dict) -> list:
 
     Returns:
         list: [获取检测标签的IMAGE实例列表]
-    """    
-    
+    """
+
     return annotation_check_function(dataset['target_dataset_style'], dataset)

@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-10-23 00:46:01
+LastEditTime: 2021-12-22 11:22:56
 '''
 import os
 from PIL import Image
@@ -52,7 +52,7 @@ def load_image_annotation(dataset: dict, one_annotation: dict, class_dict: dict,
 
     Returns:
         list: [ann_image_id, true_box_list, true_segmentation_list]
-    """    
+    """
 
     ann_image_id = one_annotation['image_id']   # 获取此bbox图片id
     cls = class_dict[str(one_annotation['category_id'])]     # 获取bbox类别

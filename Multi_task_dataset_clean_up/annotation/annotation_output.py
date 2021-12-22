@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-05 21:50:49
 LastEditors: Leidi
-LastEditTime: 2021-12-22 10:54:22
+LastEditTime: 2021-12-22 11:27:06
 '''
 import time
 from tqdm import tqdm
@@ -60,55 +60,55 @@ def coco2017(dataset) -> None:
     """
 
     print('Start output target annotations:')
-    for dataset_temp_annotation_path_list in tqdm(dataset["temp_divide_file_list"][1:-1]):
+    for dataset_temp_annotation_path_list in tqdm(dataset['temp_divide_file_list'][1:-1]):
         # 声明coco字典及基础信息
-        coco = {"info": {"description": "COCO 2017 Dataset",
-                         "url": "http://cocodataset.org",
-                         "version": "1.0",
-                         "year": 2017,
-                         "contributor": "leidi",
-                         "date_created": time.strftime('%Y/%m/%d %H:%M:%S', time.localtime())
+        coco = {'info': {'description': 'COCO 2017 Dataset',
+                         'url': 'http://cocodataset.org',
+                         'version': '1.0',
+                         'year': 2017,
+                         'contributor': 'leidi',
+                         'date_created': time.strftime('%Y/%m/%d %H:%M:%S', time.localtime())
                          },
-                "licenses": [
+                'licenses': [
             {
-                "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/",
-                "id": 1,
-                "name": "Attribution-NonCommercial-ShareAlike License"
+                'url': 'http://creativecommons.org/licenses/by-nc-sa/2.0/',
+                'id': 1,
+                'name': 'Attribution-NonCommercial-ShareAlike License'
             },
             {
-                "url": "http://creativecommons.org/licenses/by-nc/2.0/",
-                "id": 2,
-                "name": "Attribution-NonCommercial License"
+                'url': 'http://creativecommons.org/licenses/by-nc/2.0/',
+                'id': 2,
+                'name': 'Attribution-NonCommercial License'
             },
             {
-                "url": "http://creativecommons.org/licenses/by-nc-nd/2.0/",
-                "id": 3,
-                "name": "Attribution-NonCommercial-NoDerivs License"
+                'url': 'http://creativecommons.org/licenses/by-nc-nd/2.0/',
+                'id': 3,
+                'name': 'Attribution-NonCommercial-NoDerivs License'
             },
             {
-                "url": "http://creativecommons.org/licenses/by/2.0/",
-                "id": 4,
-                "name": "Attribution License"
+                'url': 'http://creativecommons.org/licenses/by/2.0/',
+                'id': 4,
+                'name': 'Attribution License'
             },
             {
-                "url": "http://creativecommons.org/licenses/by-sa/2.0/",
-                "id": 5,
-                "name": "Attribution-ShareAlike License"
+                'url': 'http://creativecommons.org/licenses/by-sa/2.0/',
+                'id': 5,
+                'name': 'Attribution-ShareAlike License'
             },
             {
-                "url": "http://creativecommons.org/licenses/by-nd/2.0/",
-                "id": 6,
-                "name": "Attribution-NoDerivs License"
+                'url': 'http://creativecommons.org/licenses/by-nd/2.0/',
+                'id': 6,
+                'name': 'Attribution-NoDerivs License'
             },
             {
-                "url": "http://flickr.com/commons/usage/",
-                "id": 7,
-                "name": "No known copyright restrictions"
+                'url': 'http://flickr.com/commons/usage/',
+                'id': 7,
+                'name': 'No known copyright restrictions'
             },
             {
-                "url": "http://www.usa.gov/copyright.shtml",
-                "id": 8,
-                "name": "United States Government Work"
+                'url': 'http://www.usa.gov/copyright.shtml',
+                'id': 8,
+                'name': 'United States Government Work'
             }
         ],
             'images': [],
@@ -117,29 +117,29 @@ def coco2017(dataset) -> None:
         }
         
         # 将class_list_new转换为coco格式字典
-        for n, cls in enumerate(dataset["class_list_new"]):
-            category_item = {"supercategory": 'none',
-                             "id": n,
-                             "name": cls}
-            coco["categories"].append(category_item)
+        for n, cls in enumerate(dataset['class_list_new']):
+            category_item = {'supercategory': 'none',
+                             'id': n,
+                             'name': cls}
+            coco['categories'].append(category_item)
 
         annotation_output_path = os.path.join(
-            dataset["target_annotations_folder"], os.path.splitext(
+            dataset['target_annotations_folder'], os.path.splitext(
                 dataset_temp_annotation_path_list.split(os.sep)[-1])[0]
-            + str(2017) + '.' + dataset["target_annotation_form"])
+            + str(2017) + '.' + dataset['target_annotation_form'])
         annotation_path_list = []
         with open(dataset_temp_annotation_path_list, 'r') as f:
             for n in f.readlines():
                 annotation_path_list.append(n.replace('\n', '')
-                                            .replace(dataset["source_images_folder"], dataset["temp_annotations_folder"])
-                                            .replace(dataset["target_image_form"], dataset["temp_annotation_form"]))
+                                            .replace(dataset['source_images_folder'], dataset['temp_annotations_folder'])
+                                            .replace(dataset['target_image_form'], dataset['temp_annotation_form']))
 
         # 读取标签图片基础信息
         print('Start load image information:')
         image_information_list = []
         pool = multiprocessing.Pool(dataset['workers'])
         for n, temp_annotation_path in tqdm(enumerate(annotation_path_list)):
-            image_information_list.append(pool.apply_async(func=F.__dict__[dataset["target_dataset_style"]].get_image_information,
+            image_information_list.append(pool.apply_async(func=F.__dict__[dataset['target_dataset_style']].get_image_information,
                                                            args=(
                                                                dataset, coco, n, temp_annotation_path,),
                                                            error_callback=err_call_back))
@@ -147,7 +147,7 @@ def coco2017(dataset) -> None:
         pool.join()
 
         for n in tqdm(image_information_list):
-            coco["images"].append(n.get())
+            coco['images'].append(n.get())
         del image_information_list
         
         # 读取标签标注基础信息
@@ -155,9 +155,9 @@ def coco2017(dataset) -> None:
         annotations_list = []
         pool = multiprocessing.Pool(dataset['workers'])
         process_annotation_count = multiprocessing.Manager().dict(
-            {"annotation_count": 0})
+            {'annotation_count': 0})
         for n, temp_annotation_path in tqdm(enumerate(annotation_path_list)):
-            annotations_list.append(pool.apply_async(func=F.__dict__[dataset["target_dataset_style"]].get_annotation,
+            annotations_list.append(pool.apply_async(func=F.__dict__[dataset['target_dataset_style']].get_annotation,
                                                      args=(dataset, n,
                                                            temp_annotation_path, process_annotation_count,),
                                                      error_callback=err_call_back))
@@ -166,7 +166,7 @@ def coco2017(dataset) -> None:
         
         for n in tqdm(annotations_list):
             for m in n.get():
-                coco["annotations"].append(m)
+                coco['annotations'].append(m)
         del annotations_list
 
         json.dump(coco, open(annotation_output_path, 'w'))
