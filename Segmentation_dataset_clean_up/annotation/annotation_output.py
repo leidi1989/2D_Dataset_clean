@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-05 21:50:49
 LastEditors: Leidi
-LastEditTime: 2021-12-22 11:02:39
+LastEditTime: 2021-12-24 16:58:35
 '''
 import os
 import json
@@ -205,19 +205,20 @@ def coco2017(dataset) -> None:
         print('Start load annotation:')
         annotations_list = []
         pool = multiprocessing.Pool(dataset['workers'])
-        process_annotation_count = multiprocessing.Manager().dict(
-            {'annotation_count': 0})
         for n, temp_annotation_path in tqdm(enumerate(annotation_path_list)):
             annotations_list.append(pool.apply_async(func=F.__dict__[dataset['target_dataset_style']].get_annotation,
                                                      args=(dataset, n,
-                                                           temp_annotation_path, process_annotation_count,),
+                                                           temp_annotation_path,),
                                                      error_callback=err_call_back))
         pool.close()
         pool.join()
-
+       
+        annotation_id = 0
         for n in tqdm(annotations_list):
             for m in n.get():
+                m['id'] = annotation_id
                 coco['annotations'].append(m)
+                annotation_id += 1
         del annotations_list
 
         json.dump(coco, open(annotation_output_path, 'w'))

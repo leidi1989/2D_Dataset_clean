@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-19 15:55:16
 LastEditors: Leidi
-LastEditTime: 2021-12-22 10:57:54
+LastEditTime: 2021-12-24 16:53:46
 '''
 import time
 import numpy as np
@@ -42,7 +42,7 @@ def get_image_information(dataset: dict, coco: dict, n: int, temp_annotation_pat
     return image_information
 
 
-def get_annotation(dataset: dict, n: int, temp_annotation_path: str, process_annotation_count: dict) -> None:
+def get_annotation(dataset: dict, n: int, temp_annotation_path: str) -> None:
     """[获取暂存标注信息]
 
     Args:
@@ -65,7 +65,6 @@ def get_annotation(dataset: dict, n: int, temp_annotation_path: str, process_ann
                                            'iscrowd': true_segmentation.iscrowd,
                                            'image_id': n,
                                            'category_id': dataset['class_list_new'].index(true_segmentation.clss),
-                                           'id': process_annotation_count['annotation_count']})
-        process_annotation_count['annotation_count'] += 1
+                                           'id': 0})
 
     return one_image_annotations_list
