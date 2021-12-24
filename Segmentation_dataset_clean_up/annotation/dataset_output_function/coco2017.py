@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-19 15:55:16
 LastEditors: Leidi
-LastEditTime: 2021-12-24 16:53:46
+LastEditTime: 2021-12-24 17:11:39
 '''
 import time
 import numpy as np
@@ -49,7 +49,6 @@ def get_annotation(dataset: dict, n: int, temp_annotation_path: str) -> None:
         dataset (dict): [数据集信息字典]
         n (int): [图片id]
         temp_annotation_path (str): [暂存标签路径]
-        process_annotation_count (dict): [annotation_count进程间通信字典]
     """
 
     image = TEMP_LOAD(dataset, temp_annotation_path)
