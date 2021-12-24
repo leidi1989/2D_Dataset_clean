@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-05 21:50:49
 LastEditors: Leidi
-LastEditTime: 2021-12-24 16:58:35
+LastEditTime: 2021-12-24 17:05:24
 '''
 import os
 import json
@@ -175,7 +175,7 @@ def coco2017(dataset) -> None:
             coco['categories'].append(category_item)
 
         annotation_output_path = os.path.join(
-            dataset['target_annotations_folder'], os.path.splitext(
+            dataset['target_annotations_folder'], 'instances_' + os.path.splitext(
                 dataset_temp_annotation_path_list.split(os.sep)[-1])[0]
             + str(2017) + '.' + dataset['target_annotation_form'])
         annotation_path_list = []
