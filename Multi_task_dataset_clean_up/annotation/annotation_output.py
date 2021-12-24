@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-05 21:50:49
 LastEditors: Leidi
-LastEditTime: 2021-12-22 15:20:35
+LastEditTime: 2021-12-24 17:07:56
 '''
 import time
 from tqdm import tqdm
@@ -164,9 +164,12 @@ def coco2017(dataset) -> None:
         pool.close()
         pool.join()
         
+        annotation_id = 0
         for n in tqdm(annotations_list):
             for m in n.get():
+                m['id'] = annotation_id
                 coco['annotations'].append(m)
+                annotation_id += 1
         del annotations_list
 
         json.dump(coco, open(annotation_output_path, 'w'))
