@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-05 21:50:49
 LastEditors: Leidi
-LastEditTime: 2021-12-24 17:07:56
+LastEditTime: 2021-12-24 17:10:30
 '''
 import time
 from tqdm import tqdm
@@ -154,12 +154,10 @@ def coco2017(dataset) -> None:
         print('Start load annotation:')
         annotations_list = []
         pool = multiprocessing.Pool(dataset['workers'])
-        process_annotation_count = multiprocessing.Manager().dict(
-            {'annotation_count': 0})
         for n, temp_annotation_path in tqdm(enumerate(annotation_path_list)):
             annotations_list.append(pool.apply_async(func=F.__dict__[dataset['target_dataset_style']].get_annotation,
                                                      args=(dataset, n,
-                                                           temp_annotation_path, process_annotation_count,),
+                                                           temp_annotation_path,),
                                                      error_callback=err_call_back))
         pool.close()
         pool.join()
