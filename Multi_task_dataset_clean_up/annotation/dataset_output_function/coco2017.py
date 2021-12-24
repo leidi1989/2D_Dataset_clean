@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-19 15:55:16
 LastEditors: Leidi
-LastEditTime: 2021-12-24 17:09:51
+LastEditTime: 2021-12-24 17:11:14
 '''
 import time
 import numpy as np
@@ -42,7 +42,7 @@ def get_image_information(dataset: dict, coco: dict, n: int, temp_annotation_pat
     return image_information
 
 
-def get_annotation(dataset: dict, n: int, temp_annotation_path: str, process_annotation_count: dict) -> None:
+def get_annotation(dataset: dict, n: int, temp_annotation_path: str) -> None:
     """[获取暂存标注信息]
 
     Args:
