@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-05 21:50:49
 LastEditors: Leidi
-LastEditTime: 2021-12-24 17:05:24
+LastEditTime: 2021-12-24 17:06:43
 '''
 import os
 import json
@@ -212,7 +212,7 @@ def coco2017(dataset) -> None:
                                                      error_callback=err_call_back))
         pool.close()
         pool.join()
-       
+
         annotation_id = 0
         for n in tqdm(annotations_list):
             for m in n.get():
