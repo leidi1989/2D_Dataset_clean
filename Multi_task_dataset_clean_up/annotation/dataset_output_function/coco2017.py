@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-19 15:55:16
 LastEditors: Leidi
-LastEditTime: 2021-12-24 17:11:14
+LastEditTime: 2021-12-27 11:19:09
 '''
 import time
 import numpy as np
@@ -54,15 +54,15 @@ def get_annotation(dataset: dict, n: int, temp_annotation_path: str) -> None:
     image = TEMP_LOAD(dataset, temp_annotation_path)
     if image == None:
         return
-
     # 获取图片分割信息
     one_image_annotations_list = []
     if len(image.true_segmentation_list):
         for true_segmentation in image.true_segmentation_list:
+            bbox = true_segmentation_to_true_box(true_segmentation)
             segmentation = np.asarray(
                 true_segmentation.segmentation).flatten().tolist()
             one_image_annotations_list.append({'segmentation': [segmentation],
-                                               'bbox': [],
+                                               'bbox': bbox,
                                                'area': 0,
                                                'iscrowd': true_segmentation.iscrowd,
                                                'image_id': n,
@@ -76,7 +76,9 @@ def get_annotation(dataset: dict, n: int, temp_annotation_path: str) -> None:
                     true_box.xmax-true_box.xmin,
                     true_box.ymax-true_box.ymin,
                     ]
-            one_image_annotations_list.append({'segmentation': [],
+            segmentation = [str(true_box.xmin), str(
+                true_box.ymin), str(true_box.xmax), str(true_box.ymax)]
+            one_image_annotations_list.append({'segmentation': [segmentation],
                                                'bbox': bbox,
                                                'area': 0,
                                                'iscrowd': 0,
