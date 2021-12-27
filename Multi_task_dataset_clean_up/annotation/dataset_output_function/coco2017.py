@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-19 15:55:16
 LastEditors: Leidi
-LastEditTime: 2021-12-27 11:19:09
+LastEditTime: 2021-12-27 17:52:07
 '''
 import time
 import numpy as np
@@ -71,10 +71,10 @@ def get_annotation(dataset: dict, n: int, temp_annotation_path: str) -> None:
 
     if len(image.true_box_list):
         for true_box in image.true_box_list:
-            bbox = [true_box.xmin,
-                    true_box.ymin,
-                    true_box.xmax-true_box.xmin,
-                    true_box.ymax-true_box.ymin,
+            bbox = [int(true_box.xmin),
+                    int(true_box.ymin),
+                    int(true_box.xmax-true_box.xmin),
+                    int(true_box.ymax-true_box.ymin),
                     ]
             segmentation = [str(true_box.xmin), str(
                 true_box.ymin), str(true_box.xmax), str(true_box.ymax)]
