@@ -124,7 +124,7 @@ def coco2017(dataset) -> None:
             coco['categories'].append(category_item)
 
         annotation_output_path = os.path.join(
-            dataset['target_annotations_folder'], os.path.splitext(
+            dataset['target_annotations_folder'], 'instances_' + os.path.splitext(
                 dataset_temp_annotation_path_list.split(os.sep)[-1])[0]
             + str(2017) + '.' + dataset['target_annotation_form'])
         annotation_path_list = []

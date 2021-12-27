@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2021-12-22 15:53:16
+LastEditTime: 2021-12-27 17:49:40
 '''
 import os
 import cv2
@@ -148,17 +148,29 @@ def coco2017(dataset: dict) -> list:
     images_data_list = []
     images_data_dict = {}
     for target_annotation in dataset['check_file_name_list']:
-        if target_annotation != 'train2017.json':
+        if target_annotation != 'instances_train2017.json':
             continue
         target_annotation_path = os.path.join(
             dataset['target_annotations_folder'], target_annotation)
+        print('Loading instances_train2017.json:')
         with open(target_annotation_path, 'r') as f:
             data = json.loads(f.read())
         name_dict = {}
         for one_name in data['categories']:
             name_dict['%s' % one_name['id']] = one_name['name']
+
+        print('Start to count images:')
+        total_image_count = 0
+        for d in tqdm(data['images']):
+            total_image_count += 1
+        check_images_count = min(
+            dataset['target_annotation_check_count'], total_image_count)
+        check_image_id_list = [random.randint(
+            0, total_image_count)for i in range(check_images_count)]
+
         print('Start to load each annotation data file:')
-        for d in tqdm(data['images']):   # 获取data字典中images内的图片信息，file_name、height、width
+        for n in check_image_id_list:
+            d = data['images'][n]
             img_id = d['id']
             img_name = d['file_name']
             img_name_new = img_name
@@ -173,41 +185,44 @@ def coco2017(dataset: dict) -> list:
             one_image = IMAGE(
                 img_name, img_name_new, img_path, height, width, channels, [], [])
             images_data_dict.update({img_id: one_image})
+        
         for one_annotation in tqdm(data['annotations']):
-            if len(one_annotation['bbox']):
-                ann_image_id = one_annotation['image_id']   # 获取此标签图片id
-                # 获取标签类别
-                cls = name_dict[str(one_annotation['category_id'])]
-                cls = cls.replace(' ', '').lower()
-                if cls not in (dataset['detect_class_list_new']
-                               + dataset['segment_class_list_new']):
-                    continue
-                box = [one_annotation['bbox'][0],
-                       one_annotation['bbox'][1],
-                       one_annotation['bbox'][0] + one_annotation['bbox'][2],
-                       one_annotation['bbox'][1] + one_annotation['bbox'][3]]
-                xmin = max(min(int(box[0]), int(box[2]),
-                               int(images_data_dict[ann_image_id].width)), 0.)
-                ymin = max(min(int(box[1]), int(box[3]),
-                               int(images_data_dict[ann_image_id].height)), 0.)
-                xmax = min(max(int(box[2]), int(box[0]), 0.),
-                           int(images_data_dict[ann_image_id].width))
-                ymax = min(max(int(box[3]), int(box[1]), 0.),
-                           int(images_data_dict[ann_image_id].height))
-                images_data_dict[ann_image_id].true_box_list_updata(
-                    TRUE_BOX(cls, xmin, ymin, xmax, ymax))
-            if len(one_annotation['segmentation']):
-                ann_image_id = one_annotation['image_id']   # 获取此标签图片id
-                # 获取标签类别
-                cls = name_dict[str(one_annotation['category_id'])]
-                cls = cls.replace(' ', '').lower()
-                if cls not in (dataset['detect_class_list_new']
-                               + dataset['segment_class_list_new']):
-                    continue
-                segmentation = np.asarray(
-                    one_annotation['segmentation'][0]).reshape((-1, 2)).tolist()
-                images_data_dict[ann_image_id].true_segmentation_list_updata(
-                    TRUE_SEGMENTATION(cls, segmentation, iscrowd=one_annotation['iscrowd']))
+            if one_annotation['image_id'] in images_data_dict:
+                if len(one_annotation['bbox']):
+                    ann_image_id = one_annotation['image_id']   # 获取此标签图片id
+                    # 获取标签类别
+                    cls = name_dict[str(one_annotation['category_id'])]
+                    cls = cls.replace(' ', '').lower()
+                    if cls not in (dataset['detect_class_list_new']
+                                   + dataset['segment_class_list_new']):
+                        continue
+                    box = [one_annotation['bbox'][0],
+                           one_annotation['bbox'][1],
+                           one_annotation['bbox'][0] +
+                           one_annotation['bbox'][2],
+                           one_annotation['bbox'][1] + one_annotation['bbox'][3]]
+                    xmin = max(min(int(box[0]), int(box[2]),
+                                   int(images_data_dict[ann_image_id].width)), 0.)
+                    ymin = max(min(int(box[1]), int(box[3]),
+                                   int(images_data_dict[ann_image_id].height)), 0.)
+                    xmax = min(max(int(box[2]), int(box[0]), 0.),
+                               int(images_data_dict[ann_image_id].width))
+                    ymax = min(max(int(box[3]), int(box[1]), 0.),
+                               int(images_data_dict[ann_image_id].height))
+                    images_data_dict[ann_image_id].true_box_list_updata(
+                        TRUE_BOX(cls, xmin, ymin, xmax, ymax))
+                if len(one_annotation['segmentation']):
+                    ann_image_id = one_annotation['image_id']   # 获取此标签图片id
+                    # 获取标签类别
+                    cls = name_dict[str(one_annotation['category_id'])]
+                    cls = cls.replace(' ', '').lower()
+                    if cls not in (dataset['detect_class_list_new']
+                                   + dataset['segment_class_list_new']):
+                        continue
+                    segmentation = np.asarray(
+                        one_annotation['segmentation'][0]).reshape((-1, 2)).tolist()
+                    images_data_dict[ann_image_id].true_segmentation_list_updata(
+                        TRUE_SEGMENTATION(cls, segmentation, iscrowd=one_annotation['iscrowd']))
     for _, n in images_data_dict.items():
         images_data_list.append(n)
     random.shuffle(images_data_list)
