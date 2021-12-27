@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-06 09:06:35
 LastEditors: Leidi
-LastEditTime: 2021-12-27 10:58:51
+LastEditTime: 2021-12-27 17:09:15
 '''
 # -*- coding: utf-8 -*-
 import numpy as np
@@ -100,6 +100,6 @@ def true_segmentation_to_true_box(true_segmentation: TRUE_SEGMENTATION) -> list:
     max_y = np.max(segmentation[:, 1])
     width = max_x - min_x
     hight = max_y - min_y
-    bbox = [str(min_x), str(min_y), str(width), str(hight)]
+    bbox = [int(min_x), int(min_y), int(width), int(hight)]
 
     return bbox
