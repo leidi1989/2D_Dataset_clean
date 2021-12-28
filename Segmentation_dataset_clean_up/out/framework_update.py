@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-11 03:28:09
 LastEditors: Leidi
-LastEditTime: 2021-12-22 15:58:59
+LastEditTime: 2021-12-28 15:36:17
 '''
 import os
 import cv2
@@ -154,24 +154,27 @@ def coco2017(dataset: dict) -> None:
     shutil.rmtree(output_root)
     output_root = check_output_path(
         os.path.join(dataset['target_path'], 'coco2017'))
-    image_output_folder = check_output_path(
-        os.path.join(output_root, 'images'))
     annotations_output_folder = check_output_path(
         os.path.join(output_root, 'annotations'))
     # 调整ImageSets
     print('Start copy images:')
-    image_list = []
-    with open(dataset['temp_divide_file_list'][0], 'r') as f:
-        for n in f.readlines():
-            image_list.append(n.replace('\n', ''))
-    pool = multiprocessing.Pool(dataset['workers'])
-    for image_input_path in tqdm(image_list):
-        image_output_path = image_input_path.replace(
-            dataset['temp_images_folder'], image_output_folder)
-        pool.apply_async(func=F.__dict__[dataset['target_dataset_style']].copy_image,
-                         args=(image_input_path, image_output_path,), error_callback=err_call_back)
-    pool.close()
-    pool.join()
+    for temp_divide_file in dataset['temp_divide_file_list'][1:4]:
+        image_list = []
+        coco_images_folder = os.path.splitext(
+            temp_divide_file.split(os.sep)[-1])[0]
+        image_output_folder = check_output_path(
+            os.path.join(output_root, coco_images_folder + '2017'))
+        with open(temp_divide_file, 'r') as f:
+            for n in f.readlines():
+                image_list.append(n.replace('\n', ''))
+        pool = multiprocessing.Pool(dataset['workers'])
+        for image_input_path in tqdm(image_list):
+            image_output_path = image_input_path.replace(
+                dataset['temp_images_folder'], image_output_folder)
+            pool.apply_async(func=F.__dict__[dataset['target_dataset_style']].copy_image,
+                             args=(image_input_path, image_output_path,), error_callback=err_call_back)
+        pool.close()
+        pool.join()
 
     print('Start copy annotations:')
     for root, dirs, files in os.walk(dataset['target_annotations_folder']):
