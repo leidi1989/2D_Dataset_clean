@@ -4,8 +4,9 @@ Version:
 Author: Leidi
 Date: 2021-10-19 15:55:16
 LastEditors: Leidi
-LastEditTime: 2021-12-27 17:52:07
+LastEditTime: 2021-12-28 16:19:03
 '''
+import cv2
 import time
 import numpy as np
 
@@ -61,14 +62,16 @@ def get_annotation(dataset: dict, n: int, temp_annotation_path: str) -> None:
             bbox = true_segmentation_to_true_box(true_segmentation)
             segmentation = np.asarray(
                 true_segmentation.segmentation).flatten().tolist()
+            area = int(cv2.contourArea(
+                np.array(true_segmentation.segmentation)))
             one_image_annotations_list.append({'segmentation': [segmentation],
                                                'bbox': bbox,
-                                               'area': 0,
+                                               'area': area,
                                                'iscrowd': true_segmentation.iscrowd,
                                                'image_id': n,
                                                'category_id': (dataset['detect_class_list_new'] + dataset['segment_class_list_new']).index(true_segmentation.clss),
                                                'id': 0})
-
+    # 图片真实框信息
     if len(image.true_box_list):
         for true_box in image.true_box_list:
             bbox = [int(true_box.xmin),
@@ -78,9 +81,11 @@ def get_annotation(dataset: dict, n: int, temp_annotation_path: str) -> None:
                     ]
             segmentation = [str(true_box.xmin), str(
                 true_box.ymin), str(true_box.xmax), str(true_box.ymax)]
+            area = int(true_box.xmax-true_box.xmin) * \
+                int(true_box.ymax-true_box.ymin)
             one_image_annotations_list.append({'segmentation': [segmentation],
                                                'bbox': bbox,
-                                               'area': 0,
+                                               'area': area,
                                                'iscrowd': 0,
                                                'image_id': n,
                                                'category_id': (dataset['detect_class_list_new'] + dataset['segment_class_list_new']).index(true_segmentation.clss),

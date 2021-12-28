@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2021-11-08 16:37:16
+LastEditTime: 2021-12-28 15:52:36
 '''
 import os
 
@@ -71,8 +71,8 @@ class TRUE_SEGMENTATION:
 
         self.clss = clss
         self.segmentation = segmentation
-        self.area = area
-        self.iscrowd = iscrowd
+        self.area = float(area)
+        self.iscrowd = int(iscrowd)
 
 
 class IMAGE:
