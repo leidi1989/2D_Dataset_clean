@@ -4,11 +4,9 @@ Version:
 Author: Leidi
 Date: 2021-10-19 15:55:16
 LastEditors: Leidi
-LastEditTime: 2021-12-22 15:58:51
+LastEditTime: 2021-12-28 15:37:23
 '''
 import shutil
-
-from annotation.annotation_temp import TEMP_LOAD
 
 
 def copy_image(x: str, image_output_path: str) -> None:
