@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-12-17 18:21:58
+LastEditTime: 2021-12-28 15:50:28
 '''
 import os
 from PIL import Image
@@ -72,12 +72,12 @@ def load_annotation(dataset: dict, source_annotations_name: str, process_output)
                     else:
                         segment[-1].append(n)
                         c = 0
-                if 0 == obj['iscrowd']:
-                    true_segmentation_list.append(TRUE_SEGMENTATION(
-                        cls, segment, obj['area']))
-                else:
-                    true_segmentation_list.append(TRUE_SEGMENTATION(
-                        cls, segment, obj['area'], 1))
+                # if 0 == obj['iscrowd']:
+                true_segmentation_list.append(TRUE_SEGMENTATION(
+                    cls, segment, obj['area']))
+                # else:
+                #     true_segmentation_list.append(TRUE_SEGMENTATION(
+                #         cls, segment, obj['area'], 1))
         image = IMAGE(image_name, image_name_new, image_path, int(
             height), int(width), int(channels), true_box_list, true_segmentation_list)
         f.close()

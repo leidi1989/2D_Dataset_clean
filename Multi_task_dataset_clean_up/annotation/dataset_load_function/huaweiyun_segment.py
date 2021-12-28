@@ -96,12 +96,12 @@ def load_image_annotation(dataset: dict, one_annotation: dict, class_dict: dict,
                           total_annotations_dict[ann_image_id].image_name_new)
                     continue
                 point = []
-        if 1 == one_annotation['iscrowd']:
-            true_segmentation_list.append(TRUE_SEGMENTATION(
-                cls, segment, one_annotation['area'], 1))
-        else:
-            true_segmentation_list.append(TRUE_SEGMENTATION(
-                cls, segment, one_annotation['area']))
+        # if 1 == one_annotation['iscrowd']:
+        #     true_segmentation_list.append(TRUE_SEGMENTATION(
+        #         cls, segment, one_annotation['area'], 1))
+        # else:
+        true_segmentation_list.append(TRUE_SEGMENTATION(
+            cls, segment, one_annotation['area']))
 
     return ann_image_id, true_box_list, true_segmentation_list
 
