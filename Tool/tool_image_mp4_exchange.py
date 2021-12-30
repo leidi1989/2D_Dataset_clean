@@ -62,11 +62,11 @@ def img2mp4(image_folder_path: str, mp4fps: int) -> None:
     mp4_name = root[-1]+'.mp4'
     mp4_file_path = os.path.join(output_folder, mp4_name)
 
-    if os.path.splitext(first_image_path)[-1] == 'jpg':
+    if os.path.splitext(first_image_path)[-1] == '.jpg':
         img = cv2.imread(first_image_path)  # 读取第一张图片
         imgInfo = img.shape
         size = (imgInfo[1], imgInfo[0])  # 获取图片宽高度信息
-    if os.path.splitext(first_image_path)[-1] == 'png':
+    if os.path.splitext(first_image_path)[-1] == '.png':
         img = Image.open(first_image_path)
         size = (img.width, img.height)
         img = np.array(img)
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='tool_avi_to_mp4.py')
     parser.add_argument('--avipath', default=r'',
                         type=str, help='avi path')
-    parser.add_argument('--imgpath', default=r'/mnt/data_1/Dataset/detect_output/YOLOP/20211209/cam_front_center_20210918_output_20211209',
+    parser.add_argument('--imgpath', default=r'/mnt/data_1/Dataset/detect_output/SOLOv2/72epoch_yunce_parking_total_20211213_6_classes_coco_20211222_solov2_mmdet_20211228',
                         type=str, help='image output path')
     parser.add_argument('--pref', default=r'',
                         type=str, help='rename prefix')
