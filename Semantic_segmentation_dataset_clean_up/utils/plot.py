@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-09 16:05:57
 LastEditors: Leidi
-LastEditTime: 2021-12-22 09:31:42
+LastEditTime: 2021-12-31 17:04:54
 '''
 import os
 import cv2
@@ -63,7 +63,8 @@ def plot_sample_statistics(dataset) -> None:
                 plt.text(m + set_size, b, '%.0f' %
                          b, ha='center', va='top', fontsize=10, color='r')
         plt.xticks(x, labels, rotation=45)      # 使x轴标签逆时针倾斜45度
-        plt.tight_layout()
+        plt.subplots_adjust(left=0.2, bottom=0.2, right=0.8,
+                            top=0.8, wspace=0.3, hspace=0.2)
         plt.legend(['Total', 'Train', 'val', 'test', 'redund'], loc='best')
 
     # 绘制占比点线图
