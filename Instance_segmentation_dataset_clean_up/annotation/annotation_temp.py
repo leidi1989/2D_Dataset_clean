@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-09 00:59:33
 LastEditors: Leidi
-LastEditTime: 2021-12-31 15:11:20
+LastEditTime: 2021-12-31 15:55:31
 '''
 import os
 import cv2
@@ -40,16 +40,6 @@ def TEMP_LOAD(dataset: dict, temp_annotation_path: str) -> IMAGE:
             width = image_size[1]
             channels = image_size[2]
 
-        true_box_list = []
-        for obj_box in data['objects_box']:
-            cls = str(obj_box['class'])
-            cls = cls.replace(' ', '').lower()
-            if cls not in dataset['class_list_new']:
-                continue
-            true_box_list.append(TRUE_BOX(
-                cls, obj_box['xmin'], obj_box['ymin'], obj_box['xmax'], obj_box['ymax'],
-                obj_box['color'], obj_box['tool'], obj_box['occluded'], obj_box['truncated']))
-
         true_segmentation_list = []
         for obj_segment in data['objects_segment']:
             cls = str(obj_segment['class'])
@@ -62,7 +52,7 @@ def TEMP_LOAD(dataset: dict, temp_annotation_path: str) -> IMAGE:
             true_segmentation_list.append(TRUE_SEGMENTATION(
                 cls, segment))  # 将单个真实框加入单张图片真实框列表
         one_image = IMAGE(image_name, image_name, image_path, int(
-            height), int(width), int(channels), true_box_list, true_segmentation_list)
+            height), int(width), int(channels), [], true_segmentation_list)
         f.close()
 
     return one_image
@@ -84,28 +74,13 @@ def TEMP_OUTPUT(annotation_output_path: str, image: IMAGE) -> bool:
         return False
     annotation = {'imgHeight': image.height,
                   'imgWidth': image.width,
-                  'objects_box': [],
                   'objects_segment': []
                   }
-
-    box = {}
-    for true_box in image.true_box_list:
-        box = {'class': true_box.clss,
-               'xmin': int(true_box.xmin),
-               'ymin': int(true_box.ymin),
-               'xmax': int(true_box.xmax),
-               'ymax': int(true_box.ymax),
-               'color': true_box.color,
-               'tool': true_box.tool,
-               'occluded': False if 0 == true_box.difficult else str(true_box.difficult),
-               'truncated': False if 0 == true_box.occlusion else str(true_box.occlusion),
-               }
-        annotation['objects_box'].append(box)
-
-    segmentation = {}
     for true_segmentation in image.true_segmentation_list:
         segmentation = {'class': true_segmentation.clss,
-                        'polygon': true_segmentation.segmentation
+                        'polygon': true_segmentation.segmentation,
+                        'area': true_segmentation.area,
+                        'segmentation_bounding_box': true_segmentation.segmentation_bounding_box
                         }
         annotation['objects_segment'].append(segmentation)
     json.dump(annotation, open(annotation_output_path, 'w'))

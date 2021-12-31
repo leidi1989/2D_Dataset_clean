@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-09 16:05:57
 LastEditors: Leidi
-LastEditTime: 2021-12-31 14:15:46
+LastEditTime: 2021-12-31 16:18:00
 '''
 import os
 import cv2
@@ -133,27 +133,27 @@ def plot_true_box(dataset) -> None:
                     box.clss)].append(box.clss)
                 color = colors[dataset['class_list_new'].index(
                     box.clss)]
-                if dataset['target_annotation_check_mask'] == False:
-                    cv2.rectangle(output_image, (int(box.xmin), int(box.ymin)),
-                                  (int(box.xmax), int(box.ymax)), color, thickness=2)
-                    plot_true_box_success += 1
+                # if dataset['target_annotation_check_mask'] == False:
+                cv2.rectangle(output_image, (int(box.xmin), int(box.ymin)),
+                                (int(box.xmax), int(box.ymax)), color, thickness=2)
+                plot_true_box_success += 1
                 # 绘制透明锚框
-                else:
-                    zeros1 = np.zeros((output_image.shape), dtype=np.uint8)
-                    zeros1_mask = cv2.rectangle(zeros1, (box.xmin, box.ymin),
-                                                (box.xmax, box.ymax),
-                                                color, thickness=-1)
-                    alpha = 1   # alpha 为第一张图片的透明度
-                    beta = 0.5  # beta 为第二张图片的透明度
-                    gamma = 0
-                    # cv2.addWeighted 将原始图片与 mask 融合
-                    mask_img = cv2.addWeighted(
-                        output_image, alpha, zeros1_mask, beta, gamma)
-                    output_image = mask_img
-                    plot_true_box_success += 1
+                # else:
+                #     zeros1 = np.zeros((output_image.shape), dtype=np.uint8)
+                #     zeros1_mask = cv2.rectangle(zeros1, (box.xmin, box.ymin),
+                #                                 (box.xmax, box.ymax),
+                #                                 color, thickness=-1)
+                #     alpha = 1   # alpha 为第一张图片的透明度
+                #     beta = 0.5  # beta 为第二张图片的透明度
+                #     gamma = 0
+                #     # cv2.addWeighted 将原始图片与 mask 融合
+                #     mask_img = cv2.addWeighted(
+                #         output_image, alpha, zeros1_mask, beta, gamma)
+                #     output_image = mask_img
+                #     plot_true_box_success += 1
 
-                cv2.putText(output_image, box.clss, (int(box.xmin), int(box.ymin)),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 0))
+                # cv2.putText(output_image, box.clss, (int(box.xmin), int(box.ymin)),
+                #             cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 0))
             except:
                 print(image.image_name + str(box.clss) + "is not in list")
                 plot_true_box_fail += 1
@@ -203,7 +203,7 @@ def plot_true_segmentation(dataset: dict) -> None:
     print('Output check images:')
     for image in tqdm(dataset['check_images_list']):
         image_path = os.path.join(
-            dataset['temp_images_folder'], image.image_name)
+            dataset['check_annotation_output_folder'], image.image_name)
         output_image = cv2.imread(image_path)  # 读取对应标签图片
         for object in image.true_segmentation_list:  # 获取每张图片的bbox信息
             # try:
