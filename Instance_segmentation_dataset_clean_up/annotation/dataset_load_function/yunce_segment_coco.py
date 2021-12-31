@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-12-31 14:43:10
+LastEditTime: 2021-12-31 18:02:16
 '''
 import os
 from PIL import Image
@@ -146,7 +146,7 @@ def load_image_annotation(dataset: dict, one_annotation: dict, class_dict: dict,
     #         cls, segment, one_annotation['area'], 1))
     # else:
     true_segmentation = TRUE_SEGMENTATION(
-                cls, segment, one_annotation['area'])
+                cls, segment, area=one_annotation['area'])
     true_box_list.append(true_segmentation_to_true_box(true_segmentation))
     true_segmentation_list.append(true_segmentation)
 

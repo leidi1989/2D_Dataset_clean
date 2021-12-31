@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-12-31 14:46:22
+LastEditTime: 2021-12-31 18:01:59
 '''
 import os
 import cv2
@@ -85,7 +85,7 @@ def load_image_annotation(dataset: dict, one_annotation: dict, class_dict: dict,
         # else:
         area = int(cv2.contourArea(np.array(segment)))
         true_segmentation = TRUE_SEGMENTATION(
-                cls, segment, area)
+                cls, segment, area=area)
         true_box_list.append(true_segmentation_to_true_box(true_segmentation))
         true_segmentation_list.append(true_segmentation)
 
