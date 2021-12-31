@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-19 15:59:27
 LastEditors: Leidi
-LastEditTime: 2021-10-27 15:33:33
+LastEditTime: 2021-12-31 14:38:34
 '''
 import os
 import cv2
@@ -14,6 +14,7 @@ from utils.utils import *
 from base.image_base import *
 from annotation.annotation_temp import TEMP_OUTPUT
 from utils.modify_class import modify_true_segmentation_list
+from utils.convertion_function import true_segmentation_to_true_box
 
 
 def load_annotation(dataset: dict, source_annotations_name: str, process_output) -> None:

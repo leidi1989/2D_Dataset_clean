@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-12-28 15:47:49
+LastEditTime: 2021-12-31 14:38:12
 '''
 import os
 from PIL import Image
@@ -13,6 +13,7 @@ from utils.utils import *
 from base.image_base import *
 from annotation.annotation_temp import TEMP_OUTPUT
 from utils.modify_class import modify_true_segmentation_list
+from utils.convertion_function import true_segmentation_to_true_box
 
 
 def load_annotation(dataset: dict, source_annotations_name: str, process_output) -> None:
@@ -71,6 +72,7 @@ def load_annotation(dataset: dict, source_annotations_name: str, process_output)
             # else:
             true_segmentation_list.append(TRUE_SEGMENTATION(
                 cls, segment, obj['area']))
+            bbox = true_segmentation_to_true_box(true_segmentation)
         image = IMAGE(image_name, image_name_new, image_path, int(
             height), int(width), int(channels), [], true_segmentation_list)
         f.close()
