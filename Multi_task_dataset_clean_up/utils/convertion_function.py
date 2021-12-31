@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-06 09:06:35
 LastEditors: Leidi
-LastEditTime: 2021-12-27 17:52:12
+LastEditTime: 2021-12-31 16:22:46
 '''
 # -*- coding: utf-8 -*-
 import numpy as np
@@ -81,6 +81,22 @@ def coco_voc(xywh: list) -> list:
     bbox.append(int(xywh[1] + xywh[3]))    # ymax
 
     return bbox
+
+
+def temp_box_to_coco_box(xyxy: list) -> list:
+    """[将暂存真实框格式转换为coco真实框格式]
+
+    Args:
+        xyxy (list): [暂存真实框格式]
+
+    Returns:
+        list: [xmin、ymin、width、hight列表]
+    """
+
+    width = int(xyxy[2]) - int(xyxy[0])
+    hight = int(xyxy[3]) - int(xyxy[1])
+
+    return [int(xyxy[0]), int(xyxy[1]), int(width), int(hight)]
 
 
 def true_segmentation_to_true_box(true_segmentation: TRUE_SEGMENTATION) -> list:

@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2021-12-31 15:41:27
+LastEditTime: 2021-12-31 16:29:24
 '''
 import os
 import cv2
@@ -59,6 +59,8 @@ class TRUE_SEGMENTATION:
     def __init__(self,
                  clss: str,
                  segmentation: list,
+                 segmentation_bounding_box: list = None,
+                 area: int = None,
                  iscrowd: int = 0,
                  ) -> None:
         """[真分割]
@@ -72,8 +74,14 @@ class TRUE_SEGMENTATION:
 
         self.clss = clss
         self.segmentation = segmentation
-        self.segmentation_bounding_box = self.get_outer_bounding_box()
-        self.area = int(cv2.contourArea(np.array(self.segmentation)))
+        if segmentation_bounding_box == None:
+            self.segmentation_bounding_box = self.get_outer_bounding_box()
+        else:
+            self.segmentation_bounding_box = segmentation_bounding_box
+        if area == None:
+            self.area = int(cv2.contourArea(np.array(self.segmentation)))
+        else:
+            self.area = area
         self.iscrowd = int(iscrowd)
 
     def get_outer_bounding_box(self):
