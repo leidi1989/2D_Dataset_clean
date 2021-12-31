@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2021-12-22 13:44:43
+LastEditTime: 2021-12-31 14:50:17
 '''
 import os
 import json
@@ -321,9 +321,9 @@ def huaweiyun_segment(dataset: dict) -> None:
 
         # 读取目标标注信息
         pool = multiprocessing.Pool(dataset['workers'])
-        total_image_segment_list = []
+        total_image_box_segment_list = []
         for one_annotation in tqdm(data['annotations']):
-            total_image_segment_list.append(pool.apply_async(func=F.__dict__[dataset['source_dataset_stype']].load_image_annotation, args=(
+            total_image_box_segment_list.append(pool.apply_async(func=F.__dict__[dataset['source_dataset_stype']].load_image_annotation, args=(
                 dataset, one_annotation, class_dict, total_annotations_dict,),
                 error_callback=err_call_back))
         pool.close()
@@ -332,19 +332,23 @@ def huaweiyun_segment(dataset: dict) -> None:
         del data
 
         total_images_data_dict = {}
-        for image_segment in total_image_segment_list:
-            if image_segment.get() is None:
+        for image_box_segment in total_image_box_segment_list:
+            if image_box_segment.get() is None:
                 continue
-            if image_segment.get()[0] not in total_images_data_dict:
-                total_images_data_dict[image_segment.get(
-                )[0]] = total_annotations_dict[image_segment.get()[0]]
-                total_images_data_dict[image_segment.get()[0]].true_segmentation_list.extend(
-                    image_segment.get()[1])
+            if image_box_segment.get()[0] not in total_images_data_dict:
+                total_images_data_dict[image_box_segment.get(
+                )[0]] = total_annotations_dict[image_box_segment.get()[0]]
+                total_images_data_dict[image_box_segment.get()[0]].true_box_list.extend(
+                    image_box_segment.get()[1])
+                total_images_data_dict[image_box_segment.get()[0]].true_segmentation_list.extend(
+                    image_box_segment.get()[2])
             else:
-                total_images_data_dict[image_segment.get()[0]].true_segmentation_list.extend(
-                    image_segment.get()[1])
+                total_images_data_dict[image_box_segment.get()[0]].true_box_list.extend(
+                    image_box_segment.get()[1])
+                total_images_data_dict[image_box_segment.get()[0]].true_segmentation_list.extend(
+                    image_box_segment.get()[2])
 
-        del total_annotations_dict, total_image_segment_list
+        del total_annotations_dict, total_image_box_segment_list
 
         # 输出读取的source annotation至temp annotation
         process_temp_file_name_list = multiprocessing.Manager().list()

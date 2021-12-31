@@ -4,9 +4,10 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-12-31 14:38:44
+LastEditTime: 2021-12-31 14:46:22
 '''
 import os
+import cv2
 from PIL import Image
 
 from utils.utils import *
@@ -61,6 +62,7 @@ def load_image_annotation(dataset: dict, one_annotation: dict, class_dict: dict,
     if cls not in dataset['source_class_list']:
         return
 
+    true_box_list = []
     true_segmentation_list = []
     for one_seg in one_annotation['segmentation']:
         segment = []
@@ -81,10 +83,13 @@ def load_image_annotation(dataset: dict, one_annotation: dict, class_dict: dict,
         #     true_segmentation_list.append(TRUE_SEGMENTATION(
         #         cls, segment, one_annotation['area'], 1))
         # else:
-        true_segmentation_list.append(TRUE_SEGMENTATION(
-            cls, segment, one_annotation['area']))
+        area = int(cv2.contourArea(np.array(segment)))
+        true_segmentation = TRUE_SEGMENTATION(
+                cls, segment, area)
+        true_box_list.append(true_segmentation_to_true_box(true_segmentation))
+        true_segmentation_list.append(true_segmentation)
 
-    return ann_image_id, true_segmentation_list
+    return ann_image_id, true_box_list, true_segmentation_list
 
 
 def output_temp_annotation(dataset: dict, image: IMAGE, process_output: dict) -> None:

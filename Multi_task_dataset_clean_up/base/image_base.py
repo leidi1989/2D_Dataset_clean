@@ -7,6 +7,7 @@ LastEditors: Leidi
 LastEditTime: 2021-11-08 16:48:07
 '''
 import os
+import cv2
 import numpy as np
 
 
@@ -39,7 +40,7 @@ class TRUE_BOX:
             distance (float, optional): [description]. Defaults to 0.
             occlusion (float, optional): [description]. Defaults to 0.
         """
-        
+
         self.clss = clss
         self.xmin = xmin
         self.ymin = ymin
@@ -58,7 +59,6 @@ class TRUE_SEGMENTATION:
     def __init__(self,
                  clss: str,
                  segmentation: list,
-                 area: float = 0,
                  iscrowd: int = 0,
                  ) -> None:
         """[真分割]
@@ -72,8 +72,28 @@ class TRUE_SEGMENTATION:
 
         self.clss = clss
         self.segmentation = segmentation
-        self.area = area
-        self.iscrowd = iscrowd
+        self.segmentation_bounding_box = self.get_outer_bounding_box()
+        self.area = int(cv2.contourArea(np.array(self.segmentation)))
+        self.iscrowd = int(iscrowd)
+
+    def get_outer_bounding_box(self):
+        """[将分割按最外围矩形框转换为bbox]
+
+        Args:
+            segmentation (list): [真实分割]
+
+        Returns:
+            list: [转换后真实框左上点右下点坐标]
+        """
+
+        segmentation = np.asarray(self.segmentation)
+        min_x = np.min(segmentation[:, 0])
+        min_y = np.min(segmentation[:, 1])
+        max_x = np.max(segmentation[:, 0])
+        max_y = np.max(segmentation[:, 1])
+        bbox = [int(min_x), int(min_y), int(max_x), int(max_y)]
+
+        return bbox
 
 
 class IMAGE:
@@ -134,13 +154,14 @@ class IMAGE:
     def segmentation_create_box(self) -> None:
         """[使用分割信息创建真实框信息]
         """
-        
+
         for n in self.true_segmentation_list:
             x_y = np.array(n.segmentation)
             x_min = np.min(x_y, axis=0)[0]
             x_max = np.max(x_y, axis=0)[0]
             y_min = np.min(x_y, axis=0)[1]
             y_max = np.max(x_y, axis=0)[1]
-            self.true_box_list_updata(TRUE_BOX(n.clss, x_min, y_min, x_max, y_max))
+            self.true_box_list_updata(
+                TRUE_BOX(n.clss, x_min, y_min, x_max, y_max))
 
         return
