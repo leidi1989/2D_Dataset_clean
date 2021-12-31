@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2021-12-31 09:58:58
+LastEditTime: 2021-12-31 14:32:27
 '''
 import os
 import time
@@ -48,9 +48,9 @@ def main(dataset_info: dict) -> None:
     print('\nStart check target annotations:')
     check(dataset_info)
 
-    print('\nStart update framework:')
-    framework_update.__dict__[
-        dataset_info['target_dataset_style']](dataset_info)
+    # print('\nStart update framework:')
+    # framework_update.__dict__[
+    #     dataset_info['target_dataset_style']](dataset_info)
 
     return
 
