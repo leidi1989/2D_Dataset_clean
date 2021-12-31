@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-19 15:55:16
 LastEditors: Leidi
-LastEditTime: 2021-12-28 16:13:36
+LastEditTime: 2021-12-31 16:21:52
 '''
 import cv2
 import time
@@ -58,7 +58,7 @@ def get_annotation(dataset: dict, n: int, temp_annotation_path: str) -> None:
     # 获取图片分割信息
     one_image_annotations_list = []
     for true_segmentation in image.true_segmentation_list:
-        bbox = true_segmentation_to_true_box(true_segmentation)
+        bbox = temp_box_to_coco_box(true_segmentation)
         segmentation = np.asarray(
             true_segmentation.segmentation).flatten().tolist()
         area = int(cv2.contourArea(np.array(true_segmentation.segmentation)))
