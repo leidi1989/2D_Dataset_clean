@@ -4,8 +4,8 @@ root: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_tot
 # output path
 target: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_total_20211213_2_classes_coco_20211231
 
-# dataset style: Detect, Instance_segmentation, Multi_task, Semantic_segmentation
-dataset_style: Detect
+# dataset style: Detection, Instance_segmentation, Multi_task, Semantic_segmentation
+dataset_style: Detection
 
 # input labels style: cityscapes, coco2017, huaweiyun_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017, yunce_segment_coco, yunce_segment_coco_one_image
 srstyle: yunce_segment_coco_one_image
