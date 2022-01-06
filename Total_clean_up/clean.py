@@ -4,17 +4,15 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-01-06 17:04:46
+LastEditTime: 2021-12-31 16:57:08
 '''
-from utils.utils import *
+import os
+import time
+import yaml
+import argparse
+import multiprocessing
 
-from base.check_base import check
-from base.framework_base import framework
-from base.source_base import source
-from base.temp_base import temp
-from base.information_base import information
-from base.out_base import out
-from base.dataset_characteristic import *
+from utils.utils import *
 from input import source_dataset
 from out import framework_update
 from base.check_base import check
@@ -23,11 +21,6 @@ from annotation import annotation_output
 from base.dataset_characteristic import *
 from base.information_base import information
 
-import os
-import time
-import yaml
-import argparse
-
 
 def main(dataset_info: dict) -> None:
     """[数据集清理]
@@ -35,13 +28,6 @@ def main(dataset_info: dict) -> None:
     Args:
         dataset_info (dict): [数据集信息字典]
     """
-
-    # source(dataset_info)
-    # temp(dataset_info)
-    # information(dataset_info)
-    # out(dataset_info)
-    # check(dataset_info)
-    # framework(dataset_info)
 
     print('\nStart copy images and annotations:')
     source_dataset.__dict__[dataset_info['source_dataset_stype']](dataset_info)
@@ -71,18 +57,19 @@ def main(dataset_info: dict) -> None:
 
 if __name__ == "__main__":
     time_start = time.time()
-    parser = argparse.ArgumentParser(prog='cleaning.py')
-    parser.add_argument('--config', '--c', dest='config', default=r'/home/leidi/hy_program/2D_Dataset_clean/Detect_dataset_clean_up/config/default.yaml',
+    parser = argparse.ArgumentParser(prog='clean.py')
+    parser.add_argument('--config', '--c', dest='config', default=r'/home/leidi/hy_program/2D_Dataset_clean/Instance_segmentation_dataset_clean_up/config/default.yaml',
                         type=str, help='dataset config file path')
-    parser.add_argument('--workers', '--w', dest='workers', default=8,
+    parser.add_argument('--workers', '--w', dest='workers', default=multiprocessing.cpu_count(),
                         type=int, help='maximum number of dataloader workers(multiprocessing.cpu_count())')
+
     opt = parser.parse_args()
 
     dataset_config = yaml.load(
         open(opt.config, 'r', encoding="utf-8"), Loader=yaml.FullLoader)
 
     source_path = check_input_path(dataset_config['root'])
-    source_dataset_stype = dataset_config['srstyle']
+    source_dataset_style = dataset_config['srstyle']
     source_image_form = dataset_file_form[dataset_config['srstyle']]['image']
     source_images_folder = check_output_path(
         os.path.join(dataset_config['target'], 'source_images'))
@@ -97,7 +84,7 @@ if __name__ == "__main__":
         dataset_config['modifyclassfile'])
     class_list_new = get_new_class_names_list(get_class_list(
         dataset_config['classes']), get_modify_class_dict(dataset_config['modifyclassfile']))
-    temp_image_form = temp_form['image']
+    temp_image_form = dataset_file_form[dataset_config['tarstyle']]['image']
     temp_annotation_form = temp_form['annotation']
     temp_images_folder = check_output_path(
         os.path.join(dataset_config['target'], 'source_images'))
@@ -131,21 +118,20 @@ if __name__ == "__main__":
     target_annotation_check_mask = dataset_config['mask']
     check_annotation_output_folder = check_output_path(os.path.join(
         temp_informations_folder, 'check_annotation'))
-    blurlever = int(dataset_config['blurlever'])
-    perspectivelever = int(dataset_config['perspectivelever'])
     workers = opt.workers
     debug = dataset_config['debug']
 
     dataset_info = {
         # 源数据集路径、类别，其图片、annotation格式，类别列表文件
         'source_path': source_path,
-        'source_dataset_stype': source_dataset_stype,
+        'source_dataset_stype': source_dataset_style,
         'source_image_form': source_image_form,
         'source_images_folder': source_images_folder,
         'source_annotation_form': source_annotation_form,
         'source_annotations_folder': source_annotations_folder,
         'source_class_list': source_class_list,
         # 文件前缀分隔符、文件前缀
+        'dataset_prefix': dataset_config['prefix'],
         'prefix_delimiter': prefix_delimiter,
         'file_prefix': file_prefix,
         # 修改类别字典、新类别列表
@@ -177,8 +163,6 @@ if __name__ == "__main__":
         'check_annotation_output_folder': check_annotation_output_folder,
         'image_resolution_median': None,
         'anchor_box_cluster': dataset_config['anchorboxcluster'],
-        'blurlever': blurlever,
-        'perspectivelever': perspectivelever,
         'workers': opt.workers,
         'debug': debug
     }

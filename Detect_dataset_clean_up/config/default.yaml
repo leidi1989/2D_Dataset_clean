@@ -1,34 +1,37 @@
 # dataset path
-root: /media/leidi/hy_dataset/Dataset/huawei_dataset_total/hy_segement_dataset_huawei_3217_20210918
+root: /mnt/data_1/Dataset/Temp/coco2017
 
 # output path
-target: /media/leidi/hy_dataset/Dataset/huawei_dataset_total/hy_segement_dataset_huawei_3217_20210918_20211103
+target: /mnt/data_1/Dataset/Temp/coco2017_20220106
+
+# dataset style: Detect, Instance_segmentation, Multi_task, Semantic_segmentation
+dataset_style: Detect
 
 # input labels style: pascal_voc, coco2017, kitti, yolo, tt100k, lisa, cctsdb,
-#                     huawei_segment, sjt, myxb, hy_highway
-srstyle: huawei_segment
+#                     huaweiyun_segment, sjt, myxb, hy_highway
+srstyle: coco2017
 
-# output labels style: pascal_voc, coco2017, yolo
-tarstyle: pascal_voc
+# output labels style: pascal_voc, coco2017, yolo, cvat_image_1_1
+tarstyle: cvat_image_1_1
 
 # images or labels need to rename prefix
-prefix: "huawei3"
+prefix: yunce"
 
 # name delimiter
-delimiter: "_"
+delimiter: _
 
 # dataset detect class path
-classes: Detect_dataset_clean_up/data/detect_classes_huawei_173_classes_20210918.names
+classes: /home/leidi/hy_program/2D_Dataset_clean/Detect_dataset_clean_up/data/yunce_parking_2_classes_coco2017_20220106.names
 
 # dataset class modify file path
-modifyclassfile: "Detect_dataset_clean_up/data/detect_classes_huawei_173_classes_to_hy_7_classes.txt"
+modifyclassfile: ""
 
 # (train, val, test, redund)
 # proportion: 0.95,0.025,0.025
 proportion: 0.8,0.1,0.1
 
 # check target annotations
-check: 50
+check: 100
 
 # transparent bounding box mask
 mask: False

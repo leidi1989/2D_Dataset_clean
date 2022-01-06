@@ -87,7 +87,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='tool_avi_to_mp4.py')
     parser.add_argument('--avipath', default=r'',
                         type=str, help='avi path')
-    parser.add_argument('--imgpath', default=r'/mnt/data_1/Dataset/detect_output/SOLOv2/yunce_parking_total_20211213_6_classes_coco_20211222_20211231',
+    parser.add_argument('--imgpath', default=r'/mnt/data_1/Dataset/detect_output/SOLOv2/yunce_parking_2_classes_solov2_detectron2/yunce_parking_total_20211213_2_classes_coco_20211231_R101_3x_20220104',
                         type=str, help='image output path')
     parser.add_argument('--pref', default=r'',
                         type=str, help='rename prefix')
