@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2021-12-31 16:57:08
+LastEditTime: 2022-01-07 11:25:19
 '''
 import os
 import time
@@ -21,6 +21,8 @@ from annotation import annotation_output
 from base.dataset_characteristic import *
 from base.information_base import information
 
+
+from dataset.Base import Dataset_Base
 
 def main(dataset_info: dict) -> None:
     """[数据集清理]
@@ -64,7 +66,8 @@ if __name__ == "__main__":
                         type=int, help='maximum number of dataloader workers(multiprocessing.cpu_count())')
 
     opt = parser.parse_args()
-
+    Input_dataset = Dataset_Base(opt)
+    
     dataset_config = yaml.load(
         open(opt.config, 'r', encoding="utf-8"), Loader=yaml.FullLoader)
 
