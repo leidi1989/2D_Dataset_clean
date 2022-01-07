@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-10 18:38:55
 LastEditors: Leidi
-LastEditTime: 2021-12-22 11:05:16
+LastEditTime: 2022-01-07 17:23:56
 '''
 from utils.utils import *
 from utils.plot import plot_sample_statistics
@@ -42,7 +42,7 @@ def information(dataset: dict) -> None:
     return
 
 
-def temp_file_name(dataset: dict) -> list:
+def get_temp_annotations_name_list(dataset: dict) -> list:
     """[获取暂存数据集文件名称列表]
 
     Args:

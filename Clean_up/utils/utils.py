@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2021-11-25 15:51:06
+LastEditTime: 2022-01-07 17:23:57
 '''
 # -*- coding: utf-8 -*-
 import os
@@ -106,7 +106,7 @@ def check_prefix(prefix: str, delimiter: str) -> str:
         return name_prefix
 
 
-def get_class_list(source_class_path: str) -> list:
+def get_class_list(source_dataset_class_file_path: str) -> list:
     """[读取指定的class文件至class_list]
 
     Args:
@@ -115,10 +115,11 @@ def get_class_list(source_class_path: str) -> list:
     Returns:
         list: [数据集类别列表]
     """
-
+    if source_dataset_class_file_path == '':
+        return None
     print("\nGet source dataset class list:")
     class_list = []     # 类别列表
-    with open(source_class_path, 'r') as class_file:
+    with open(source_dataset_class_file_path, 'r') as class_file:
         for one_line in tqdm(class_file.read().splitlines()):
             re_one_line = one_line.replace(' ', '').lower()
             class_list.append(re_one_line)
@@ -177,7 +178,7 @@ def get_new_class_names_list(source_class_list: list,
         return new_class_names_list
 
 
-def temp_file_name(temp_annotations_folder: str) -> list:
+def get_temp_annotations_name_list(temp_annotations_folder: str) -> list:
     """[获取暂存数据集全量文件名称列表]
 
     Args:
@@ -248,7 +249,7 @@ def class_segmentation_pixel_limit(dataset: dict, true_segmentation_list: list) 
     return
 
 
-def temp_annotation_path_list(temp_annotations_folder: str) -> list:
+def temp_annotations_path_list(temp_annotations_folder: str) -> list:
     """[获取暂存数据集全量标签路径列表]
 
     Args:

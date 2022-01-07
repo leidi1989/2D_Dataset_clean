@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-09 00:59:33
 LastEditors: Leidi
-LastEditTime: 2021-12-31 15:55:31
+LastEditTime: 2022-01-07 17:21:29
 '''
 import os
 import cv2
@@ -58,7 +58,7 @@ def TEMP_LOAD(dataset: dict, temp_annotation_path: str) -> IMAGE:
     return one_image
 
 
-def TEMP_OUTPUT(annotation_output_path: str, image: IMAGE) -> bool:
+def TEMP_OUTPUT(temp_annotation_output_path: str, image: IMAGE) -> bool:
     """[输出temp dataset annotation]
 
     Args:
@@ -83,6 +83,6 @@ def TEMP_OUTPUT(annotation_output_path: str, image: IMAGE) -> bool:
                         'segmentation_bounding_box': true_segmentation.segmentation_bounding_box
                         }
         annotation['objects_segment'].append(segmentation)
-    json.dump(annotation, open(annotation_output_path, 'w'))
+    json.dump(annotation, open(temp_annotation_output_path, 'w'))
 
     return True

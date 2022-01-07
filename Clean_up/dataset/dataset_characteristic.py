@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-09 21:55:18
 LastEditors: Leidi
-LastEditTime: 2022-01-07 10:10:28
+LastEditTime: 2022-01-07 17:59:20
 '''
 
 
@@ -21,7 +21,7 @@ dataset_file_form = {'apolloscape_lane_segment': {'image': 'jpg',
                      'cityscapes_val': {'image': 'png',
                                         'annotation': 'json'
                                         },
-                     'coco2017': {'image': 'jpg',
+                     'COCO2017': {'image': 'jpg',
                                   'annotation': 'json'
                                   },
                      'cityscapes': {'image': 'png',

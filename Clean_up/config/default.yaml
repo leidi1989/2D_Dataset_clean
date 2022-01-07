@@ -1,44 +1,65 @@
 # dataset path
-root: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_total_20211213
+Dataset_input_folder: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_total_20211213
 
 # output path
-target: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_total_20211213_2_classes_coco_20211231
+Dataset_output_folder: /mnt/data_1/Dataset/Temp/yunce_parking_2_classes_coco2017_20220107
 
-# dataset style: Detection, Instance_segmentation, Multi_task, Semantic_segmentation
-dataset_style: Detection
+# Source dataset style: cityscapes, COCO2017, huaweiyun_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017, yunce_segment_coco, yunce_segment_coco_one_image
+Source_dataset_style: COCO2017
 
-# input labels style: cityscapes, coco2017, huaweiyun_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017, yunce_segment_coco, yunce_segment_coco_one_image
-srstyle: yunce_segment_coco_one_image
-
-# output labels style: cityscapes, coco2017, cityscapes_val, cvat_image_1_1
-tarstyle: coco2017
+# Target dataset style: cityscapes, COCO2017, cityscapes_val, cvat_image_1_1
+Target_dataset_style: COCO2017
 
 # images or labels need to rename prefix
-prefix: yunce
+File_prefix: yunce
 
-# name delimiter(cityscapes: "@")
-delimiter: "@"
-
-# dataset segment class path
-classes: /home/leidi/hy_program/2D_Dataset_clean/Instance_segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_20211116.names
-
-# dataset class modify file path
-modifyclassfile: /home/leidi/hy_program/2D_Dataset_clean/Instance_segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_2_classes_parking_20211231.txt
+# name delimiter(cityscapes need: "@")
+File_prefix_delimiter: "@"
 
 # (train, val, test, redund)
-proportion: 0.9,0.05,0.05,0
+Target_dataset_divide_proportion: 0.9,0.05,0.05,0
 
 # check target annotations
-check: 100
+Target_dataset_check_annotations_count: 100
 
-# transparent bounding box mask
-mask: True
-
-# total class true box pixel limits, use to limit class pixel and distance
-classpixeldistance: ""
-
-# anchor box cluster count
-anchorboxcluster: 9
+# check target annotations show annotations as mask
+Target_dataset_check_annotations_output_as_mask: True
 
 # progress debug
 debug: False
+
+# dataset style: Detection, Instance_segmentation, Multi_task, Semantic_segmentation
+Dataset_style: Detection
+
+# Detection config
+Detection_config:
+  # dataset segment class path
+  Source_dataset_classes: ""
+  # dataset class modify file path
+  Modify_class_file: ""
+  
+# Semantic_segmentation config
+Semantic_segmentation_config:
+  # dataset segment class path
+  Source_dataset_classes: /home/leidi/hy_program/2D_Dataset_clean/Instance_segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_20211116.names
+  # dataset class modify file path
+  Modify_class_file: /home/leidi/hy_program/2D_Dataset_clean/Instance_segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_2_classes_parking_20211231.txt
+  
+
+# Instance_segmentation config
+Instance_segmentation_config:
+  # dataset segment class path
+  Source_dataset_classes: ""
+  # dataset class modify file path
+  Modify_class_file: ""
+  
+# Multi_task config
+Multi_task_config:
+  # dataset detect class path
+  Source_dataset_detect_classes: ""
+  # dataset detect class modify file path
+  Detect_modify_class_file: ""
+  # dataset segment class path
+  Source_dataset_segment_classes: ""
+  # dataset segment class modify file path
+  Segment_modify_class_file: ""
