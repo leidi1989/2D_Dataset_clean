@@ -1,5 +1,5 @@
 # dataset path
-Dataset_input_folder: /mnt/data_1/Dataset/Autopilot_segmentation_dataset/yunce/yunce_parking_total_20211213
+Dataset_input_folder: /mnt/data_1/Dataset/Temp/yunce_parking_2_classes_coco2017
 
 # output path
 Dataset_output_folder: /mnt/data_1/Dataset/Temp/yunce_parking_2_classes_coco2017_20220107

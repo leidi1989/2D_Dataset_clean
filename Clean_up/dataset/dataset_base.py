@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-07 17:53:22
+LastEditTime: 2022-01-07 19:14:05
 '''
 import os
 import yaml
@@ -36,7 +36,6 @@ class Dataset_Base:
             dataset_config['Source_dataset_style']]['annotation']
         self.source_dataset_annotations_folder = check_output_path(
             os.path.join(dataset_config['Dataset_output_folder'], 'source_dataset_annotations'))
-
         # File_prefix
         self.file_prefix_delimiter = dataset_config['File_prefix_delimiter']
         self.file_prefix = check_prefix(
@@ -98,7 +97,7 @@ class Dataset_Base:
         # others
         self.workers = dataset_config['workers']
         self.debug = dataset_config['debug']
-
+        
         # dataset style: Detection, Instance_segmentation, Multi_task, Semantic_segmentation
         if self.dataset_style in ['Detection', 'Instance_segmentation', 'Semantic_segmentation']:
             dataset_style_config = self.dataset_style + '_config'
@@ -128,6 +127,14 @@ class Dataset_Base:
                 get_modify_class_dict(dataset_config['Segment_modify_class_file']))
 
     def source_dataset_copy_image_and_annotation(self):
+        # print('\nStart source dataset copy image and annotation:')
+        raise NotImplementedError("ERROR: func not implemented!")
+    
+    def source_dataset_copy_image(self):
+        # print('\nStart source dataset copy image and annotation:')
+        raise NotImplementedError("ERROR: func not implemented!")
+    
+    def source_dataset_copy_annotation(self):
         # print('\nStart source dataset copy image and annotation:')
         raise NotImplementedError("ERROR: func not implemented!")
 
