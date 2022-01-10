@@ -4,14 +4,14 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-07 19:14:05
+LastEditTime: 2022-01-10 11:18:05
 '''
 import os
 import yaml
 
 from utils.utils import *
-from .information_base import information
 from .dataset_characteristic import *
+from .information_base import information
 
 
 class Dataset_Base:
@@ -19,7 +19,6 @@ class Dataset_Base:
     """
 
     def __init__(self, dataset_config) -> None:
-        
 
         # Dataset_style
         self.dataset_style = dataset_config['Dataset_style']
@@ -28,11 +27,11 @@ class Dataset_Base:
         self.dataset_input_folder = check_input_path(
             dataset_config['Dataset_input_folder'])
         self.source_dataset_style = dataset_config['Source_dataset_style']
-        self.source_dataset_image_form = dataset_file_form[
+        self.source_dataset_image_form = DATASET_FILE_FORM[
             dataset_config['Source_dataset_style']]['image']
         self.source_dataset_images_folder = check_output_path(
             os.path.join(dataset_config['Dataset_output_folder'], 'source_dataset_images'))
-        self.source_dataset_annotation_form = dataset_file_form[
+        self.source_dataset_annotation_form = DATASET_FILE_FORM[
             dataset_config['Source_dataset_style']]['annotation']
         self.source_dataset_annotations_folder = check_output_path(
             os.path.join(dataset_config['Dataset_output_folder'], 'source_dataset_annotations'))
@@ -40,14 +39,18 @@ class Dataset_Base:
         self.file_prefix_delimiter = dataset_config['File_prefix_delimiter']
         self.file_prefix = check_prefix(
             dataset_config['File_prefix'], dataset_config['File_prefix_delimiter'])
+        self.source_dataset_class = list()
+        self.source_dataset_class_list = list()
+        self.modify_class_dict = dict()
+        self.modify_class_dict_list = list()
 
         # temp dataset
-        self.temp_image_form = dataset_file_form[dataset_config['Target_dataset_style']]['image']
-        self.temp_annotation_form = temp_form['annotation']
+        self.temp_image_form = DATASET_FILE_FORM[dataset_config['Target_dataset_style']]['image']
+        self.temp_annotation_form = TEMP_FORM['annotation']
         self.temp_images_folder = check_output_path(os.path.join(
             dataset_config['Dataset_output_folder'], 'source_dataset_images'))
         self.temp_annotations_folder = check_output_path(os.path.join(
-            dataset_config['Dataset_output_folder'], temp_arch['annotation']))
+            dataset_config['Dataset_output_folder'], TEMP_ARCH['annotation']))
         self.temp_informations_folder = check_output_path(os.path.join(
             dataset_config['Dataset_output_folder'], 'temp_infomations'))
         self.temp_divide_file_list = [
@@ -71,12 +74,14 @@ class Dataset_Base:
         self.dataset_output_folder = check_output_path(
             dataset_config['Dataset_output_folder'])
         self.target_dataset_style = dataset_config['Target_dataset_style']
-        self.target_dataset_image_form = dataset_file_form[
+        self.target_dataset_image_form = DATASET_FILE_FORM[
             dataset_config['Target_dataset_style']]['image']
-        self.target_dataset_annotation_form = dataset_file_form[
+        self.target_dataset_annotation_form = DATASET_FILE_FORM[
             dataset_config['Target_dataset_style']]['annotation']
         self.target_dataset_annotations_folder = check_output_path(
             os.path.join(dataset_config['Dataset_output_folder'], 'target_dataset_annotations'))
+        self.target_dataset_class = list()
+        self.target_dataset_class_list = list()
 
         # temp dataset information
         self.total_file_name_path = total_file(
@@ -97,43 +102,43 @@ class Dataset_Base:
         # others
         self.workers = dataset_config['workers']
         self.debug = dataset_config['debug']
-        
-        # dataset style: Detection, Instance_segmentation, Multi_task, Semantic_segmentation
-        if self.dataset_style in ['Detection', 'Instance_segmentation', 'Semantic_segmentation']:
-            dataset_style_config = self.dataset_style + '_config'
-            self.source_dataset_class_list = get_class_list(
-                dataset_config[dataset_style_config]['Source_dataset_classes'])
+
+        # one task
+        if self.dataset_style in ONE_TASK:
+            self.source_dataset_class = get_class_list(
+                dataset_config['One_task_config']['Source_dataset_classes'])
             self.modify_class_dict = get_modify_class_dict(
-                dataset_config[dataset_style_config]['Modify_class_file'])
-            self.class_list_new = get_new_class_names_list(get_class_list(
-                dataset_config[dataset_style_config]['Source_dataset_classes']),
-                get_modify_class_dict(dataset_config[dataset_style_config]['Modify_class_file']))
-        if self.dataset_style in ['Multi_task']:
-            # detect class
-            self.source_dataset_detect_class_list = get_class_list(
-                dataset_config['Source_dataset_detect_classes'])
-            self.detect_modify_class_dict = get_modify_class_dict(
-                dataset_config[dataset_style_config]['Detect_modify_class_file'])
-            self.detect_class_list_new = get_new_class_names_list(get_class_list(
-                dataset_config[dataset_style_config]['Source_dataset_detect_classes']),
-                get_modify_class_dict(dataset_config['Detect_modify_class_file']))
-            # segment class
-            self.source_dataset_segment_class_list = get_class_list(
-                dataset_config['Source_dataset_segment_classes'])
-            self.segment_modify_class_dict = get_modify_class_dict(
-                dataset_config[dataset_style_config]['Segment_modify_class_file'])
-            self.segment_class_list_new = get_new_class_names_list(get_class_list(
-                dataset_config[dataset_style_config]['Source_dataset_segment_classes']),
-                get_modify_class_dict(dataset_config['Segment_modify_class_file']))
+                dataset_config['One_task_config']['Modify_class_file'])
+            self.target_dataset_class = get_new_class_names_list(self.source_dataset_class,
+                                                                 self.modify_class_dict)
+        # multi task
+        self.multi_task_list = list()
+        if self.dataset_style in MULTI_TASK:
+            for one_task, \
+                one_source_dataset_classes, \
+                one_modify_class_file in zip(dataset_config['Multi_task_config']['Multi_task_list'],
+                                             dataset_config['Multi_task_config']['Dataset_class_file_path'],
+                                             dataset_config['Multi_task_config']['Dataset_class_modify_file_path']):
+                source_dataset_class = get_class_list(
+                    one_source_dataset_classes)
+                modify_class_dict = get_modify_class_dict(
+                    one_modify_class_file)
+                self.target_dataset_class = get_new_class_names_list(
+                    source_dataset_class, self.modify_class_dict)
+                self.multi_task_list.append(one_task)
+                self.source_dataset_class_list.append(source_dataset_class)
+                self.modify_class_dict_list.append(modify_class_dict)
+                self.target_dataset_class_list.append(
+                    self.target_dataset_class)
 
     def source_dataset_copy_image_and_annotation(self):
         # print('\nStart source dataset copy image and annotation:')
         raise NotImplementedError("ERROR: func not implemented!")
-    
+
     def source_dataset_copy_image(self):
         # print('\nStart source dataset copy image and annotation:')
         raise NotImplementedError("ERROR: func not implemented!")
-    
+
     def source_dataset_copy_annotation(self):
         # print('\nStart source dataset copy image and annotation:')
         raise NotImplementedError("ERROR: func not implemented!")

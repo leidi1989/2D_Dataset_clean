@@ -4,12 +4,14 @@ Version:
 Author: Leidi
 Date: 2021-08-09 21:55:18
 LastEditors: Leidi
-LastEditTime: 2022-01-07 17:59:20
+LastEditTime: 2022-01-10 10:39:21
 '''
-
+# 数据集任务类型列表
+ONE_TASK = ['Detection', 'Instance_segmentation', 'Semantic_segmentation']
+MULTI_TASK = ['Multi_task']
 
 # 输入数据集图片、annotation文件格式
-dataset_file_form = {'apolloscape_lane_segment': {'image': 'jpg',
+DATASET_FILE_FORM = {'apolloscape_lane_segment': {'image': 'jpg',
                                                   'annotation': 'png'
                                                   },
                      'bdd100k': {'image': 'jpg',
@@ -57,8 +59,8 @@ dataset_file_form = {'apolloscape_lane_segment': {'image': 'jpg',
                      }
 
 # 暂存数据集图片、annotation文件格式
-temp_arch = {'image': 'source_images',
+TEMP_ARCH = {'image': 'source_images',
              'annotation': 'temp_annotations',
              'information': 'temp_informations'}
-temp_form = {'image': 'png',
+TEMP_FORM = {'image': 'png',
              'annotation': 'json'}

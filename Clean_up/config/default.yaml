@@ -31,35 +31,21 @@ debug: False
 # dataset style: Detection, Instance_segmentation, Multi_task, Semantic_segmentation
 Dataset_style: Detection
 
-# Detection config
-Detection_config:
-  # dataset segment class path
-  Source_dataset_classes: ""
+# one task config
+One_task_config:
+  # dataset class file path
+  Source_dataset_classes: "/home/leidi/hy_program/2D_Dataset_clean/Instance_segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_20211116.names"
   # dataset class modify file path
-  Modify_class_file: ""
-  
-# Semantic_segmentation config
-Semantic_segmentation_config:
-  # dataset segment class path
-  Source_dataset_classes: /home/leidi/hy_program/2D_Dataset_clean/Instance_segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_20211116.names
-  # dataset class modify file path
-  Modify_class_file: /home/leidi/hy_program/2D_Dataset_clean/Instance_segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_2_classes_parking_20211231.txt
-  
+  Modify_class_file: "/home/leidi/hy_program/2D_Dataset_clean/Instance_segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_2_classes_parking_20211231.txt"
 
-# Instance_segmentation config
-Instance_segmentation_config:
-  # dataset segment class path
-  Source_dataset_classes: ""
-  # dataset class modify file path
-  Modify_class_file: ""
-  
 # Multi_task config
 Multi_task_config:
-  # dataset detect class path
-  Source_dataset_detect_classes: ""
-  # dataset detect class modify file path
-  Detect_modify_class_file: ""
-  # dataset segment class path
-  Source_dataset_segment_classes: ""
-  # dataset segment class modify file path
-  Segment_modify_class_file: ""
+  Multi_task_list:
+    task_1: ""
+    task_2: ""
+  Dataset_class_file_path:
+    Source_dataset_classes_1: ""
+    Source_dataset_classes_2: ""
+  Dataset_class_modify_file_path:
+    Modify_class_file_1: ""
+    Modify_class_file_2: ""
