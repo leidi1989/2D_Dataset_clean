@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-10 11:22:48
+LastEditTime: 2022-01-10 18:53:48
 '''
 import shutil
 from PIL import Image
@@ -208,7 +208,7 @@ class COCO2017(Dataset_Base):
         ann_image_id = one_annotation['image_id']   # 获取此bbox图片id
         cls = class_dict[str(one_annotation['category_id'])]     # 获取bbox类别
         cls = cls.replace(' ', '').lower()
-        if cls not in (dataset['source_segment_class_list'] +dataset['source_segment_class_list']):
+        if cls not in (dataset['source_segment_class_list']):
             return
         image = each_annotation_images_data_dict[ann_image_id]
 
