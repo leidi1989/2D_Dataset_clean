@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-10 11:18:05
+LastEditTime: 2022-01-10 11:39:04
 '''
 import os
 import yaml
@@ -35,14 +35,14 @@ class Dataset_Base:
             dataset_config['Source_dataset_style']]['annotation']
         self.source_dataset_annotations_folder = check_output_path(
             os.path.join(dataset_config['Dataset_output_folder'], 'source_dataset_annotations'))
+        self.task_list = list()
+        self.source_dataset_class_list = list()
+        self.modify_class_dict_list = list()
+
         # File_prefix
         self.file_prefix_delimiter = dataset_config['File_prefix_delimiter']
         self.file_prefix = check_prefix(
             dataset_config['File_prefix'], dataset_config['File_prefix_delimiter'])
-        self.source_dataset_class = list()
-        self.source_dataset_class_list = list()
-        self.modify_class_dict = dict()
-        self.modify_class_dict_list = list()
 
         # temp dataset
         self.temp_image_form = DATASET_FILE_FORM[dataset_config['Target_dataset_style']]['image']
@@ -80,7 +80,6 @@ class Dataset_Base:
             dataset_config['Target_dataset_style']]['annotation']
         self.target_dataset_annotations_folder = check_output_path(
             os.path.join(dataset_config['Dataset_output_folder'], 'target_dataset_annotations'))
-        self.target_dataset_class = list()
         self.target_dataset_class_list = list()
 
         # temp dataset information
@@ -103,33 +102,24 @@ class Dataset_Base:
         self.workers = dataset_config['workers']
         self.debug = dataset_config['debug']
 
-        # one task
-        if self.dataset_style in ONE_TASK:
-            self.source_dataset_class = get_class_list(
-                dataset_config['One_task_config']['Source_dataset_classes'])
-            self.modify_class_dict = get_modify_class_dict(
-                dataset_config['One_task_config']['Modify_class_file'])
-            self.target_dataset_class = get_new_class_names_list(self.source_dataset_class,
-                                                                 self.modify_class_dict)
-        # multi task
-        self.multi_task_list = list()
-        if self.dataset_style in MULTI_TASK:
-            for one_task, \
-                one_source_dataset_classes, \
-                one_modify_class_file in zip(dataset_config['Multi_task_config']['Multi_task_list'],
-                                             dataset_config['Multi_task_config']['Dataset_class_file_path'],
-                                             dataset_config['Multi_task_config']['Dataset_class_modify_file_path']):
-                source_dataset_class = get_class_list(
-                    one_source_dataset_classes)
-                modify_class_dict = get_modify_class_dict(
-                    one_modify_class_file)
-                self.target_dataset_class = get_new_class_names_list(
-                    source_dataset_class, self.modify_class_dict)
-                self.multi_task_list.append(one_task)
-                self.source_dataset_class_list.append(source_dataset_class)
-                self.modify_class_dict_list.append(modify_class_dict)
-                self.target_dataset_class_list.append(
-                    self.target_dataset_class)
+        # task and class
+
+        for task, \
+            source_dataset_class, \
+            modify_class_file in zip([x for x in dataset_config['Task_and_class_config']
+                                      ['Task'].values()],
+                                     [y for y in dataset_config['Task_and_class_config']
+                                         ['Source_dataset_class_file_path'].values()],
+                                     [z for z in dataset_config['Task_and_class_config']
+                                      ['Modify_class_file_path'].values()]):
+            source_dataset_class = get_class_list(source_dataset_class)
+            modify_class_dict = get_modify_class_dict(modify_class_file)
+            target_dataset_class = get_new_class_names_list(
+                source_dataset_class, modify_class_dict)
+            self.task_list.append(task)
+            self.source_dataset_class_list.append(source_dataset_class)
+            self.modify_class_dict_list.append(modify_class_dict)
+            self.target_dataset_class_list.append(target_dataset_class)
 
     def source_dataset_copy_image_and_annotation(self):
         # print('\nStart source dataset copy image and annotation:')
