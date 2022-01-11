@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-11 14:35:43
+LastEditTime: 2022-01-11 14:59:48
 '''
 import os
 import yaml
@@ -14,7 +14,7 @@ from .dataset_characteristic import *
 from .information_base import information
 
 
-class Dataset_Base:
+class Dataset_Temp:
     """[数据集基础类]
     """
 

@@ -33,7 +33,7 @@ Dataset_style: Detection
 
 # Task and class config
 Task_and_class_config:
-  Task_1:
-    Style: "Detection"
-    Source_dataset_class_file_path: "/home/leidi/hy_program/2D_Dataset_clean/Instance_segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_20211116.names"
+  # Detection, Semantic_segmentation, Instance_segmentation, Keypoint
+  Detection: 
+    Source_dataset_class_file_path: "/home/leidi/hy_program/2D_Dataset_clean/Clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_2_classes_parking_20220111.name"
     Modify_class_file_path: "/home/leidi/hy_program/2D_Dataset_clean/Instance_segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_2_classes_parking_20211231.txt"

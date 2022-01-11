@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-11 11:35:01
+LastEditTime: 2022-01-11 14:55:24
 '''
 import shutil
 from PIL import Image
@@ -76,8 +76,8 @@ class COCO2017(Dataset_Base):
             total_annotations_dict = multiprocessing.Manager().dict()
             pool = multiprocessing.Pool(self.workers)
             for image_base_information in tqdm(data['images']):
-                pool.apply_async(func=self.load_image_base_information(), args=(
-                    self, image_base_information, total_annotations_dict,),
+                pool.apply_async(func=self.load_image_base_information, args=(
+                    image_base_information, total_annotations_dict,),
                     error_callback=err_call_back)
             pool.close()
             pool.join()
@@ -86,8 +86,8 @@ class COCO2017(Dataset_Base):
             total_image_annotation_list = []
             pool = multiprocessing.Pool(self.workers)
             for one_annotation in tqdm(data['annotations']):
-                total_image_annotation_list.append(pool.apply_async(func=self.load_image_annotation(), args=(
-                    self, one_annotation, class_dict, total_annotations_dict,),
+                total_image_annotation_list.append(pool.apply_async(func=self.load_image_annotation, args=(
+                    one_annotation, class_dict, total_annotations_dict,),
                     error_callback=err_call_back))
             pool.close()
             pool.join()
@@ -95,17 +95,18 @@ class COCO2017(Dataset_Base):
             del data
 
             total_images_data_dict = {}
-            for image_true_segment in total_image_annotation_list:
-                if image_true_segment.get() is None:
+            for image_true_annotation in total_image_annotation_list:
+                if image_true_annotation.get() is None:
                     continue
-                if image_true_segment.get()[0] not in total_images_data_dict:
-                    total_images_data_dict[image_true_segment.get(
-                    )[0]] = total_annotations_dict[image_true_segment.get()[0]]
-                    total_images_data_dict[image_true_segment.get()[0]].true_segmentation_list.extend(
-                        image_true_segment.get()[1])
-                else:
-                    total_images_data_dict[image_true_segment.get()[0]].true_segmentation_list.extend(
-                        image_true_segment.get()[1])
+                if image_true_annotation.get()[0] not in total_images_data_dict:
+                    total_images_data_dict[image_true_annotation.get(
+                    )[0]] = total_annotations_dict[image_true_annotation.get()[0]]
+                total_images_data_dict[image_true_annotation.get()[0]].true_box_list.extend(
+                    image_true_annotation.get()[1])
+                total_images_data_dict[image_true_annotation.get()[0]].true_segmentation_list.extend(
+                    image_true_annotation.get()[2])
+                total_images_data_dict[image_true_annotation.get()[0]].true_keypoint_list.extend(
+                    image_true_annotation.get()[3])
 
             del total_annotations_dict, total_image_annotation_list
 
@@ -118,8 +119,8 @@ class COCO2017(Dataset_Base):
                                                              })
             pool = multiprocessing.Pool(self.workers)
             for _, image in tqdm(total_images_data_dict.items()):
-                pool.apply_async(func=self.output_temp_annotation(), args=(
-                    self, image, process_output,),
+                pool.apply_async(func=self.output_temp_annotation, args=(
+                    image, process_output,),
                     error_callback=err_call_back)
             pool.close()
             pool.join()
@@ -193,7 +194,7 @@ class COCO2017(Dataset_Base):
 
         return
 
-    def load_image_base_information(dataset: dict, image_base_information: dict, total_annotations_dict: dict) -> None:
+    def load_image_base_information(self, image_base_information: dict, total_annotations_dict: dict) -> None:
         """[读取标签获取图片基础信息，并添加至each_annotation_images_data_dict]
 
         Args:
@@ -203,18 +204,18 @@ class COCO2017(Dataset_Base):
         """
 
         image_id = image_base_information['id']
-        image_name = image_base_information['file_name'].split(
-            '.')[0] + '.' + dataset['temp_image_form']
-        image_name_new = dataset['file_prefix'] + image_name
+        image_name = os.path.splitext(image_base_information['file_name'])[
+            0] + '.' + self.temp_image_form
+        image_name_new = self.file_prefix + image_name
         image_path = os.path.join(
-            dataset['temp_images_folder'], image_name_new)
+            self.temp_images_folder, image_name_new)
         img = Image.open(image_path)
         height, width = img.height, img.width
         channels = 3
         # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，
         # 并将初始化后的对象存入total_images_data_list
         image = IMAGE(image_name, image_name_new,
-                      image_path, height, width, channels, [], [])
+                      image_path, height, width, channels, [], [], [])
         total_annotations_dict.update({image_id: image})
 
         return
@@ -235,8 +236,8 @@ class COCO2017(Dataset_Base):
         ann_image_id = one_annotation['image_id']   # 获取此bbox图片id
         cls = class_dict[str(one_annotation['category_id'])]     # 获取bbox类别
         cls = cls.replace(' ', '').lower()
-        for source_dataset_class in self.source_dataset_class_list:
-            if cls not in source_dataset_class:
+        for _, task_class_dict in self.task_dict.items():
+            if cls not in task_class_dict['Source_dataset_class']:
                 return
         image = each_annotation_images_data_dict[ann_image_id]
 
@@ -288,7 +289,8 @@ class COCO2017(Dataset_Base):
         if 'keypoints' in one_annotation and len(one_annotation['keypoints']) \
                 and 'num_keypoints' in one_annotation and len(one_annotation['num_keypoints']):
             for one_keypoint, one_num_keypoints in zip(one_annotation['keypoints'], one_annotation['num_keypoints']):
-                true_keypoints_list.append(TURE_KEYPOINTS(cls, one_keypoint, one_num_keypoints))
+                true_keypoints_list.append(TURE_KEYPOINTS(
+                    cls, one_keypoint, one_num_keypoints))
 
         return ann_image_id, true_box_list, true_segmentation_list, true_keypoints_list
 
@@ -306,22 +308,33 @@ class COCO2017(Dataset_Base):
         temp_annotation_output_path = os.path.join(
             self.temp_annotations_folder,
             image.file_name_new + '.' + self.temp_annotation_form)
-        if 0 != len(image.true_box_list):
-            modify_true_box_list(image, dataset['detect_modify_class_dict'])
-        modify_true_segmentation_list(
-            image, dataset['segment_modify_class_dict'])
+        for task, task_class_dict in self.task_dict.items():
+            if task == 'Detection' and 0 != len(image.true_box_list):
+                image.modify_true_box_list(
+                    task_class_dict['Modify_class_dict'])
+            if task == 'Semantic_segmentation' and 0 != len(image.true_segmentation_list):
+                image.modify_true_segmentation_list(
+                    task_class_dict['Modify_class_dict'])
+            if task == 'Instance_segmentation' and 0 != len(image.true_segmentation_list):
+                image.modify_true_segmentation_list(
+                    task_class_dict['Modify_class_dict'])
+            if task == 'Keypoint' and 0 != len(image.true_keypoint_list):
+                image.modify_true_segmentation_list(
+                    task_class_dict['Modify_class_dict'])
         # if dataset['class_pixel_distance_dict'] is not None:
         #     class_box_pixel_limit(dataset, image.true_box_list)
         #     class_segmentation_pixel_limit(
         #         self, image.true_segmentation_list)
-        if 0 == len(image.true_segmentation_list) and 0 == len(image.true_box_list):
+        if 0 == len(image.true_segmentation_list) \
+            and 0 == len(image.true_box_list) \
+                and 0 == len(image.true_keypoint_list):
             print('{} no true box and segmentation, has been delete.'.format(
                 image.image_name_new))
             os.remove(image.image_path)
             process_output['no_detect_segmentation'] += 1
             process_output['fail_count'] += 1
             return
-        if TEMP_OUTPUT(temp_annotation_output_path, image):
+        if image.output_temp_annotation(temp_annotation_output_path):
             process_output['temp_file_name_list'].append(image.file_name_new)
             process_output['success_count'] += 1
         else:
