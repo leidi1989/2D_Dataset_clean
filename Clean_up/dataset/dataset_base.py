@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-10 11:39:04
+LastEditTime: 2022-01-11 11:43:42
 '''
 import os
 import yaml
@@ -102,24 +102,16 @@ class Dataset_Base:
         self.workers = dataset_config['workers']
         self.debug = dataset_config['debug']
 
-        # task and class
-
-        for task, \
-            source_dataset_class, \
-            modify_class_file in zip([x for x in dataset_config['Task_and_class_config']
-                                      ['Task'].values()],
-                                     [y for y in dataset_config['Task_and_class_config']
-                                         ['Source_dataset_class_file_path'].values()],
-                                     [z for z in dataset_config['Task_and_class_config']
-                                      ['Modify_class_file_path'].values()]):
-            source_dataset_class = get_class_list(source_dataset_class)
-            modify_class_dict = get_modify_class_dict(modify_class_file)
-            target_dataset_class = get_new_class_names_list(
-                source_dataset_class, modify_class_dict)
-            self.task_list.append(task)
+        for _, task_info in dataset_config['Task_and_class_config'].items():
+            self.task_list.append(task_info['Style'])
+            source_dataset_class = get_class_list(
+                task_info['Source_dataset_class_file_path'])
             self.source_dataset_class_list.append(source_dataset_class)
+            modify_class_dict = get_modify_class_dict(
+                task_info['Modify_class_file_path'])
             self.modify_class_dict_list.append(modify_class_dict)
-            self.target_dataset_class_list.append(target_dataset_class)
+            self.target_dataset_class_list.append(
+                get_new_class_names_list(source_dataset_class, modify_class_dict))
 
     def source_dataset_copy_image_and_annotation(self):
         # print('\nStart source dataset copy image and annotation:')

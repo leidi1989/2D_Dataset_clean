@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2021-12-31 16:29:24
+LastEditTime: 2022-01-11 11:30:06
 '''
 import os
 import cv2
@@ -104,6 +104,22 @@ class TRUE_SEGMENTATION:
         return bbox
 
 
+class TURE_KEYPOINTS():
+    """真实关键点类"""
+
+    def __init__(self, clss: str, num_keypoints: int, keypoints: list) -> None:
+        """[summary]
+
+        Args:
+            clss (str): [类别]
+            num_keypoints (int): [关键点数量]
+            keypoints (list): [关键点坐标列表]
+        """        
+        self.clss = clss
+        self.num_keypoints = num_keypoints
+        self.keypoints = keypoints
+       
+
 class IMAGE:
     """图片类"""
 
@@ -116,6 +132,7 @@ class IMAGE:
                  channels_in: int,
                  true_box_list_in: list,
                  true_segmentation_list_in: list,
+                 true_keypoint_list_in: list
                  ) -> None:
         """[图片类]
 
@@ -140,6 +157,7 @@ class IMAGE:
         self.channels = channels_in                         # 图片通道数
         self.true_box_list = true_box_list_in               # 图片真实框列表
         self.true_segmentation_list = true_segmentation_list_in    # 图片真实分割列表
+        self.keypoint_list = true_keypoint_list_in          # 图片真实关键点列表
 
     def true_box_list_updata(self, one_bbox_data: TRUE_BOX) -> None:
         """[为per_image对象true_box_list成员添加元素]
