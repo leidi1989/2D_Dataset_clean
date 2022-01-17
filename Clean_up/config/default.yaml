@@ -32,8 +32,8 @@ Dataset_style: Detection
 Task_and_class_config:
   # Detection, Semantic_segmentation, Instance_segmentation, Keypoint
   Detection:
-    Source_dataset_class_file_path: /mnt/data_1/hy_program/2D_Dataset_clean/Clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_2_classes_parking_20220111.name
-    Modify_class_file_path: /mnt/data_1/hy_program/2D_Dataset_clean/Instance_segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_2_classes_parking_20211231.txt
+    Source_dataset_class_file_path: /mnt/data_1/hy_program/2D_Dataset_clean/Clean_up/data/test_2_classes.name
+    Modify_class_file_path: /mnt/data_1/hy_program/2D_Dataset_clean/Clean_up/data/test_2_classes_modify.txt
     Target_each_class_object_pixel_limit_file_path: 
 
 # progress debug

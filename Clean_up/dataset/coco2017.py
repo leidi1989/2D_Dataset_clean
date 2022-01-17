@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-17 16:59:32
+LastEditTime: 2022-01-17 17:11:06
 '''
 import shutil
 from PIL import Image
@@ -54,7 +54,7 @@ class COCO2017(Dataset_Base):
         print('\nStart transform to temp dataset:')
         success_count = 0
         fail_count = 0
-        no_segmentation = 0
+        no_object = 0
         temp_file_name_list = []
 
         for source_annotation_name in tqdm(os.listdir(self.source_dataset_annotations_folder)):
@@ -107,8 +107,8 @@ class COCO2017(Dataset_Base):
             # 输出读取的source annotation至temp annotation
             process_temp_file_name_list = multiprocessing.Manager().list()
             process_output = multiprocessing.Manager().dict({'success_count': 0,
-                                                            'fail_count': 0,
-                                                             'no_segmentation': 0,
+                                                             'fail_count': 0,
+                                                             'no_object': 0,
                                                              'temp_file_name_list': process_temp_file_name_list
                                                              })
             pool = multiprocessing.Pool(self.workers)
@@ -122,7 +122,7 @@ class COCO2017(Dataset_Base):
             # 更新输出统计
             success_count += process_output['success_count']
             fail_count += process_output['fail_count']
-            no_segmentation += process_output['no_segmentation']
+            no_object += process_output['no_object']
             temp_file_name_list += process_output['temp_file_name_list']
 
         # 输出读取统计结果
@@ -130,7 +130,7 @@ class COCO2017(Dataset_Base):
         print('Total annotations:         \t {} '.format(
             len(os.listdir(self.source_dataset_annotations_folder))))
         print('Convert fail:              \t {} '.format(fail_count))
-        print('No segmentation delete images: \t {} '.format(no_segmentation))
+        print('No segmentation delete images: \t {} '.format(no_object))
         print('Convert success:           \t {} '.format(success_count))
         self.temp_annotation_name_list = temp_file_name_list
         for task, target_dataset_class in zip(self.task_list, self.target_dataset_class_list):
@@ -310,10 +310,10 @@ class COCO2017(Dataset_Base):
         image.modify_object_list(self)
         image.object_pixel_limit(self)
         if 0 == len(image.object_list):
-            print('{} no true box and segmentation, has been delete.'.format(
+            print('{} no object, has been delete.'.format(
                 image.image_name_new))
             os.remove(image.image_path)
-            process_output['no_detect_segmentation'] += 1
+            process_output['no_object'] += 1
             process_output['fail_count'] += 1
             return
         if image.output_temp_annotation(temp_annotation_output_path):

@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-01-17 16:57:46
+LastEditTime: 2022-01-17 17:03:18
 '''
 import os
 import cv2
@@ -268,6 +268,7 @@ class IMAGE:
 
         if self == None:
             return False
+
         annotation = {'name': self.file_name_new,
                       'frames': [{'timestamp': 10000,
                                   'objects': []}],
