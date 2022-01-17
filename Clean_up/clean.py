@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-01-11 13:52:10
+LastEditTime: 2022-01-17 09:45:16
 '''
 import os
 import time
@@ -40,6 +40,6 @@ if __name__ == "__main__":
     dataset_config.update({'workers': opt.workers})
     
     Input_dataset = dataset.__dict__[dataset_config['Source_dataset_style']](dataset_config)
-    # Input_dataset.source_dataset_copy_image_and_annotation()
+    Input_dataset.source_dataset_copy_image_and_annotation()
     Input_dataset.transform_to_temp_dataset()
     pass

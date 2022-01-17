@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-11 14:55:24
+LastEditTime: 2022-01-17 11:22:43
 '''
 import shutil
 from PIL import Image
@@ -240,9 +240,22 @@ class COCO2017(Dataset_Base):
             if cls not in task_class_dict['Source_dataset_class']:
                 return
         image = each_annotation_images_data_dict[ann_image_id]
-
+        
+        object_clss = cls
+        bbox_clss = cls
+        keypoints_clss = cls
+        segmentation_clss = cls
+        
+        xmin = None
+        ymin = None
+        xmax = None
+        ymax = None
+        segmentation = None
+        segmentation_area = None
+        
+        num_keypoints = None
+        keypoints = None
         # 获取真实框信息
-        true_box_list = []
         if 'bbox' in one_annotation and len(one_annotation['bbox']):
             box = [one_annotation['bbox'][0],
                    one_annotation['bbox'][1],
@@ -256,8 +269,6 @@ class COCO2017(Dataset_Base):
                        int(image.width))
             ymax = min(max(int(box[3]), int(box[1]), 0.),
                        int(image.height))
-            true_box_list.append(
-                TRUE_BOX(cls, xmin, ymin, xmax, ymax))
 
         # 获取真实语义分割信息
         true_segmentation_list = []
@@ -277,22 +288,19 @@ class COCO2017(Dataset_Base):
                                   each_annotation_images_data_dict[ann_image_id].image_name_new)
                             continue
                         point = []
-                if '0' == one_annotation['iscrowd']:
-                    true_segmentation_list.append(TRUE_SEGMENTATION(
-                        cls, segment, area=one_annotation['area']))
-                else:
-                    true_segmentation_list.append(TRUE_SEGMENTATION(
-                        cls, segment, one_annotation['area'], 1))
+                segmentation = segment
+                segmentation_area = one_annotation['area']
+                if '1' == one_annotation['iscrowd']:
+                    segmentation_iscrowd = 1
 
         # 关键点信息
-        true_keypoints_list = []
         if 'keypoints' in one_annotation and len(one_annotation['keypoints']) \
                 and 'num_keypoints' in one_annotation and len(one_annotation['num_keypoints']):
-            for one_keypoint, one_num_keypoints in zip(one_annotation['keypoints'], one_annotation['num_keypoints']):
-                true_keypoints_list.append(TURE_KEYPOINTS(
-                    cls, one_keypoint, one_num_keypoints))
+            num_keypoints = one_annotation['num_keypoints']
+            keypoints = one_annotation['keypoints']
 
-        return ann_image_id, true_box_list, true_segmentation_list, true_keypoints_list
+        one_object = OBJECT()
+        return ann_image_id, 
 
     def output_temp_annotation(self, image: IMAGE, process_output: dict) -> None:
         """[输出单个标签详细信息至temp annotation]

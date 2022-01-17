@@ -1,8 +1,8 @@
 # dataset path
-Dataset_input_folder: /mnt/data_1/Dataset/Temp/yunce_parking_2_classes_coco2017
+Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/yunce_parking_2_classes_coco2017
 
 # output path
-Dataset_output_folder: /mnt/data_1/Dataset/Temp/yunce_parking_2_classes_coco2017_20220107
+Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/yunce_parking_2_classes_coco2017_20220117
 
 # Source dataset style: cityscapes, COCO2017, huaweiyun_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017, yunce_segment_coco, yunce_segment_coco_one_image
 Source_dataset_style: COCO2017
