@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-17 14:57:14
+LastEditTime: 2022-01-17 16:59:32
 '''
 import shutil
 from PIL import Image
@@ -227,11 +227,11 @@ class COCO2017(Dataset_Base):
             list: [ann_image_id, true_box_list, true_segmentation_list]
         """
 
-        xywh = []
+        box_xywh = []
         segmentation = []
         segmentation_area = None
         segmentation_iscrowd = 0
-        num_keypoints = 0
+        keypoints_num = 0
         keypoints = []
 
         ann_image_id = one_annotation['image_id']   # 获取此bbox图片id
@@ -256,7 +256,7 @@ class COCO2017(Dataset_Base):
                        int(image.width))
             ymax = min(max(int(box[3]), int(box[1]), 0.),
                        int(image.height))
-            xywh = [xmin, ymin, xmax-xmin, ymax-ymin]
+            box_xywh = [xmin, ymin, xmax-xmin, ymax-ymin]
 
         # 获取真实语义分割信息
         if 'segmentation' in one_annotation and len(one_annotation['segmentation']):
@@ -282,12 +282,12 @@ class COCO2017(Dataset_Base):
 
         # 关键点信息
         if 'keypoints' in one_annotation and len(one_annotation['keypoints']) \
-                and 'num_keypoints' in one_annotation and len(one_annotation['num_keypoints']):
-            num_keypoints = one_annotation['num_keypoints']
+                and 'num_keypoints' in one_annotation:
+            keypoints_num = one_annotation['num_keypoints']
             keypoints = one_annotation['keypoints']
 
         one_object = OBJECT(cls, cls, cls, cls,
-                            xywh, segmentation, num_keypoints, keypoints,
+                            box_xywh, segmentation, keypoints_num, keypoints,
                             segmentation_area=segmentation_area,
                             segmentation_iscrowd=segmentation_iscrowd
                             )

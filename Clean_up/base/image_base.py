@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-01-17 16:24:12
+LastEditTime: 2022-01-17 16:57:46
 '''
 import os
 import cv2
@@ -17,12 +17,12 @@ class BOX:
 
     def __init__(self,
                  box_clss: str,
-                 xywh: list,
-                 color: str = '',
-                 tool: str = '',
-                 difficult: int = 0,
-                 distance: float = 0,
-                 occlusion: float = 0
+                 box_xywh: list,
+                 box_color: str = '',
+                 box_tool: str = '',
+                 box_difficult: int = 0,
+                 box_distance: float = 0,
+                 box_occlusion: float = 0
                  ) -> None:
         """[真实框类]
 
@@ -37,14 +37,14 @@ class BOX:
         """
 
         self.box_clss = box_clss
-        self.box_xywh = xywh
-        self.color = color
-        self.tool = tool
-        self.difficult = difficult
-        self.distance = distance
-        self.occlusion = occlusion
+        self.box_xywh = box_xywh
+        self.box_color = box_color
+        self.box_tool = box_tool
+        self.box_difficult = box_difficult
+        self.box_distance = box_distance
+        self.box_occlusion = box_occlusion
 
-    def get_box_area(self) -> float:
+    def box_get_area(self) -> float:
         """[获取box面积]
 
         Returns:
@@ -60,8 +60,8 @@ class SEGMENTATION:
     def __init__(self,
                  segmentation_clss: str,
                  segmentation: list,
-                 area: int = None,
-                 iscrowd: int = 0,
+                 segmentation_area: int = None,
+                 segmentation_iscrowd: int = 0,
                  ) -> None:
         """[真分割]
 
@@ -74,23 +74,23 @@ class SEGMENTATION:
 
         self.segmentation_clss = segmentation_clss
         self.segmentation = segmentation
-        if area == None:
+        if segmentation_area == None:
             self.segmentation_area = int(
                 cv2.contourArea(np.array(self.segmentation)))
         else:
-            self.segmentation_area = area
-        self.iscrowd = int(iscrowd)
+            self.segmentation_area = segmentation_area
+        self.segmentation_iscrowd = int(segmentation_iscrowd)
 
-    def get_segmentation_bbox_area(self):
+    def segmentation_get_bbox_area(self):
 
         segmentation = np.asarray(self.segmentation)
         min_x = int(np.min(segmentation[:, 0]))
         min_y = int(np.min(segmentation[:, 1]))
         max_x = int(np.max(segmentation[:, 0]))
         max_y = int(np.max(segmentation[:, 1]))
-        self.box_xywh = [min_x, min_y, max_x-min_x, max_y-min_y]
+        box_xywh = [min_x, min_y, max_x-min_x, max_y-min_y]
 
-        return self.box_xywh[2] * self.box_xywh[3]
+        return box_xywh[2] * box_xywh[3]
 
 
 class KEYPOINTS:
@@ -98,7 +98,7 @@ class KEYPOINTS:
 
     def __init__(self,
                  keypoints_clss: str,
-                 num_keypoints: int,
+                 keypoints_num: int,
                  keypoints: list
                  ) -> None:
         """[真实关键点类]
@@ -110,7 +110,7 @@ class KEYPOINTS:
         """
 
         self.keypoints_clss = keypoints_clss
-        self.num_keypoints = num_keypoints
+        self.keypoints_num = keypoints_num
         self.keypoints = keypoints
 
 
@@ -123,10 +123,10 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
                  segmentation_clss: str,
                  keypoints_clss: str,
 
-                 xywh: list,
+                 box_xywh: list,
                  segmentation: list,
 
-                 num_keypoints: int,
+                 keypoints_num: int,
                  keypoints: list,
 
                  box_color: str = '',
@@ -158,24 +158,13 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
             segmentation_iscrowd (int, optional): [是否使用coco2017中的iscrowd格式]. Defaults to 0.
         """
 
-        BOX.__init__(self, box_clss, xywh,
-                     color=box_color, tool=box_tool, difficult=box_difficult,
-                     distance=box_distance, occlusion=box_occlusion)
+        BOX.__init__(self, box_clss, box_xywh,
+                     box_color=box_color, box_tool=box_tool, box_difficult=box_difficult,
+                     box_distance=box_distance, box_occlusion=box_occlusion)
         SEGMENTATION.__init__(self, segmentation_clss, segmentation,
-                              area=segmentation_area, iscrowd=segmentation_iscrowd)
-        KEYPOINTS.__init__(self, keypoints_clss, num_keypoints, keypoints)
+                              segmentation_area=segmentation_area, segmentation_iscrowd=segmentation_iscrowd)
+        KEYPOINTS.__init__(self, keypoints_clss, keypoints_num, keypoints)
         self.object_clss = object_clss
-
-    def get_outer_bbox(self):
-        """[将分割按最外围矩形框转换为bbox]
-        """
-
-        segmentation = np.asarray(self.segmentation)
-        min_x = int(np.min(segmentation[:, 0]))
-        min_y = int(np.min(segmentation[:, 1]))
-        max_x = int(np.max(segmentation[:, 0]))
-        max_y = int(np.max(segmentation[:, 1]))
-        self.box_xywh = [min_x, min_y, max_x-min_x, max_y-min_y]
 
 
 class IMAGE:
@@ -255,12 +244,12 @@ class IMAGE:
             if task_class_dict['Target_object_pixel_limit_dict'] is not None:
                 for n, object in enumerate(self.object_list):
                     if task == 'Detection' or task == 'Instance_segmentation' or task == 'Keypoint':
-                        pixel = object.get_box_area()
+                        pixel = object.box_get_area()
                         if pixel < task_class_dict['Target_object_pixel_limit_dict'][object.box_clss][0] or \
                                 pixel > task_class_dict['Target_object_pixel_limit_dict'][object.box_clss][1]:
                             self.object_list.pop(self.object_list.index(n))
                     elif task == 'Semantic_segmentation':
-                        pixel = object.get_segmentation_bbox_area()
+                        pixel = object.segmentation_get_bbox_area()
                         if pixel < task_class_dict['Target_object_pixel_limit_dict'][object.segmentation_clss][0] or \
                                 pixel > task_class_dict['Target_object_pixel_limit_dict'][object.segmentation_clss][1]:
                             self.object_list.pop(self.object_list.index(n))
@@ -287,43 +276,26 @@ class IMAGE:
                                      'timeofday': 'daytime'
                                      }
                       }
-
-        # 真实框
-        for i, n in enumerate(self.true_box_list):
-            box = {'category': n.clss,
-                   'id': i,
-                   'attributes': {'occluded': False if 0 == n.difficult else str(n.difficult),
-                                  'truncated': False if 0 == n.occlusion else str(n.occlusion),
-                                  'trafficLightColor': "none"
-                                  },
-                   'box2d': {'x1': int(n.xmin),
-                             'y1': int(n.ymin),
-                             'x2': int(n.xmax),
-                             'y2': int(n.ymax),
-                             }
-                   }
-            annotation['frames'][0]['objects'].append(box)
-
-        # 语义分割
-        m = len(self.true_box_list)
-        for i, n in enumerate(self.true_segmentation_list):
-            segmentation = {'category': n.clss,
-                            'id': i + m,
-                            'attributes': {},
-                            'poly2d': n.segmentation
-                            }
-            annotation['frames'][0]['objects'].append(segmentation)
-
-        # 关键点
-        l = len(self.true_segmentation_list)
-        for i, n in enumerate(self.true_keypoint_list):
-            keypoint = {'category': n.clss,
-                        'id': i + m + l,
-                        'attributes': {},
-                        'num_keypoints': n.num_keypoints,
-                        'keypoint': n.keypoints
-                        }
-            annotation['frames'][0]['objects'].append(keypoint)
+        for i, object in enumerate(self.object_list):
+            # 真实框
+            object = {'id': i,
+                      'object_clss': object.object_clss,
+                      'box_clss': object.box_clss,
+                      'box_color': object.box_color,
+                      'box_difficult': object.box_difficult,
+                      'box_distance': object.box_distance,
+                      'box_occlusion': object.box_occlusion,
+                      'box_tool': object.box_tool,
+                      'box_xywh': object.box_xywh,
+                      'keypoints_clss': object.keypoints_clss,
+                      'keypoints_num': object.keypoints_num,
+                      'keypoints': object.keypoints,
+                      'segmentation_class': object.segmentation_clss,
+                      'segmentation': object.segmentation,
+                      'segmentation_area': object.segmentation_area,
+                      'segmentation_iscrowd': object.segmentation_iscrowd,
+                      }
+            annotation['frames'][0]['objects'].append(object)
 
         # 输出json文件
         json.dump(annotation, open(temp_annotation_output_path, 'w'))
