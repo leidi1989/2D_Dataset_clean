@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-17 18:12:11
+LastEditTime: 2022-01-17 18:34:09
 '''
 import shutil
 from PIL import Image
@@ -314,6 +314,7 @@ class COCO2017(Dataset_Base):
             process_output['temp_file_name_list'].append(image.file_name_new)
             process_output['success_count'] += 1
         else:
+            print('errow output temp annotation: {}'.format(image.file_name_new))
             process_output['fail_count'] += 1
 
         return
