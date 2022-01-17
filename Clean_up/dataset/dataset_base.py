@@ -4,10 +4,9 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-11 14:35:43
+LastEditTime: 2022-01-17 15:50:54
 '''
 import os
-import yaml
 
 from utils.utils import *
 from .dataset_characteristic import *
@@ -104,10 +103,14 @@ class Dataset_Base:
                 task_info['Source_dataset_class_file_path'])
             modify_class_dict = get_modify_class_dict(
                 task_info['Modify_class_file_path'])
-            target_dataset_class = get_new_class_names_list(source_dataset_class, modify_class_dict)
-            self.task_dict[task]={'Source_dataset_class': source_dataset_class,
+            target_dataset_class = get_new_class_names_list(
+                source_dataset_class, modify_class_dict)
+            object_pixel_limit_dict = get_class_pixel_limit(
+                task_info['Target_each_class_object_pixel_limit_file_path'])
+            self.task_dict[task] = {'Source_dataset_class': source_dataset_class,
                                     'Modify_class_dict': modify_class_dict,
-                                    'Target_dataset_class': target_dataset_class}
+                                    'Target_dataset_class': target_dataset_class,
+                                    'Target_object_pixel_limit_dict': object_pixel_limit_dict}
 
     def source_dataset_copy_image_and_annotation(self):
         # print('\nStart source dataset copy image and annotation:')

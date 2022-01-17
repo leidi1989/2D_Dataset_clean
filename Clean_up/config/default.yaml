@@ -25,15 +25,16 @@ Target_dataset_check_annotations_count: 100
 # check target annotations show annotations as mask
 Target_dataset_check_annotations_output_as_mask: True
 
-# progress debug
-debug: False
-
-# dataset style: Detection, Instance_segmentation, Multi_task, Semantic_segmentation
+# dataset style: Detection, Semantic_segmentation, Instance_segmentation, Multi_task
 Dataset_style: Detection
 
 # Task and class config
 Task_and_class_config:
   # Detection, Semantic_segmentation, Instance_segmentation, Keypoint
-  Detection: 
-    Source_dataset_class_file_path: "/home/leidi/hy_program/2D_Dataset_clean/Clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_2_classes_parking_20220111.name"
-    Modify_class_file_path: "/home/leidi/hy_program/2D_Dataset_clean/Instance_segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_2_classes_parking_20211231.txt"
+  Detection:
+    Source_dataset_class_file_path: /mnt/data_1/hy_program/2D_Dataset_clean/Clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_2_classes_parking_20220111.name
+    Modify_class_file_path: /mnt/data_1/hy_program/2D_Dataset_clean/Instance_segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_2_classes_parking_20211231.txt
+    Target_each_class_object_pixel_limit_file_path: 
+
+# progress debug
+debug: False

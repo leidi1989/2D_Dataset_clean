@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2022-01-07 17:23:57
+LastEditTime: 2022-01-17 16:25:33
 '''
 # -*- coding: utf-8 -*-
 import os
@@ -465,7 +465,8 @@ def get_class_pixel_limit(class_pixel_distance_file_path: str) -> dict:
         dict or None: [类别像素大小限制字典]
     """
 
-    if class_pixel_distance_file_path == '':
+    if class_pixel_distance_file_path == '' \
+            or class_pixel_distance_file_path == None:
         print('Unlimit true box pixel.')
 
         return None

@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-01-17 11:30:19
+LastEditTime: 2022-01-17 16:24:12
 '''
 import os
 import cv2
@@ -12,11 +12,11 @@ import json
 import numpy as np
 
 
-class BBOX:
+class BOX:
     """真实框类"""
 
     def __init__(self,
-                 bbox_clss: str,
+                 box_clss: str,
                  xywh: list,
                  color: str = '',
                  tool: str = '',
@@ -27,7 +27,7 @@ class BBOX:
         """[真实框类]
 
         Args:
-            bbox_clss (str): [类别]
+            box_clss (str): [类别]
             xywh (list): [bbox左上点和宽高]
             color (str, optional): [真实框目标颜色]. Defaults to ''.
             tool (str, optional): [bbox工具]. Defaults to ''.
@@ -36,13 +36,22 @@ class BBOX:
             occlusion (float, optional): [真实框遮挡率]. Defaults to 0.
         """
 
-        self.bbox_clss = bbox_clss
-        self.bbox_xywh = xywh
+        self.box_clss = box_clss
+        self.box_xywh = xywh
         self.color = color
         self.tool = tool
         self.difficult = difficult
         self.distance = distance
         self.occlusion = occlusion
+
+    def get_box_area(self) -> float:
+        """[获取box面积]
+
+        Returns:
+            float: [box面积]
+        """
+
+        return self.box_xywh[2] * self.box_xywh[3]
 
 
 class SEGMENTATION:
@@ -66,10 +75,22 @@ class SEGMENTATION:
         self.segmentation_clss = segmentation_clss
         self.segmentation = segmentation
         if area == None:
-            self.area = int(cv2.contourArea(np.array(self.segmentation)))
+            self.segmentation_area = int(
+                cv2.contourArea(np.array(self.segmentation)))
         else:
-            self.area = area
+            self.segmentation_area = area
         self.iscrowd = int(iscrowd)
+
+    def get_segmentation_bbox_area(self):
+
+        segmentation = np.asarray(self.segmentation)
+        min_x = int(np.min(segmentation[:, 0]))
+        min_y = int(np.min(segmentation[:, 1]))
+        max_x = int(np.max(segmentation[:, 0]))
+        max_y = int(np.max(segmentation[:, 1]))
+        self.box_xywh = [min_x, min_y, max_x-min_x, max_y-min_y]
+
+        return self.box_xywh[2] * self.box_xywh[3]
 
 
 class KEYPOINTS:
@@ -93,12 +114,12 @@ class KEYPOINTS:
         self.keypoints = keypoints
 
 
-class OBJECT(BBOX, SEGMENTATION, KEYPOINTS):
+class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
     """标注物体类"""
 
     def __init__(self,
                  object_clss: str,
-                 bbox_clss: str,
+                 box_clss: str,
                  segmentation_clss: str,
                  keypoints_clss: str,
 
@@ -108,11 +129,11 @@ class OBJECT(BBOX, SEGMENTATION, KEYPOINTS):
                  num_keypoints: int,
                  keypoints: list,
 
-                 bbox_color: str = '',
-                 bbox_tool: str = '',
-                 bbox_difficult: int = 0,
-                 bbox_distance: float = 0,
-                 bbox_occlusion: float = 0,
+                 box_color: str = '',
+                 box_tool: str = '',
+                 box_difficult: int = 0,
+                 box_distance: float = 0,
+                 box_occlusion: float = 0,
 
                  segmentation_area: int = None,
                  segmentation_iscrowd: int = 0,
@@ -120,58 +141,41 @@ class OBJECT(BBOX, SEGMENTATION, KEYPOINTS):
         """[summary]
 
         Args:
-            object_clss (str): [description]
-            bbox_clss (str): [description]
-            segmentation_clss (str): [description]
-            keypoints_clss (str): [description]
-            xywh (list): [description]
-            segmentation (list): [description]
-            num_keypoints (int): [description]
-            keypoints (list): [description]
-            bbox_color (str, optional): [description]. Defaults to ''.
-            bbox_tool (str, optional): [description]. Defaults to ''.
-            bbox_difficult (int, optional): [description]. Defaults to 0.
-            bbox_distance (float, optional): [description]. Defaults to 0.
-            bbox_occlusion (float, optional): [description]. Defaults to 0.
-            segmentation_area (int, optional): [description]. Defaults to None.
-            segmentation_iscrowd (int, optional): [description]. Defaults to 0.
+            object_clss (str): [标注目标类别]
+            box_clss (str): [真实框类别]
+            segmentation_clss (str): [分割区域类别]
+            keypoints_clss (str): [关键点类别]
+            xywh (list): [真实框x，y，width，height列表]
+            segmentation (list): [分割多边形点列表]
+            num_keypoints (int): [关键点个数]
+            keypoints (list): [关键点坐标]
+            box_color (str, optional): [真实框颜色]. Defaults to ''.
+            box_tool (str, optional): [真实框标注工具]. Defaults to ''.
+            box_difficult (int, optional): [真实框困难程度]. Defaults to 0.
+            box_distance (float, optional): [真实框距离]. Defaults to 0.
+            box_occlusion (float, optional): [真实框遮挡比例]. Defaults to 0.
+            segmentation_area (int, optional): [分割区域像素大小]. Defaults to None.
+            segmentation_iscrowd (int, optional): [是否使用coco2017中的iscrowd格式]. Defaults to 0.
         """
 
-        BBOX.__init__(self, bbox_clss, xywh,
-                      color=bbox_color, tool=bbox_tool, difficult=bbox_difficult,
-                      distance=bbox_distance, occlusion=bbox_occlusion)
+        BOX.__init__(self, box_clss, xywh,
+                     color=box_color, tool=box_tool, difficult=box_difficult,
+                     distance=box_distance, occlusion=box_occlusion)
         SEGMENTATION.__init__(self, segmentation_clss, segmentation,
                               area=segmentation_area, iscrowd=segmentation_iscrowd)
         KEYPOINTS.__init__(self, keypoints_clss, num_keypoints, keypoints)
         self.object_clss = object_clss
 
-    def get_outer_bounding_box(self):
+    def get_outer_bbox(self):
         """[将分割按最外围矩形框转换为bbox]
         """
 
         segmentation = np.asarray(self.segmentation)
-        self.min_x = int(np.min(segmentation[:, 0]))
-        self.min_y = int(np.min(segmentation[:, 1]))
-        self.max_x = int(np.max(segmentation[:, 0]))
-        self.max_y = int(np.max(segmentation[:, 1]))
-
-    def modify_true_box_list(self, class_modify_dict: dict) -> None:
-        """[修改真实框类别]
-
-        Args:
-            class_modify_dict (dict): [类别修改字典]
-        """
-
-        if class_modify_dict is not None:
-            for one_true_box in self.true_box_list:
-                # 遍历融合类别文件字典，完成label中的类别修改，
-                # 若此bbox类别属于混合标签类别列表，
-                # 则返回该标签在混合类别列表的索引值
-                for (key, value) in class_modify_dict.items():
-                    if one_true_box.clss in set(value):
-                        one_true_box.clss = key                     # 修改true_box类别
-
-        return
+        min_x = int(np.min(segmentation[:, 0]))
+        min_y = int(np.min(segmentation[:, 1]))
+        max_x = int(np.max(segmentation[:, 0]))
+        max_y = int(np.max(segmentation[:, 1]))
+        self.box_xywh = [min_x, min_y, max_x-min_x, max_y-min_y]
 
 
 class IMAGE:
@@ -208,29 +212,58 @@ class IMAGE:
         self.channels = channels_in                         # 图片通道数
         self.object_list = object_list_in
 
-    def true_object_list_updata(self, object_data: OBJECT) -> None:
-        """[为per_image对象true_box_list成员添加元素]
-
-        Args:
-            true_object_data (TRUE_OBJECT): [TRUE_OBJECT类变量]
-        """
-
-        self.object_list.append(object_data)
-
-    def modify_object_list(self, input_dataset) -> None:
+    def modify_object_list(self, input_dataset: object) -> None:
         """[修改真实框类别]
 
         Args:
-            class_modify_dict (dict): [类别修改字典]
+            input_dataset (object): [输入数据集实例]
         """
-        for task in input_dataset.task:
-            if task.class_modify_dict is not None:
+        for task, task_class_dict in input_dataset.task_dict.items():
+            if task_class_dict['Modify_class_dict'] is not None:
                 for one_object in self.object_list:
                     # 遍历融合类别文件字典，完成label中的类别修改，
                     # 若此bbox类别属于混合标签类别列表，则返回该标签在混合类别列表的索引值，修改类别。
-                    for (key, value) in task.class_modify_dict.items():
-                        if one_object.clss in set(value):
-                            one_object.clss = key
+                    if task == 'Detection':
+                        for (key, value) in task_class_dict['Modify_class_dict'].items():
+                            if one_object.box_clss in set(value):
+                                one_object.box_clss = key
+                    elif task == 'Semantic_segmentation':
+                        for (key, value) in task_class_dict['Modify_class_dict'].items():
+                            if one_object.segmentation_clss in set(value):
+                                one_object.segmentation_clss = key
+                    elif task == 'Instance_segmentation':
+                        for (key, value) in task_class_dict['Modify_class_dict'].items():
+                            if one_object.box_clss in set(value):
+                                one_object.box_clss = key
+                            if one_object.segmentation_clss in set(value):
+                                one_object.segmentation_clss = key
+                    elif task == 'Keypoint':
+                        for (key, value) in task_class_dict['Modify_class_dict'].items():
+                            if one_object.keypoints_class in set(value):
+                                one_object.keypoints_class = key
+
+        return
+
+    def object_pixel_limit(self, input_dataset: object) -> None:
+        """[对标注目标进行像素大小筛选]
+
+        Args:
+            input_dataset (object): [数据集实例]
+        """
+
+        for task, task_class_dict in input_dataset.task_dict.items():
+            if task_class_dict['Target_object_pixel_limit_dict'] is not None:
+                for n, object in enumerate(self.object_list):
+                    if task == 'Detection' or task == 'Instance_segmentation' or task == 'Keypoint':
+                        pixel = object.get_box_area()
+                        if pixel < task_class_dict['Target_object_pixel_limit_dict'][object.box_clss][0] or \
+                                pixel > task_class_dict['Target_object_pixel_limit_dict'][object.box_clss][1]:
+                            self.object_list.pop(self.object_list.index(n))
+                    elif task == 'Semantic_segmentation':
+                        pixel = object.get_segmentation_bbox_area()
+                        if pixel < task_class_dict['Target_object_pixel_limit_dict'][object.segmentation_clss][0] or \
+                                pixel > task_class_dict['Target_object_pixel_limit_dict'][object.segmentation_clss][1]:
+                            self.object_list.pop(self.object_list.index(n))
 
         return
 
