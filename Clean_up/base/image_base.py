@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-01-17 17:03:18
+LastEditTime: 2022-01-17 18:37:48
 '''
 import os
 import cv2
@@ -294,10 +294,9 @@ class IMAGE:
                       'segmentation_class': object.segmentation_clss,
                       'segmentation': object.segmentation,
                       'segmentation_area': object.segmentation_area,
-                      'segmentation_iscrowd': object.segmentation_iscrowd,
+                      'segmentation_iscrowd': object.segmentation_iscrowd
                       }
             annotation['frames'][0]['objects'].append(object)
-
         # 输出json文件
         json.dump(annotation, open(temp_annotation_output_path, 'w'))
 
