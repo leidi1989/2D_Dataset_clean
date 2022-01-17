@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-17 15:50:54
+LastEditTime: 2022-01-17 18:24:09
 '''
 import os
 
@@ -127,6 +127,21 @@ class Dataset_Base:
     def transform_to_temp_dataset(self):
         # print('\nStart transform to temp dataset:')
         raise NotImplementedError("ERROR: func not implemented!")
+
+    def output_classname_file(self) -> None:
+        """[输出类别文件]
+        """
+        
+        print('Output class name file:')
+        for task, task_class_dict in tqdm(self.task_dict.items()):
+            print('Output {} class name file:'.format(task))
+            with open(os.path.join(self.temp_informations_folder, task + '_classes.names'), 'w') as f:
+                if len(task_class_dict['Target_dataset_class']):
+                    f.write('\n'.join(str(n)
+                            for n in task_class_dict['Target_dataset_class']))
+                f.close()
+
+        return
 
     def get_dataset_information(self):
         # print('\nStart get temp dataset information:')

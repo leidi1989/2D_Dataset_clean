@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-17 17:11:06
+LastEditTime: 2022-01-17 18:12:11
 '''
 import shutil
 from PIL import Image
@@ -130,16 +130,10 @@ class COCO2017(Dataset_Base):
         print('Total annotations:         \t {} '.format(
             len(os.listdir(self.source_dataset_annotations_folder))))
         print('Convert fail:              \t {} '.format(fail_count))
-        print('No segmentation delete images: \t {} '.format(no_object))
+        print('No object delete images: \t {} '.format(no_object))
         print('Convert success:           \t {} '.format(success_count))
         self.temp_annotation_name_list = temp_file_name_list
-        for task, target_dataset_class in zip(self.task_list, self.target_dataset_class_list):
-            with open(os.path.join(self.temp_informations_folder, task + '_classes.names'), 'w') as f:
-                if len(target_dataset_class):
-                    f.write('\n'.join(str(n)
-                                      for n in target_dataset_class))
-                f.close()
-
+       
         return
 
     def transform_to_target_dataset():
