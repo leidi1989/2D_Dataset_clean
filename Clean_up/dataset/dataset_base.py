@@ -4,10 +4,10 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-18 10:19:17
+LastEditTime: 2022-01-18 14:28:28
 '''
 from .dataset_characteristic import *
-from base.image_base import IMAGE
+from base.image_base import IMAGE, OBJECT
 from utils.utils import *
 import os
 import cv2
@@ -60,6 +60,8 @@ class Dataset_Base:
             dataset_config['Dataset_output_folder'], TEMP_ARCH['annotation']))
         self.temp_informations_folder = check_output_path(os.path.join(
             dataset_config['Dataset_output_folder'], 'temp_infomations'))
+        self.temp_sample_statistics_folder = check_output_path(
+            os.path.join(self.temp_informations_folder, 'sample_statistics'))
         self.temp_divide_file_list = [
             os.path.join(
                 os.path.join(dataset_config['Dataset_output_folder'], 'temp_infomations'), 'total.txt'),
@@ -72,6 +74,9 @@ class Dataset_Base:
             os.path.join(
                 os.path.join(dataset_config['Dataset_output_folder'], 'temp_infomations'), 'redund.txt')
         ]
+        self.temp_set_name_list = ['total_distibution.txt', 'train_distibution.txt',
+                                   'val_distibution.txt', 'test_distibution.txt',
+                                   'redund_distibution.txt']
         self.temp_annotation_name_list = get_temp_annotations_name_list(
             self.temp_annotations_folder)
         self.temp_annotations_path_list = temp_annotations_path_list(
@@ -93,10 +98,11 @@ class Dataset_Base:
             self.temp_informations_folder)
         self.target_dataset_divide_proportion = tuple(float(x)
                                                       for x in (dataset_config['Target_dataset_divide_proportion'].split(',')))
+        self.temp_divide_file_annotation_path = []
         # 声明set类别计数字典列表顺序为ttvt
-        self.temp_divide_count_dict_list = []
+        self.temp_divide_count_dict_list_dict = {}
         # 声明set类别计数字典列表顺序为ttvt
-        self.temp_divide_proportion_dict_list = []
+        self.temp_divide_proportion_dict_list_dict = {}
 
         # target check
         self.target_dataset_annotations_check_count = dataset_config[
@@ -332,16 +338,40 @@ class Dataset_Base:
 
     def sample_statistics(self) -> None:
         """[数据集样本统计]
+        """
+
+        # 分割后各数据集annotation文件路径
+        for n in self.temp_divide_file_list:
+            with open(n, 'r') as f:
+                annotation_path_list = []
+                for m in f.read().splitlines():
+                    file_name = os.path.splitext(m.split(os.sep)[-1])[0]
+                    annotation_path = os.path.join(self.temp_annotations_folder,
+                                                   file_name + '.' + self.temp_annotation_form)
+                    annotation_path_list.append(annotation_path)
+            self.temp_divide_file_annotation_path.append(annotation_path_list)
+
+        print('\nStart to statistic sample each dataset:')
+        for task, task_class_dict in self.task_dict.items():
+            if task == 'Detection':
+                self.detection_sample_statistics(task, task_class_dict)
+            elif task == 'Segmentation' or \
+                    task == 'Instance_segmentation':
+                self.segmentation_sample_statistics(task, task_class_dict)
+            elif task == 'Keypoint':
+                self.keypoint_sample_statistics(task, task_class_dict)
+
+        return
+
+    def detection_sample_statistics(self, task, task_class_dict):
+        """[数据集样本统计]
 
         Args:
             dataset (dict): [数据集信息字典]
         """
 
         # 分割后各数据集annotation文件路径
-        set_name_list = ['total_distibution.txt', 'train_distibution.txt',
-                         'val_distibution.txt', 'test_distibution.txt',
-                         'redund_distibution.txt']
-        total_annotation_count_name = 'total_annotation_count.txt'
+        total_annotation_detect_count_name = 'total_annotation_detect_count.txt'
         divide_file_annotation_path = []
         for n in self.temp_divide_file_list:
             with open(n, 'r') as f:
@@ -353,10 +383,81 @@ class Dataset_Base:
                     annotation_path_list.append(annotation_path)
             divide_file_annotation_path.append(annotation_path_list)
 
+        # 声明set类别计数字典列表顺序为ttvt
+        self.temp_divide_count_dict_list_dict.update({task: []})
+        # 声明set类别计数字典列表顺序为ttvt
+        self.temp_divide_proportion_dict_list_dict.update({task: []})
         print('\nStart to statistic sample each dataset:')
-        for divide_annotation_list, divide_distribution_file in tqdm(zip(divide_file_annotation_path,
-                                                                         set_name_list),
-                                                                     total=len(divide_file_annotation_path)):
+        for divide_annotation_list, divide_distribution_file in \
+                tqdm(zip(divide_file_annotation_path, self.temp_set_name_list),
+                     total=len(divide_file_annotation_path)):
+            # 声明不同集的类别计数字典
+            one_set_class_count_dict = {}
+            # 声明不同集的类别占比字典
+            one_set_class_prop_dict = {}
+            for one_class in task_class_dict['Target_dataset_class']:
+                # 读取不同类别进计数字典作为键
+                one_set_class_count_dict[one_class] = 0
+                # 读取不同类别进占比字典作为键
+                one_set_class_prop_dict[one_class] = float(0)
+
+            # 统计全部labels各类别数量
+            process_output = multiprocessing.Manager().dict()
+            pool = multiprocessing.Pool(self.workers)
+            process_total_annotation_detect_class_count_dict = multiprocessing.Manager(
+            ).dict({x: 0 for x in task_class_dict['Target_dataset_class']})
+            for n in tqdm(divide_annotation_list):
+                pool.apply_async(func=self.get_temp_annotations_classes_count, args=(
+                    n, process_output, process_total_annotation_detect_class_count_dict,
+                    task, task_class_dict,),
+                    error_callback=err_call_back)
+            pool.close()
+            pool.join()
+            for key in one_set_class_count_dict.keys():
+                if key in process_output:
+                    one_set_class_count_dict[key] = process_output[key]
+            self.temp_divide_count_dict_list_dict[task].append(
+                one_set_class_count_dict)
+
+            # 声明单数据集计数总数
+            one_set_total_count = 0
+            for _, value in one_set_class_count_dict.items():    # 计算数据集计数总数
+                one_set_total_count += value
+            for key, value in one_set_class_count_dict.items():
+                if 0 == one_set_total_count:
+                    one_set_class_prop_dict[key] = 0
+                else:
+                    one_set_class_prop_dict[key] = (
+                        float(value) / float(one_set_total_count)) * 100   # 计算个类别在此数据集占比
+            self.temp_divide_proportion_dict_list_dict[task].append(
+                one_set_class_prop_dict)
+
+            # 记录每个集的类别分布
+            with open(os.path.join(self.temp_informations_folder,
+                                   divide_distribution_file), 'w') as dist_txt:
+                print('\n%s set class count:' %
+                      divide_distribution_file.split('_')[0])
+                for key, value in one_set_class_count_dict.items():
+                    dist_txt.write(str(key) + ':' + str(value) + '\n')
+                    print(str(key) + ':' + str(value))
+                print('\n%s set porportion:' %
+                      divide_distribution_file.split('_')[0])
+                dist_txt.write('\n')
+                for key, value in one_set_class_prop_dict.items():
+                    dist_txt.write(str(key) + ':' +
+                                   str('%0.2f%%' % value) + '\n')
+                    print(str(key) + ':' + str('%0.2f%%' % value))
+
+        self.plot_sample_statistics(task, task_class_dict)    # 绘图
+
+        return
+
+    def segmentation_sample_statistics(self, task, task_class_dict):
+
+        total_annotation_count_name = 'total_annotation_count.txt'
+        for divide_annotation_list, divide_distribution_file in tqdm(zip(self.temp_divide_file_annotation_path,
+                                                                         self.temp_set_name_list),
+                                                                     total=len(self.temp_divide_file_annotation_path)):
             # 声明不同集的类别计数字典
             one_set_class_pixal_dict = {}
             # 声明不同集的类别占比字典
@@ -366,7 +467,7 @@ class Dataset_Base:
             total_annotation_class_prop_dict = {}
             # 声明单数据集像素点计数总数
             one_set_total_count = 0
-            for one_class in dataset['class_list_new']:
+            for one_class in task_class_dict['Target_dataset_class']:
                 # 读取不同类别进计数字典作为键
                 one_set_class_pixal_dict[one_class] = 0
                 # 读取不同类别进占比字典作为键
@@ -407,24 +508,24 @@ class Dataset_Base:
                     one_set_class_prop_dict[key] = 0
                 else:
                     one_set_class_prop_dict[key] = (
-                        float(value) / float(one_set_total_count)) * 100            # 计算个类别在此数据集占比
+                        float(value) / float(one_set_total_count)) * 100  # 计算个类别在此数据集占比
             self.temp_divide_proportion_dict_list.append(
                 one_set_class_prop_dict)
             # 统计标注数量
             if divide_distribution_file == 'total_distibution.txt':
                 total_annotation_count = 0
-                for _, value in total_annotation_class_count_dict.items():                       # 计算数据集计数总数
+                for _, value in total_annotation_class_count_dict.items():  # 计算数据集计数总数
                     total_annotation_count += value
                 for key, value in total_annotation_class_count_dict.items():
                     if 0 == total_annotation_count:
                         total_annotation_class_prop_dict[key] = 0
                     else:
                         total_annotation_class_prop_dict[key] = (
-                            float(value) / float(total_annotation_count)) * 100            # 计算个类别在此数据集占比
+                            float(value) / float(total_annotation_count)) * 100  # 计算个类别在此数据集占比
                 total_annotation_class_count_dict.update(
                     {'total': total_annotation_count})
             # 记录每个集的类别分布
-            with open(os.path.join(self.temp_informations_folder,
+            with open(os.path.join(self.temp_sample_statistics_folder,
                                    divide_distribution_file), 'w') as dist_txt:
                 print('\n%s set class pixal count:' %
                       divide_distribution_file.split('_')[0])
@@ -440,7 +541,7 @@ class Dataset_Base:
                     print(str(key) + ':' + str('%0.2f%%' % value))
             # 记录统计标注数量
             if divide_distribution_file == 'total_distibution.txt':
-                with open(os.path.join(self.temp_informations_folder,
+                with open(os.path.join(self.temp_sample_statistics_folder,
                                        total_annotation_count_name), 'w') as dist_txt:
                     print('\n%s set class pixal count:' %
                           total_annotation_count_name.split('_')[0])
@@ -455,7 +556,96 @@ class Dataset_Base:
                                        str('%0.2f%%' % value) + '\n')
                         print(str(key) + ':' + str('%0.2f%%' % value))
 
-        self.plot_sample_statistics()    # 绘图
+        self.plot_sample_statistics(task, task_class_dict)    # 绘图
+
+        return
+
+    def keypoint_sample_statistics(self, task, task_class_dict):
+        """[数据集样本统计]
+
+        Args:
+            dataset (dict): [数据集信息字典]
+        """
+
+        # 分割后各数据集annotation文件路径
+        total_annotation_detect_count_name = 'keypoint_total_annotation_count.txt'
+        divide_file_annotation_path = []
+        for n in self.temp_divide_file_list:
+            with open(n, 'r') as f:
+                annotation_path_list = []
+                for m in f.read().splitlines():
+                    file_name = os.path.splitext(m.split(os.sep)[-1])[0]
+                    annotation_path = os.path.join(self.temp_annotations_folder,
+                                                   file_name + '.' + self.temp_annotation_form)
+                    annotation_path_list.append(annotation_path)
+            divide_file_annotation_path.append(annotation_path_list)
+
+        # 声明set类别计数字典列表顺序为ttvt
+        self.temp_divide_count_dict_list_dict.update({task: []})
+        # 声明set类别计数字典列表顺序为ttvt
+        self.temp_divide_proportion_dict_list_dict.update({task: []})
+        print('\nStart to statistic sample each dataset:')
+        for divide_annotation_list, divide_distribution_file in \
+                tqdm(zip(divide_file_annotation_path, self.temp_set_name_list),
+                     total=len(divide_file_annotation_path)):
+            # 声明不同集的类别计数字典
+            one_set_class_count_dict = {}
+            # 声明不同集的类别占比字典
+            one_set_class_prop_dict = {}
+            for one_class in task_class_dict['Target_dataset_class']:
+                # 读取不同类别进计数字典作为键
+                one_set_class_count_dict[one_class] = 0
+                # 读取不同类别进占比字典作为键
+                one_set_class_prop_dict[one_class] = float(0)
+
+            # 统计全部labels各类别数量
+            process_output = multiprocessing.Manager().dict()
+            pool = multiprocessing.Pool(self.workers)
+            process_total_annotation_detect_class_count_dict = multiprocessing.Manager(
+            ).dict({x: 0 for x in task_class_dict['Target_dataset_class']})
+            for n in tqdm(divide_annotation_list):
+                pool.apply_async(func=self.get_temp_annotations_classes_count, args=(
+                    n, process_output, process_total_annotation_detect_class_count_dict,
+                    task, task_class_dict,),
+                    error_callback=err_call_back)
+            pool.close()
+            pool.join()
+            for key in one_set_class_count_dict.keys():
+                if key in process_output:
+                    one_set_class_count_dict[key] = process_output[key]
+            self.temp_divide_count_dict_list_dict[task].append(
+                one_set_class_count_dict)
+
+            # 声明单数据集计数总数
+            one_set_total_count = 0
+            for _, value in one_set_class_count_dict.items():    # 计算数据集计数总数
+                one_set_total_count += value
+            for key, value in one_set_class_count_dict.items():
+                if 0 == one_set_total_count:
+                    one_set_class_prop_dict[key] = 0
+                else:
+                    one_set_class_prop_dict[key] = (
+                        float(value) / float(one_set_total_count)) * 100   # 计算个类别在此数据集占比
+            self.temp_divide_proportion_dict_list_dict[task].append(
+                one_set_class_prop_dict)
+
+            # 记录每个集的类别分布
+            with open(os.path.join(self.temp_informations_folder,
+                                   divide_distribution_file), 'w') as dist_txt:
+                print('\n%s set class count:' %
+                      divide_distribution_file.split('_')[0])
+                for key, value in one_set_class_count_dict.items():
+                    dist_txt.write(str(key) + ':' + str(value) + '\n')
+                    print(str(key) + ':' + str(value))
+                print('\n%s set porportion:' %
+                      divide_distribution_file.split('_')[0])
+                dist_txt.write('\n')
+                for key, value in one_set_class_prop_dict.items():
+                    dist_txt.write(str(key) + ':' +
+                                   str('%0.2f%%' % value) + '\n')
+                    print(str(key) + ':' + str('%0.2f%%' % value))
+
+        self.plot_sample_statistics(task, task_class_dict)    # 绘图
 
         return
 
@@ -527,18 +717,20 @@ class Dataset_Base:
         # print('\nStart build target dataset folder:')
         raise NotImplementedError("ERROR: func not implemented!")
 
-    def plot_sample_statistics(self) -> None:
+    def plot_sample_statistics(self, task, task_class_dict) -> None:
         """[绘制样本统计图]
 
         Args:
             dataset ([数据集类]): [数据集类实例]
         """
-        if 'unlabeled' in dataset['class_list_new']:
-            x = np.arange(len(dataset['class_list_new']))  # x为类别数量
+        if 'unlabeled' in task_class_dict['Target_dataset_class']:
+            x = np.arange(
+                len(task_class_dict['Target_dataset_class']))  # x为类别数量
         else:
-            x = np.arange(len(dataset['class_list_new']) + 1)  # x为类别数量
+            x = np.arange(
+                len(task_class_dict['Target_dataset_class']) + 1)  # x为类别数量
         fig = plt.figure(1, figsize=(
-            len(dataset['class_list_new']), 9))   # 图片宽比例为类别个数
+            len(task_class_dict['Target_dataset_class']), 9))   # 图片宽比例为类别个数
 
         # 绘图
         # 绘制真实框数量柱状图
@@ -551,9 +743,10 @@ class Dataset_Base:
                   'pink', 'mediumpurple', 'slategrey']
 
         print('Plot bar chart:')
-        for one_set_label_path_list, set_size, clrs in tqdm(zip(dataset['temp_divide_count_dict_list'],
-                                                                width_list, colors),
-                                                            total=len(dataset['temp_divide_count_dict_list'])):
+        for one_set_label_path_list, set_size, clrs in \
+            tqdm(zip(self.temp_divide_count_dict_list_dict[task],
+                     width_list, colors),
+                 total=len(self.temp_divide_count_dict_list_dict[task])):
             labels = []     # class
             values = []     # class count
             # 遍历字典分别将键名和对应的键值存入绘图标签列表、绘图y轴列表中
@@ -583,9 +776,10 @@ class Dataset_Base:
         thread_type_list = ['*', '*--', '.-.', '+-.', '-']
 
         print('Plot linear graph:')
-        for one_set_label_path_list, set_size, clrs, thread_type in tqdm(zip(dataset['temp_divide_proportion_dict_list'],
-                                                                             width_list, colors, thread_type_list),
-                                                                         total=len(dataset['temp_divide_proportion_dict_list'])):
+        for one_set_label_path_list, set_size, clrs, thread_type \
+            in tqdm(zip(self.temp_divide_proportion_dict_list_dict[task],
+                        width_list, colors, thread_type_list),
+                    total=len(self.temp_divide_proportion_dict_list_dict[task])):
             labels = []     # class
             values = []     # class count
             # 遍历字典分别将键名和对应的键值存入绘图标签列表、绘图y轴列表中
@@ -614,7 +808,7 @@ class Dataset_Base:
 
         return
 
-    def plot_true_box(self) -> None:
+    def plot_true_box(self, task, task_class_dict) -> None:
         """[绘制每张图片的真实框检测图]
 
         Args:
@@ -624,9 +818,10 @@ class Dataset_Base:
 
         # 类别色彩
         colors = [[random.randint(0, 255) for _ in range(3)]
-                  for _ in range(len(dataset['class_list_new']))]
+                  for _ in range(len(task_class_dict['Target_dataset_class']))]
         # 统计各个类别的框数
-        nums = [[] for _ in range(len(dataset['class_list_new']))]
+        nums = [[]
+                for _ in range(len(task_class_dict['Target_dataset_class']))]
         image_count = 0
         plot_true_box_success = 0
         plot_true_box_fail = 0
@@ -638,9 +833,9 @@ class Dataset_Base:
             output_image = cv2.imread(image_path)  # 读取对应标签图片
             for box in image.true_box_list:  # 获取每张图片的bbox信息
                 try:
-                    nums[dataset['class_list_new'].index(
+                    nums[task_class_dict['Target_dataset_class'].index(
                         box.clss)].append(box.clss)
-                    color = colors[dataset['class_list_new'].index(
+                    color = colors[task_class_dict['Target_dataset_class'].index(
                         box.clss)]
                     # if dataset['target_annotation_check_mask'] == False:
                     cv2.rectangle(output_image, (int(box.xmin), int(box.ymin)),
@@ -684,7 +879,8 @@ class Dataset_Base:
             if len(i) != 0:
                 print(i[0] + ':' + str(len(i)))
 
-        with open(os.path.join(self.target_dataset_annotations_check_count, 'detect_class_count.txt'), 'w') as f:
+        with open(os.path.join(self.target_dataset_annotations_check_count,
+                               'detect_class_count.txt'), 'w') as f:
             for i in nums:
                 if len(i) != 0:
                     temp = i[0] + ':' + str(len(i)) + '\n'
@@ -693,7 +889,7 @@ class Dataset_Base:
 
         return
 
-    def plot_true_segmentation(self) -> None:
+    def plot_true_segmentation(self, task, task_class_dict) -> None:
         """[绘制每张图片的真实分割检测图]
 
         Args:
@@ -701,9 +897,10 @@ class Dataset_Base:
         """
 
         colors = [[random.randint(0, 255) for _ in range(3)]
-                  for _ in range(len(dataset['class_list_new']))]   # 类别色彩
+                  for _ in range(len(task_class_dict['Target_dataset_class']))]   # 类别色彩
         # 统计各个类别的框数
-        nums = [[] for _ in range(len(dataset['class_list_new']))]
+        nums = [[]
+                for _ in range(len(task_class_dict['Target_dataset_class']))]
         image_count = 0
         plot_true_box_success = 0
         plot_true_box_fail = 0
@@ -715,9 +912,9 @@ class Dataset_Base:
             output_image = cv2.imread(image_path)  # 读取对应标签图片
             for object in image.true_segmentation_list:  # 获取每张图片的bbox信息
                 # try:
-                nums[dataset['class_list_new'].index(
+                nums[task_class_dict['Target_dataset_class'].index(
                     object.clss)].append(object.clss)
-                class_color = colors[dataset['class_list_new'].index(
+                class_color = colors[task_class_dict['Target_dataset_class'].index(
                     object.clss)]
                 if self.target_dataset_annotation_check_mask == False:
                     points = np.array(object.segmentation)
@@ -739,7 +936,9 @@ class Dataset_Base:
                     output_image = mask_img
                     plot_true_box_success += 1
 
-                cv2.putText(output_image, object.clss, (int(object.segmentation[0][0]), int(object.segmentation[0][1])),
+                cv2.putText(output_image, object.clss,
+                            (int(object.segmentation[0][0]), int(
+                                object.segmentation[0][1])),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 0))
                 total_box += 1
                 # 输出图片
@@ -757,7 +956,8 @@ class Dataset_Base:
             if len(i) != 0:
                 print(i[0] + ':' + str(len(i)))
 
-        with open(os.path.join(self.target_dataset_annotation_check_output_folder, 'class_count.txt'), 'w') as f:
+        with open(os.path.join(self.target_dataset_annotation_check_output_folder,
+                               'class_count.txt'), 'w') as f:
             for i in nums:
                 if len(i) != 0:
                     temp = i[0] + ':' + str(len(i)) + '\n'
@@ -766,7 +966,8 @@ class Dataset_Base:
 
         return
 
-    def plot_segment_annotation(self, image: IMAGE, segment_annotation_output_path: str) -> None:
+    def plot_segmentation_annotation(self, task: str, task_class_dict: dict,
+                                     image: IMAGE, segment_annotation_output_path: str) -> None:
         """[绘制分割标签图]
 
         Args:
@@ -777,7 +978,7 @@ class Dataset_Base:
         zeros = np.zeros((image.height, image.width), dtype=np.uint8)
         if len(image.true_segmentation_list):
             for seg in image.true_segmentation_list:
-                class_color = dataset['segment_class_list_new'].index(
+                class_color = task_class_dict['Target_dataset_class'].index(
                     seg.clss)
                 points = np.array(seg.segmentation)
                 zeros_mask = cv2.fillPoly(
@@ -811,23 +1012,74 @@ class Dataset_Base:
                 channels = 3
             else:
                 image_size = cv2.imread(image_path).shape
-                height = image_size[0]
-                width = image_size[1]
-                channels = image_size[2]
+                height = int(image_size[0])
+                width = int(image_size[1])
+                channels = int(image_size[2])
 
-            true_segmentation_list = []
-            for obj_segment in data['objects_segment']:
-                cls = str(obj_segment['class'])
-                cls = cls.replace(' ', '').lower()
-                if cls not in dataset['class_list_new']:
-                    continue
-                segment = []
-                for seg in obj_segment['polygon']:
-                    segment.append(list(map(int, seg)))
-                true_segmentation_list.append(TRUE_SEGMENTATION(
-                    cls, segment))  # 将单个真实框加入单张图片真实框列表
-            one_image = IMAGE(image_name, image_name, image_path, int(
-                height), int(width), int(channels), [], true_segmentation_list)
+            object_list = []
+            for object in data['frames'][0]['objects']:
+                one_object = OBJECT(object['id'],
+                                    object['object_clss'],
+                                    object['box_clss'],
+                                    object['segmentation_clss'],
+                                    object['keypoints_clss'],
+                                    object['box_xywh'],
+                                    object['segmentation'],
+                                    object['keypoints_num'], object['keypoints'],
+                                    box_color=object['box_color'],
+                                    box_tool=object['box_tool'],
+                                    box_difficult=object['box_difficult'],
+                                    box_distance=object['box_distance'],
+                                    box_occlusion=object['box_occlusion'],
+                                    segmentation_area=object['segmentation_area'],
+                                    segmentation_iscrowd=object['segmentation_iscrowd']
+                                    )
+                object_list.append(one_object)
+            image = IMAGE(image_name, image_name,
+                          image_path, height, width, channels, object_list)
             f.close()
 
-        return one_image
+        return image
+
+    def get_temp_annotations_classes_count(self,
+                                           temp_annotation_path: str,
+                                           process_output: dict,
+                                           process_total_annotation_detect_class_count_dict: dict,
+                                           task: str, task_class_dict: dict) -> None:
+        """[获取暂存标签信息]
+
+        Args:
+            dataset (dict): [数据集信息字典]
+            temp_annotation_path (str): [暂存标签路径]
+            process_output (dict): [进程输出字典]
+        """
+        image = self.TEMP_LOAD(temp_annotation_path)
+        if task == 'Detection':
+            for object in image.object_list:
+                if object.box_clss in process_output:
+                    process_output[object.box_clss] += 1
+                    process_total_annotation_detect_class_count_dict[object.box_clss] += 1
+                else:
+                    process_output.update({object.box_clss: 1})
+                    process_total_annotation_detect_class_count_dict.update(
+                        {object.box_clss: 1})
+        elif task == 'Semantic_segmentation' or task == 'Instance_segmentation':
+            for object in image.object_list:
+                if object.segmentation_clss in process_output:
+                    process_output[object.segmentation_clss] += 1
+                    process_total_annotation_detect_class_count_dict[object.segmentation_clss] += 1
+                else:
+                    process_output.update({object.segmentation_clss: 1})
+                    process_total_annotation_detect_class_count_dict.update(
+                        {object.segmentation_clss: 1})
+        elif task == 'Keypoint':
+            for object in image.object_list:
+                if object.keypoints_clss in process_output:
+                    process_output[object.keypoints_clss] += 1
+                    process_total_annotation_detect_class_count_dict[object.keypoints_clss] += 1
+                else:
+                    process_output.update({object.keypoints_clss: 1})
+                    process_total_annotation_detect_class_count_dict.update(
+                        {object.keypoints_clss: 1})
+
+        return

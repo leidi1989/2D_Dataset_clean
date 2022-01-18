@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-18 09:51:59
+LastEditTime: 2022-01-18 14:04:24
 '''
 import shutil
 from PIL import Image
@@ -82,9 +82,9 @@ class COCO2017(Dataset_Base):
             # 读取目标标注信息
             total_image_annotation_list = []
             pool = multiprocessing.Pool(self.workers)
-            for one_annotation in tqdm(data['annotations']):
+            for id, one_annotation in tqdm(enumerate(data['annotations'])):
                 total_image_annotation_list.append(pool.apply_async(func=self.load_image_annotation, args=(
-                    one_annotation, class_dict, total_annotations_dict,),
+                    id, one_annotation, class_dict, total_annotations_dict,),
                     error_callback=err_call_back))
             pool.close()
             pool.join()
@@ -208,7 +208,7 @@ class COCO2017(Dataset_Base):
 
         return
 
-    def load_image_annotation(self, one_annotation: dict, class_dict: dict, each_annotation_images_data_dict: dict) -> list:
+    def load_image_annotation(self, id, one_annotation: dict, class_dict: dict, each_annotation_images_data_dict: dict) -> list:
         """[读取单个标签详细信息，并添加至each_annotation_images_data_dict]
 
         Args:
@@ -280,7 +280,7 @@ class COCO2017(Dataset_Base):
             keypoints_num = one_annotation['num_keypoints']
             keypoints = one_annotation['keypoints']
 
-        one_object = OBJECT(cls, cls, cls, cls,
+        one_object = OBJECT(id, cls, cls, cls, cls,
                             box_xywh, segmentation, keypoints_num, keypoints,
                             segmentation_area=segmentation_area,
                             segmentation_iscrowd=segmentation_iscrowd

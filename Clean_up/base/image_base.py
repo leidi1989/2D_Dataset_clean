@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-01-17 18:37:48
+LastEditTime: 2022-01-18 14:12:29
 '''
 import os
 import cv2
@@ -118,6 +118,7 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
     """标注物体类"""
 
     def __init__(self,
+                 object_id: int,
                  object_clss: str,
                  box_clss: str,
                  segmentation_clss: str,
@@ -164,6 +165,7 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
         SEGMENTATION.__init__(self, segmentation_clss, segmentation,
                               segmentation_area=segmentation_area, segmentation_iscrowd=segmentation_iscrowd)
         KEYPOINTS.__init__(self, keypoints_clss, keypoints_num, keypoints)
+        self.object_id = object_id
         self.object_clss = object_clss
 
 
@@ -277,9 +279,9 @@ class IMAGE:
                                      'timeofday': 'daytime'
                                      }
                       }
-        for i, object in enumerate(self.object_list):
+        for object in self.object_list:
             # 真实框
-            object = {'id': i,
+            object = {'id': object.object_id,
                       'object_clss': object.object_clss,
                       'box_clss': object.box_clss,
                       'box_color': object.box_color,
@@ -291,7 +293,7 @@ class IMAGE:
                       'keypoints_clss': object.keypoints_clss,
                       'keypoints_num': object.keypoints_num,
                       'keypoints': object.keypoints,
-                      'segmentation_class': object.segmentation_clss,
+                      'segmentation_clss': object.segmentation_clss,
                       'segmentation': object.segmentation,
                       'segmentation_area': object.segmentation_area,
                       'segmentation_iscrowd': object.segmentation_iscrowd
