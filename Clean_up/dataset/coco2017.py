@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-17 18:34:09
+LastEditTime: 2022-01-18 09:51:59
 '''
 import shutil
 from PIL import Image
@@ -133,7 +133,7 @@ class COCO2017(Dataset_Base):
         print('No object delete images: \t {} '.format(no_object))
         print('Convert success:           \t {} '.format(success_count))
         self.temp_annotation_name_list = temp_file_name_list
-       
+
         return
 
     def transform_to_target_dataset():

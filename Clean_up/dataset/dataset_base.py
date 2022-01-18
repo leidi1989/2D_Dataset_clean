@@ -4,14 +4,23 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-18 09:50:30
+LastEditTime: 2022-01-18 10:19:17
 '''
-import os
-import shutil
-
-from utils.utils import *
 from .dataset_characteristic import *
-from .information_base import information
+from base.image_base import IMAGE
+from utils.utils import *
+import os
+import cv2
+import math
+import random
+import numpy as np
+from tqdm import tqdm
+from PIL import Image
+import multiprocessing
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.rc("font", family='AR PL UMing CN')
+plt.switch_backend('agg')
 
 
 class Dataset_Base:
@@ -84,6 +93,10 @@ class Dataset_Base:
             self.temp_informations_folder)
         self.target_dataset_divide_proportion = tuple(float(x)
                                                       for x in (dataset_config['Target_dataset_divide_proportion'].split(',')))
+        # 声明set类别计数字典列表顺序为ttvt
+        self.temp_divide_count_dict_list = []
+        # 声明set类别计数字典列表顺序为ttvt
+        self.temp_divide_proportion_dict_list = []
 
         # target check
         self.target_dataset_annotations_check_count = dataset_config[
@@ -160,7 +173,351 @@ class Dataset_Base:
 
     def get_dataset_information(self):
         # print('\nStart get temp dataset information:')
-        information(self)
+        """[数据集信息分析]
+
+        Args:
+            dataset (dict): [数据集信息字典]
+        """
+
+        self.divide_dataset()
+        if self.target_dataset_style == 'cityscapes_val':
+            self.image_mean_std()
+            return
+        self.sample_statistics()
+        self.image_mean_std()
+        # image_resolution_analysis(dataset)
+
+        return
+
+    def get_temp_annotations_name_list(self) -> list:
+        """[获取暂存数据集文件名称列表]
+
+        Args:
+            dataset (dict): [数据集信息字典]
+
+        Returns:
+            list: [暂存数据集文件名称列表]
+        """
+
+        temp_file_name_list = []    # 暂存数据集文件名称列表
+        print('Get temp file name list:')
+        for n in tqdm(os.listdir(self.temp_annotations_folder)):
+            temp_file_name_list.append(
+                os.path.splitext(n.split(os.sep)[-1])[0])
+
+        return temp_file_name_list
+
+    def divide_dataset(self) -> None:
+        """[按不同场景划分数据集，并根据不同场景按比例抽取train、val、test、redundancy比例为
+        train_ratio，val_ratio，test_ratio，redund_ratio]
+
+        Args:
+            dataset (dict): [数据集信息字典]
+        """
+
+        Main_path = check_output_path(self.temp_informations_folder, 'Main')
+        # 统计数据集不同场景图片数量
+        scene_count_dict = {}   # 场景图片计数字典
+        train_dict = {}  # 训练集图片字典
+        test_dict = {}  # 测试集图片字典
+        val_dict = {}   # 验证集图片字典
+        redund_dict = {}    # 冗余图片字典
+        set_dict_list = [train_dict, val_dict, test_dict,
+                         redund_dict]                                              # 数据集字典列表
+        total_list = []  # 全图片列表
+        # 获取全图片列表
+        for one_image_name in self.temp_annotation_name_list:
+            one = str(one_image_name).replace('\n', '')
+            total_list.append(one)
+        # 依据数据集场景划分数据集
+        for image_name in total_list:                                               # 遍历全部的图片名称
+            image_name_list = image_name.split(
+                self.file_prefix_delimiter)                                     # 对图片名称按前缀分段，区分场景
+            image_name_str = ''
+            # 读取切分图片名称的值，去掉编号及后缀
+            for a in image_name_list[:-1]:
+                # name_str为图片包含场景的名称
+                image_name_str += a
+            if image_name_str in scene_count_dict.keys():                           # 判断是否已经存入场景计数字典
+                # 若已经存在，则计数加1
+                scene_count_dict[image_name_str][0] += 1
+                scene_count_dict[image_name_str][1].append(
+                    image_name)                                                     # 同时将图片名称存入对应场景分类键下
+            else:
+                scene_count_dict.setdefault(
+                    (image_name_str), []).append(1)                                 # 若为新场景，则添加场景
+                scene_count_dict[image_name_str].append(
+                    [image_name])                                                   # 同时将图片名称存入对应场景分类键下
+        # 计算不同场景按数据集划分比例选取样本数量
+        # 遍历场景图片计数字典，获取键（不同场景）和键值（图片数、图片名称）
+        if self.target_dataset_style == 'cityscapes_val':
+            self.target_dataset_divide_proportion = (0, 1, 0, 0)
+        for key, val in scene_count_dict.items():
+            # 打包配对不同set对应不同的比例
+            for diff_set_dict, diff_ratio in zip(set_dict_list, self.target_dataset_divide_proportion):
+                if diff_ratio == 0:                                                 # 判断对应数据集下是否存在数据，若不存在则继续下一数据集数据挑选
+                    continue
+                diff_set_dict[key] = math.floor(
+                    diff_ratio * val[0])                                            # 计算不同场景下不同的set应该收录的图片数
+                # 依据获取的不同场景的图片数，顺序获取该数量的图片名字列表
+                for a in range(diff_set_dict[key]):
+                    diff_set_dict.setdefault('image_name_list', []).append(
+                        scene_count_dict[key][1].pop())
+        # 对分配的数据集图片名称，进行输出，分别输出为训练、测试、验证集的xml格式的txt文件
+        set_name_list = ['train', 'val', 'test', 'redund']
+        num_count = 0   # 图片计数
+        trainval_list = []  # 训练集、验证集列表
+        for set_name, set_one_path in zip(set_name_list, set_dict_list):
+            print('\nOutput images path {}.txt:'.format(set_name))
+            with open(os.path.join(self.temp_informations_folder, '%s.txt' % set_name), 'w') as f:
+                # 判断读取列表是否不存在，入若不存在则遍历下一数据集图片
+                if len(set_one_path):
+                    if self.target_dataset_style != 'cityscapes_val':
+                        random.shuffle(set_one_path['image_name_list'])
+                    for n in tqdm(set_one_path['image_name_list']):
+                        image_path = os.path.join(
+                            self.temp_images_folder, n + '.' + self.target_dataset_image_form)
+                        f.write('%s\n' % image_path)
+                        num_count += 1
+                    f.close()
+                else:
+                    print('No file divide to {}.'.format(set_name))
+                    f.close()
+                    continue
+            print('\nOutput file name {}.txt :'.format(set_name))
+            with open(os.path.join(Main_path, '%s.txt' % set_name), 'w') as f:
+                # 判断读取列表是否不存在，入若不存在则遍历下一数据集图片
+                if len(set_one_path):
+                    if self.target_dataset_style != 'cityscapes_val':
+                        random.shuffle(set_one_path['image_name_list'])
+                    for n in tqdm(set_one_path['image_name_list']):
+                        file_name = n.split(os.sep)[-1]
+                        f.write('%s\n' % file_name)
+                        if set_name == 'train' or set_name == 'val':
+                            trainval_list.append(file_name)
+                    f.close()
+                else:
+                    f.close()
+                    continue
+        print('\nOutput file name trainval.txt:')
+        with open(os.path.join(Main_path, 'trainval.txt'), 'w') as f:
+            if len(trainval_list):
+                f.write('\n'.join(str(n) for n in tqdm(trainval_list)))
+                f.close()
+            else:
+                f.close()
+        print('\nOutput total.txt:')
+        with open(os.path.join(self.temp_informations_folder, 'total.txt'), 'w') as f:
+            if len(trainval_list):
+                for n in tqdm(total_list):
+                    image_path = os.path.join(
+                        self.temp_images_folder, n + '.' + self.target_dataset_image_form)
+                    f.write('%s\n' % image_path)
+                f.close()
+            else:
+                f.close()
+        print('\nOutput total_file_name.txt:')
+        with open(os.path.join(self.temp_informations_folder, 'total_file_name.txt'), 'w') as f:
+            if len(total_list):
+                for n in tqdm(total_list):
+                    f.write('%s\n' % n)
+                f.close()
+            else:
+                f.close()
+        print('\nTotal images: %d' % num_count)
+        print('\nDivide files has been create in %s\n' %
+              self.temp_informations_folder)
+
+        return
+
+    def sample_statistics(self) -> None:
+        """[数据集样本统计]
+
+        Args:
+            dataset (dict): [数据集信息字典]
+        """
+
+        # 分割后各数据集annotation文件路径
+        set_name_list = ['total_distibution.txt', 'train_distibution.txt',
+                         'val_distibution.txt', 'test_distibution.txt',
+                         'redund_distibution.txt']
+        total_annotation_count_name = 'total_annotation_count.txt'
+        divide_file_annotation_path = []
+        for n in self.temp_divide_file_list:
+            with open(n, 'r') as f:
+                annotation_path_list = []
+                for m in f.read().splitlines():
+                    file_name = os.path.splitext(m.split(os.sep)[-1])[0]
+                    annotation_path = os.path.join(self.temp_annotations_folder,
+                                                   file_name + '.' + self.temp_annotation_form)
+                    annotation_path_list.append(annotation_path)
+            divide_file_annotation_path.append(annotation_path_list)
+
+        print('\nStart to statistic sample each dataset:')
+        for divide_annotation_list, divide_distribution_file in tqdm(zip(divide_file_annotation_path,
+                                                                         set_name_list),
+                                                                     total=len(divide_file_annotation_path)):
+            # 声明不同集的类别计数字典
+            one_set_class_pixal_dict = {}
+            # 声明不同集的类别占比字典
+            one_set_class_prop_dict = {}
+            # 全部标注统计
+            total_annotation_class_count_dict = {}
+            total_annotation_class_prop_dict = {}
+            # 声明单数据集像素点计数总数
+            one_set_total_count = 0
+            for one_class in dataset['class_list_new']:
+                # 读取不同类别进计数字典作为键
+                one_set_class_pixal_dict[one_class] = 0
+                # 读取不同类别进占比字典作为键
+                one_set_class_prop_dict[one_class] = float(0)
+                if divide_distribution_file == 'total_distibution.txt':
+                    total_annotation_class_count_dict[one_class] = 0
+                    total_annotation_class_prop_dict[one_class] = float(0)
+            if 'unlabeled' not in one_set_class_pixal_dict:
+                one_set_class_pixal_dict.update({'unlabeled': 0})
+            if 'unlabeled' not in one_set_class_prop_dict:
+                one_set_class_prop_dict.update({'unlabeled': 0})
+            # 统计全部labels各类别像素点数量
+            for n in tqdm(divide_annotation_list):
+                image = self.TEMP_LOAD(self, n)
+                image_pixal = image.height*image.width
+                if image == None:
+                    print('\nLoad erro: ', n)
+                    continue
+                for m in image.true_segmentation_list:
+                    area = polygon_area(m.segmentation[:-1])
+                    if m.clss != 'unlabeled':
+                        one_set_class_pixal_dict[m.clss] += area
+                        if divide_distribution_file == 'total_distibution.txt':
+                            total_annotation_class_count_dict[m.clss] += 1
+                    else:
+                        image_pixal -= area
+                        if divide_distribution_file == 'total_distibution.txt' and \
+                                'unlabeled' in total_annotation_class_count_dict:
+                            total_annotation_class_count_dict[m.clss] += 1
+                one_set_class_pixal_dict['unlabeled'] += image_pixal
+            self.temp_divide_count_dict_list.append(
+                one_set_class_pixal_dict)
+            # 计算数据集计数总数
+            for _, value in one_set_class_pixal_dict.items():
+                one_set_total_count += value
+            for key, value in one_set_class_pixal_dict.items():
+                if 0 == one_set_total_count:
+                    one_set_class_prop_dict[key] = 0
+                else:
+                    one_set_class_prop_dict[key] = (
+                        float(value) / float(one_set_total_count)) * 100            # 计算个类别在此数据集占比
+            self.temp_divide_proportion_dict_list.append(
+                one_set_class_prop_dict)
+            # 统计标注数量
+            if divide_distribution_file == 'total_distibution.txt':
+                total_annotation_count = 0
+                for _, value in total_annotation_class_count_dict.items():                       # 计算数据集计数总数
+                    total_annotation_count += value
+                for key, value in total_annotation_class_count_dict.items():
+                    if 0 == total_annotation_count:
+                        total_annotation_class_prop_dict[key] = 0
+                    else:
+                        total_annotation_class_prop_dict[key] = (
+                            float(value) / float(total_annotation_count)) * 100            # 计算个类别在此数据集占比
+                total_annotation_class_count_dict.update(
+                    {'total': total_annotation_count})
+            # 记录每个集的类别分布
+            with open(os.path.join(self.temp_informations_folder,
+                                   divide_distribution_file), 'w') as dist_txt:
+                print('\n%s set class pixal count:' %
+                      divide_distribution_file.split('_')[0])
+                for key, value in one_set_class_pixal_dict.items():
+                    dist_txt.write(str(key) + ':' + str(value) + '\n')
+                    print(str(key) + ':' + str(value))
+                print('\n%s set porportion:' %
+                      divide_distribution_file.split('_')[0])
+                dist_txt.write('\n')
+                for key, value in one_set_class_prop_dict.items():
+                    dist_txt.write(str(key) + ':' +
+                                   str('%0.2f%%' % value) + '\n')
+                    print(str(key) + ':' + str('%0.2f%%' % value))
+            # 记录统计标注数量
+            if divide_distribution_file == 'total_distibution.txt':
+                with open(os.path.join(self.temp_informations_folder,
+                                       total_annotation_count_name), 'w') as dist_txt:
+                    print('\n%s set class pixal count:' %
+                          total_annotation_count_name.split('_')[0])
+                    for key, value in total_annotation_class_count_dict.items():
+                        dist_txt.write(str(key) + ':' + str(value) + '\n')
+                        print(str(key) + ':' + str(value))
+                    print('\n%s set porportion:' %
+                          divide_distribution_file.split('_')[0])
+                    dist_txt.write('\n')
+                    for key, value in total_annotation_class_prop_dict.items():
+                        dist_txt.write(str(key) + ':' +
+                                       str('%0.2f%%' % value) + '\n')
+                        print(str(key) + ':' + str('%0.2f%%' % value))
+
+        self.plot_sample_statistics()    # 绘图
+
+        return
+
+    def get_image_mean_std(self, img_filename: str) -> list:
+        """[获取图片均值和标准差]
+
+        Args:
+            dataset (dict): [数据集信息字典]
+            img_filename (str): [图片名]
+
+        Returns:
+            list: [图片均值和标准差列表]
+        """
+        try:
+            img = Image.open(os.path.join(
+                self.source_dataset_images_folder, img_filename))
+        except:
+            print(img_filename)
+            return
+
+        img = cv2.cvtColor(np.asarray(
+            img.getdata(), dtype='uint8'), cv2.COLOR_RGB2BGR)
+        m, s = cv2.meanStdDev(img / 255.0)
+        name = img_filename
+
+        return m.reshape((3,)), s.reshape((3,)), name
+
+    def image_mean_std(self) -> None:
+        """[计算读取的数据集图片均值、标准差]
+
+        Args:
+            dataset (dict): [数据集信息字典]
+        """
+        img_filenames = os.listdir(self.source_dataset_images_folder)
+        print('Start count images mean and std:')
+        pool = multiprocessing.Pool(self.workers)
+        mean_std_list = []
+        for img_filename in tqdm(img_filenames):
+            mean_std_list.append(pool.apply_async(func=self.get_image_mean_std, args=(
+                img_filename), error_callback=err_call_back))
+        pool.close()
+        pool.join()
+
+        m_list, s_list = [], []
+        for n in mean_std_list:
+            m_list.append(n.get()[0])
+            s_list.append(n.get()[1])
+        m_array = np.array(m_list)
+        s_array = np.array(s_list)
+        m = m_array.mean(axis=0, keepdims=True)
+        s = s_array.mean(axis=0, keepdims=True)
+
+        mean_std_file_output_path = os.path.join(
+            self.temp_informations_folder, 'mean_std.txt')
+        with open(mean_std_file_output_path, 'w') as f:
+            f.write('mean: ' + str(m[0][::-1]) + '\n')
+            f.write('std: ' + str(s[0][::-1]))
+            f.close()
+        print('mean: {}'.format(m[0][::-1]))
+        print('std: {}'.format(s[0][::-1]))
+
+        return
 
     def transform_to_target_dataset():
         # print('\nStart transform to target dataset:')
@@ -169,3 +526,308 @@ class Dataset_Base:
     def build_target_dataset_folder():
         # print('\nStart build target dataset folder:')
         raise NotImplementedError("ERROR: func not implemented!")
+
+    def plot_sample_statistics(self) -> None:
+        """[绘制样本统计图]
+
+        Args:
+            dataset ([数据集类]): [数据集类实例]
+        """
+        if 'unlabeled' in dataset['class_list_new']:
+            x = np.arange(len(dataset['class_list_new']))  # x为类别数量
+        else:
+            x = np.arange(len(dataset['class_list_new']) + 1)  # x为类别数量
+        fig = plt.figure(1, figsize=(
+            len(dataset['class_list_new']), 9))   # 图片宽比例为类别个数
+
+        # 绘图
+        # 绘制真实框数量柱状图
+        ax = fig.add_subplot(211)   # 单图显示类别计数柱状图
+        ax.set_title('Dataset distribution',
+                     bbox={'facecolor': '0.8', 'pad': 2})
+        # width_list = [-0.45, -0.15, 0.15, 0.45]
+        width_list = [0, 0, 0, 0, 0]
+        colors = ['dodgerblue', 'aquamarine',
+                  'pink', 'mediumpurple', 'slategrey']
+
+        print('Plot bar chart:')
+        for one_set_label_path_list, set_size, clrs in tqdm(zip(dataset['temp_divide_count_dict_list'],
+                                                                width_list, colors),
+                                                            total=len(dataset['temp_divide_count_dict_list'])):
+            labels = []     # class
+            values = []     # class count
+            # 遍历字典分别将键名和对应的键值存入绘图标签列表、绘图y轴列表中
+            # for key, value in sorted(one_set_label_path_list.items(), key=lambda kv: (kv[1], kv[0]), reverse=True):
+            for key, value in one_set_label_path_list.items():
+                labels.append(str(key))
+                values.append(int(value))
+            # 绘制数据集类别数量统计柱状图
+            ax.bar(x + set_size, values, width=0.6, color=clrs)
+            if colors.index(clrs) == 0:
+                for m, b in zip(x, values):     # 为柱状图添加标签
+                    plt.text(m + set_size, b, '%.0f' %
+                             b, ha='center', va='bottom', fontsize=10)
+            if colors.index(clrs) == 1:
+                for m, b in zip(x, values):     # 为柱状图添加标签
+                    plt.text(m + set_size, b, '%.0f' %
+                             b, ha='center', va='top', fontsize=10, color='r')
+            plt.xticks(x, labels, rotation=45)      # 使x轴标签逆时针倾斜45度
+            plt.tight_layout()
+            plt.legend(['Total', 'Train', 'val', 'test', 'redund'], loc='best')
+
+        # 绘制占比点线图
+        at = fig.add_subplot(212)   # 单图显示类别占比线条图
+        at.set_title('Dataset proportion',
+                     bbox={'facecolor': '0.8', 'pad': 2})
+        width_list = [0, 0, 0, 0, 0]
+        thread_type_list = ['*', '*--', '.-.', '+-.', '-']
+
+        print('Plot linear graph:')
+        for one_set_label_path_list, set_size, clrs, thread_type in tqdm(zip(dataset['temp_divide_proportion_dict_list'],
+                                                                             width_list, colors, thread_type_list),
+                                                                         total=len(dataset['temp_divide_proportion_dict_list'])):
+            labels = []     # class
+            values = []     # class count
+            # 遍历字典分别将键名和对应的键值存入绘图标签列表、绘图y轴列表中
+            # for key, value in sorted(one_set_label_path_list.items(), key=lambda kv: (kv[1], kv[0]), reverse=True):
+            for key, value in one_set_label_path_list.items():
+                labels.append(str(key))
+                values.append(float(value))
+            # 绘制数据集类别占比点线图状图
+            at.plot(x, values, thread_type, linewidth=2, color=clrs)
+            if colors.index(clrs) == 0:
+                for m, b in zip(x, values):     # 为图添加标签
+                    plt.text(m + set_size, b, '%.2f%%' %
+                             b, ha='center', va='bottom', fontsize=10)
+            if colors.index(clrs) == 1:
+                for m, b in zip(x, values):     # 为图添加标签
+                    plt.text(m + set_size, b, '%.2f%%' %
+                             b, ha='center', va='top', fontsize=10, color='r')
+            plt.xticks(x, labels, rotation=45)      # 使x轴标签逆时针倾斜45度
+            plt.subplots_adjust(left=0.2, bottom=0.2, right=0.8,
+                                top=0.8, wspace=0.3, hspace=0.2)
+        plt.legend(['Total', 'Train', 'val', 'test', 'redund'], loc='best')
+        plt.savefig(os.path.join(self.temp_informations_folder,
+                                 'Dataset distribution.tif'), bbox_inches='tight')
+        # plt.show()
+        plt.close(fig)
+
+        return
+
+    def plot_true_box(self) -> None:
+        """[绘制每张图片的真实框检测图]
+
+        Args:
+            dataset ([Dataset]): [Dataset类实例]
+            image (IMAGE): [IMAGE类实例]
+        """
+
+        # 类别色彩
+        colors = [[random.randint(0, 255) for _ in range(3)]
+                  for _ in range(len(dataset['class_list_new']))]
+        # 统计各个类别的框数
+        nums = [[] for _ in range(len(dataset['class_list_new']))]
+        image_count = 0
+        plot_true_box_success = 0
+        plot_true_box_fail = 0
+        total_box = 0
+        print('Output check true box annotation images:')
+        for image in tqdm(self.target_dataset_check_images_list):
+            image_path = os.path.join(
+                self.temp_images_folder, image.image_name)
+            output_image = cv2.imread(image_path)  # 读取对应标签图片
+            for box in image.true_box_list:  # 获取每张图片的bbox信息
+                try:
+                    nums[dataset['class_list_new'].index(
+                        box.clss)].append(box.clss)
+                    color = colors[dataset['class_list_new'].index(
+                        box.clss)]
+                    # if dataset['target_annotation_check_mask'] == False:
+                    cv2.rectangle(output_image, (int(box.xmin), int(box.ymin)),
+                                  (int(box.xmax), int(box.ymax)), color, thickness=2)
+                    plot_true_box_success += 1
+                    # 绘制透明锚框
+                    # else:
+                    #     zeros1 = np.zeros((output_image.shape), dtype=np.uint8)
+                    #     zeros1_mask = cv2.rectangle(zeros1, (box.xmin, box.ymin),
+                    #                                 (box.xmax, box.ymax),
+                    #                                 color, thickness=-1)
+                    #     alpha = 1   # alpha 为第一张图片的透明度
+                    #     beta = 0.5  # beta 为第二张图片的透明度
+                    #     gamma = 0
+                    #     # cv2.addWeighted 将原始图片与 mask 融合
+                    #     mask_img = cv2.addWeighted(
+                    #         output_image, alpha, zeros1_mask, beta, gamma)
+                    #     output_image = mask_img
+                    #     plot_true_box_success += 1
+
+                    # cv2.putText(output_image, box.clss, (int(box.xmin), int(box.ymin)),
+                    #             cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 0))
+                except:
+                    print(image.image_name + str(box.clss) + "is not in list")
+                    plot_true_box_fail += 1
+                    continue
+                total_box += 1
+                # 输出图片
+            path = os.path.join(
+                self.target_dataset_annotation_check_output_folder, image.image_name)
+            cv2.imwrite(path, output_image)
+            image_count += 1
+
+        # 输出检查统计
+        print("\nTotal check annotations count: \t%d" % image_count)
+        print('Check annotation true box count:')
+        print("Plot true box success image: \t%d" % plot_true_box_success)
+        print("Plot true box fail image:    \t%d" % plot_true_box_fail)
+        print('True box class count:')
+        for i in nums:
+            if len(i) != 0:
+                print(i[0] + ':' + str(len(i)))
+
+        with open(os.path.join(self.target_dataset_annotations_check_count, 'detect_class_count.txt'), 'w') as f:
+            for i in nums:
+                if len(i) != 0:
+                    temp = i[0] + ':' + str(len(i)) + '\n'
+                    f.write(temp)
+            f.close()
+
+        return
+
+    def plot_true_segmentation(self) -> None:
+        """[绘制每张图片的真实分割检测图]
+
+        Args:
+            dataset (dict): [Dataset类实例]
+        """
+
+        colors = [[random.randint(0, 255) for _ in range(3)]
+                  for _ in range(len(dataset['class_list_new']))]   # 类别色彩
+        # 统计各个类别的框数
+        nums = [[] for _ in range(len(dataset['class_list_new']))]
+        image_count = 0
+        plot_true_box_success = 0
+        plot_true_box_fail = 0
+        total_box = 0
+        print('Output check images:')
+        for image in tqdm(self.target_dataset_check_images_list):
+            image_path = os.path.join(
+                self.target_dataset_annotation_check_output_folder, image.image_name)
+            output_image = cv2.imread(image_path)  # 读取对应标签图片
+            for object in image.true_segmentation_list:  # 获取每张图片的bbox信息
+                # try:
+                nums[dataset['class_list_new'].index(
+                    object.clss)].append(object.clss)
+                class_color = colors[dataset['class_list_new'].index(
+                    object.clss)]
+                if self.target_dataset_annotation_check_mask == False:
+                    points = np.array(object.segmentation)
+                    cv2.polylines(
+                        output_image, pts=[points], isClosed=True, color=class_color, thickness=2)
+                    plot_true_box_success += 1
+                # 绘制透明真实框
+                else:
+                    zeros1 = np.zeros((output_image.shape), dtype=np.uint8)
+                    points = np.array(object.segmentation)
+                    zeros1_mask = cv2.fillPoly(
+                        zeros1, pts=[points], color=class_color)
+                    alpha = 1   # alpha 为第一张图片的透明度
+                    beta = 0.5  # beta 为第二张图片的透明度
+                    gamma = 0
+                    # cv2.addWeighted 将原始图片与 mask 融合
+                    mask_img = cv2.addWeighted(
+                        output_image, alpha, zeros1_mask, beta, gamma)
+                    output_image = mask_img
+                    plot_true_box_success += 1
+
+                cv2.putText(output_image, object.clss, (int(object.segmentation[0][0]), int(object.segmentation[0][1])),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 0))
+                total_box += 1
+                # 输出图片
+            path = os.path.join(
+                self.target_dataset_annotation_check_output_folder, image.image_name)
+            cv2.imwrite(path, output_image)
+            image_count += 1
+
+        # 输出检查统计
+        print("\nTotal check annotations count: \t%d" % image_count)
+        print('Check annotation true box count:')
+        print("Plot true segment success image: \t%d" % plot_true_box_success)
+        print("Plot true segment fail image:    \t%d" % plot_true_box_fail)
+        for i in nums:
+            if len(i) != 0:
+                print(i[0] + ':' + str(len(i)))
+
+        with open(os.path.join(self.target_dataset_annotation_check_output_folder, 'class_count.txt'), 'w') as f:
+            for i in nums:
+                if len(i) != 0:
+                    temp = i[0] + ':' + str(len(i)) + '\n'
+                    f.write(temp)
+            f.close()
+
+        return
+
+    def plot_segment_annotation(self, image: IMAGE, segment_annotation_output_path: str) -> None:
+        """[绘制分割标签图]
+
+        Args:
+            dataset (dict): [数据集信息字典]
+            image (IMAGE): [图片类实例]
+            segment_annotation_output_path (str): [分割标签图输出路径]
+        """
+        zeros = np.zeros((image.height, image.width), dtype=np.uint8)
+        if len(image.true_segmentation_list):
+            for seg in image.true_segmentation_list:
+                class_color = dataset['segment_class_list_new'].index(
+                    seg.clss)
+                points = np.array(seg.segmentation)
+                zeros_mask = cv2.fillPoly(
+                    zeros, pts=[points], color=class_color)
+                cv2.imwrite(segment_annotation_output_path, zeros_mask)
+        else:
+            cv2.imwrite(segment_annotation_output_path, zeros)
+
+        return
+
+    def TEMP_LOAD(self, temp_annotation_path: str) -> IMAGE:
+        """[读取暂存annotation]
+
+        Args:
+            dataset (dict): [数据集信息字典]
+            temp_annotation_path (str): [annotation路径]
+
+        Returns:
+            IMAGE: [输出IMAGE类变量]
+        """
+
+        with open(temp_annotation_path, 'r') as f:
+            data = json.loads(f.read())
+            image_name = temp_annotation_path.split(
+                os.sep)[-1].replace('.json', '.' + self.temp_image_form)
+            image_path = os.path.join(
+                self.temp_images_folder, image_name)
+            if os.path.splitext(image_path)[-1] == 'png':
+                img = Image.open(image_path)
+                height, width = img.height, img.width
+                channels = 3
+            else:
+                image_size = cv2.imread(image_path).shape
+                height = image_size[0]
+                width = image_size[1]
+                channels = image_size[2]
+
+            true_segmentation_list = []
+            for obj_segment in data['objects_segment']:
+                cls = str(obj_segment['class'])
+                cls = cls.replace(' ', '').lower()
+                if cls not in dataset['class_list_new']:
+                    continue
+                segment = []
+                for seg in obj_segment['polygon']:
+                    segment.append(list(map(int, seg)))
+                true_segmentation_list.append(TRUE_SEGMENTATION(
+                    cls, segment))  # 将单个真实框加入单张图片真实框列表
+            one_image = IMAGE(image_name, image_name, image_path, int(
+                height), int(width), int(channels), [], true_segmentation_list)
+            f.close()
+
+        return one_image
