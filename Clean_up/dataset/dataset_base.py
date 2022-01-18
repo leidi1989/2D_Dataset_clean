@@ -4,9 +4,10 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-17 18:24:09
+LastEditTime: 2022-01-18 09:50:30
 '''
 import os
+import shutil
 
 from utils.utils import *
 from .dataset_characteristic import *
@@ -131,7 +132,7 @@ class Dataset_Base:
     def output_classname_file(self) -> None:
         """[输出类别文件]
         """
-        
+
         print('Output class name file:')
         for task, task_class_dict in tqdm(self.task_dict.items()):
             print('Output {} class name file:'.format(task))
@@ -140,6 +141,20 @@ class Dataset_Base:
                     f.write('\n'.join(str(n)
                             for n in task_class_dict['Target_dataset_class']))
                 f.close()
+
+        return
+
+    def delete_redundant_image(self):
+
+        delete_count = 0
+        for n in os.listdir(self.temp_images_folder):
+            image_name = os.path.splitext(n)[0]
+            if image_name not in self.temp_annotation_name_list:
+                delete_image_path = os.path.join(self.temp_images_folder, n)
+                print('Delete redundant image: \t{}'.format(n))
+                os.remove(delete_image_path)
+                delete_count += 1
+        print('Total delete redundant images count: {}'.format(delete_count))
 
         return
 
