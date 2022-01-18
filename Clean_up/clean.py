@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-01-17 18:25:07
+LastEditTime: 2022-01-18 09:49:03
 '''
 import time
 import yaml
@@ -39,7 +39,8 @@ if __name__ == "__main__":
     dataset_config.update({'workers': opt.workers})
     
     Input_dataset = dataset.__dict__[dataset_config['Source_dataset_style']](dataset_config)
-    Input_dataset.source_dataset_copy_image_and_annotation()
-    Input_dataset.transform_to_temp_dataset()
-    Input_dataset.output_classname_file()
+    # Input_dataset.source_dataset_copy_image_and_annotation()
+    # Input_dataset.transform_to_temp_dataset()
+    # Input_dataset.output_classname_file()
+    Input_dataset.delete_redundant_image()
     pass
