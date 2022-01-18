@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-18 14:04:24
+LastEditTime: 2022-01-18 14:56:55
 '''
 import shutil
 from PIL import Image
@@ -208,7 +208,8 @@ class COCO2017(Dataset_Base):
 
         return
 
-    def load_image_annotation(self, id, one_annotation: dict, class_dict: dict, each_annotation_images_data_dict: dict) -> list:
+    def load_image_annotation(self, id, one_annotation: dict,
+                              class_dict: dict, each_annotation_images_data_dict: dict) -> list:
         """[读取单个标签详细信息，并添加至each_annotation_images_data_dict]
 
         Args:
@@ -228,8 +229,9 @@ class COCO2017(Dataset_Base):
         keypoints_num = 0
         keypoints = []
 
-        ann_image_id = one_annotation['image_id']   # 获取此bbox图片id
-        cls = class_dict[str(one_annotation['category_id'])]     # 获取bbox类别
+        ann_image_id = one_annotation['image_id']   # 获取此object图片id
+        
+        cls = class_dict[str(one_annotation['category_id'])]     # 获取object类别
         cls = cls.replace(' ', '').lower()
         for _, task_class_dict in self.task_dict.items():
             if cls not in task_class_dict['Source_dataset_class']:
@@ -285,6 +287,10 @@ class COCO2017(Dataset_Base):
                             segmentation_area=segmentation_area,
                             segmentation_iscrowd=segmentation_iscrowd
                             )
+        if ann_image_id == 20:
+            image
+            print('yunce@yunce@1634542709.553071')
+            print(ann_image_id)
         return ann_image_id, one_object
 
     def output_temp_annotation(self, image: IMAGE, process_output: dict) -> None:
@@ -298,6 +304,8 @@ class COCO2017(Dataset_Base):
 
         if image == None:
             return
+        if image.file_name_new == 'yunce@yunce@1634542709.553071':
+            print('yunce@yunce@1634542709.553071')
         temp_annotation_output_path = os.path.join(
             self.temp_annotations_folder,
             image.file_name_new + '.' + self.temp_annotation_form)
