@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-18 14:28:28
+LastEditTime: 2022-01-18 14:35:35
 '''
 from .dataset_characteristic import *
 from base.image_base import IMAGE, OBJECT
@@ -433,7 +433,7 @@ class Dataset_Base:
                 one_set_class_prop_dict)
 
             # 记录每个集的类别分布
-            with open(os.path.join(self.temp_informations_folder,
+            with open(os.path.join(self.temp_sample_statistics_folder,
                                    divide_distribution_file), 'w') as dist_txt:
                 print('\n%s set class count:' %
                       divide_distribution_file.split('_')[0])
