@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-19 18:50:19
+LastEditTime: 2022-01-19 19:06:57
 '''
 import time
 import shutil
@@ -395,7 +395,7 @@ class COCO2017(Dataset_Base):
                                      'id': n + class_count,
                                      'name': cls}
                     coco['categories'].append(category_item)
-                    class_count += len(task_class_dict['Target_dataset_class'])
+                
 
                 annotation_output_path = os.path.join(
                     dataset_instance.target_dataset_annotations_folder, 'instances_' + os.path.splitext(
@@ -450,7 +450,8 @@ class COCO2017(Dataset_Base):
                         coco['annotations'].append(m)
                         annotation_id += 1
                 del annotations_list
-
+                class_count += len(task_class_dict['Target_dataset_class'])
+                
             json.dump(coco, open(annotation_output_path, 'w'))
 
         return
@@ -528,7 +529,7 @@ class COCO2017(Dataset_Base):
         return one_image_annotations_list
 
     @staticmethod
-    def target_dataset_annotation_check(dataset_instance):
+    def annotation_check(dataset_instance):
         """[读取COCO2017数据集图片类检测列表]
 
         Args:
@@ -644,14 +645,14 @@ class COCO2017(Dataset_Base):
                                         segmentation_area=segmentation_area,
                                         segmentation_iscrowd=segmentation_iscrowd
                                         )
-                    images_data_dict[ann_image_id].objects_list.append(
+                    images_data_dict[ann_image_id].object_list.append(
                         one_object)
 
         for _, n in images_data_dict.items():
             images_data_list.append(n)
         random.shuffle(images_data_list)
         check_images_count = min(
-            dataset['target_annotation_check_count'], len(images_data_list))
+            dataset_instance.target_dataset_annotations_check_count, len(images_data_list))
         check_images_list = images_data_list[0:check_images_count]
 
         return check_images_list

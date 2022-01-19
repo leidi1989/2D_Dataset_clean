@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-19 17:25:49
+LastEditTime: 2022-01-19 19:17:36
 '''
 import dataset
 from .dataset_characteristic import *
@@ -998,14 +998,14 @@ class Dataset_Base:
         print('Output check images:')
         for image in tqdm(self.target_dataset_check_images_list):
             image_path = os.path.join(
-                self.target_dataset_annotation_check_output_folder, image.image_name)
+                self.temp_images_folder, image.image_name)
             output_image = cv2.imread(image_path)  # 读取对应标签图片
-            for object in image.true_segmentation_list:  # 获取每张图片的bbox信息
+            for object in image.object_list:  # 获取每张图片的bbox信息
                 # try:
                 nums[task_class_dict['Target_dataset_class'].index(
-                    object.clss)].append(object.clss)
+                    object.segmentation_clss)].append(object.segmentation_clss)
                 class_color = colors[task_class_dict['Target_dataset_class'].index(
-                    object.clss)]
+                    object.segmentation_clss)]
                 if self.target_dataset_annotation_check_mask == False:
                     points = np.array(object.segmentation)
                     cv2.polylines(
@@ -1026,7 +1026,7 @@ class Dataset_Base:
                     output_image = mask_img
                     plot_true_box_success += 1
 
-                cv2.putText(output_image, object.clss,
+                cv2.putText(output_image, object.segmentation_clss,
                             (int(object.segmentation[0][0]), int(
                                 object.segmentation[0][1])),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 0))
@@ -1187,18 +1187,18 @@ class Dataset_Base:
         """
 
         self.target_dataset_check_images_list = dataset.__dict__[
-            self.target_dataset_style].target_dataset_annotation_check(self)
-        shutil.rmtree(self.check_annotation_output_folder)
-        check_output_path(self.check_annotation_output_folder)
-        for task in self.task_dict.keys():
+            self.target_dataset_style].annotation_check(self)
+        shutil.rmtree(self.target_dataset_annotation_check_output_folder)
+        check_output_path(self.target_dataset_annotation_check_output_folder)
+        for task, task_class_dict in self.task_dict.items():
             if task == 'Detection':
-                self.plot_true_box()
+                self.plot_true_box(task, task_class_dict)
             elif task == 'Semantic_segmentation':
-                self.plot_true_segmentation()
+                self.plot_true_segmentation(task, task_class_dict)
             elif task == 'Instance_segmentation' or \
                     task == 'Multi_task':
-                self.plot_true_box()
-                self.plot_true_segmentation()
+                self.plot_true_box(task, task_class_dict)
+                self.plot_true_segmentation(task, task_class_dict)
             
         return
 
