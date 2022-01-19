@@ -4,14 +4,16 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-19 15:57:32
+LastEditTime: 2022-01-19 17:25:49
 '''
+import dataset
 from .dataset_characteristic import *
 from base.image_base import IMAGE, OBJECT
 from utils.utils import *
 import os
 import cv2
 import math
+import shutil
 import random
 import numpy as np
 from tqdm import tqdm
@@ -447,7 +449,6 @@ class Dataset_Base:
                     dist_txt.write(str(key) + ':' +
                                    str('%0.2f%%' % value) + '\n')
                     print(str(key) + ':' + str('%0.2f%%' % value))
-            
 
         self.plot_detection_sample_statistics(task, task_class_dict)    # 绘图
 
@@ -460,7 +461,7 @@ class Dataset_Base:
             task (str): [任务类型]
             task_class_dict (dict): [对应任务类别字典]
         """
-        
+
         total_annotation_count_name = 'Semantic_segmentation_total_annotation_count.txt'
         for divide_annotation_list, divide_distribution_file in tqdm(zip(self.temp_divide_file_annotation_path,
                                                                          self.temp_set_name_list),
@@ -546,7 +547,7 @@ class Dataset_Base:
                     dist_txt.write(str(key) + ':' +
                                    str('%0.2f%%' % value) + '\n')
                     print(str(key) + ':' + str('%0.2f%%' % value))
-                    
+
             # 记录统计标注数量
             if divide_distribution_file == 'total_distibution.txt':
                 with open(os.path.join(self.temp_sample_statistics_folder,
@@ -716,8 +717,6 @@ class Dataset_Base:
         print('std: {}'.format(s[0][::-1]))
 
         return
-
-    
 
     def plot_detection_sample_statistics(self, task, task_class_dict) -> None:
         """[绘制样本统计图]
@@ -1179,6 +1178,231 @@ class Dataset_Base:
     def transform_to_target_dataset():
         # print('\nStart transform to target dataset:')
         raise NotImplementedError("ERROR: func not implemented!")
+
+    def target_dataset_annotation_check(self) -> None:
+        """[进行标签检测]
+
+        Args:
+            dataset (dict): [数据集信息字典]
+        """
+
+        self.target_dataset_check_images_list = dataset.__dict__[
+            self.target_dataset_style].target_dataset_annotation_check(self)
+        shutil.rmtree(self.check_annotation_output_folder)
+        check_output_path(self.check_annotation_output_folder)
+        for task in self.task_dict.keys():
+            if task == 'Detection':
+                self.plot_true_box()
+            elif task == 'Semantic_segmentation':
+                self.plot_true_segmentation()
+            elif task == 'Instance_segmentation' or \
+                    task == 'Multi_task':
+                self.plot_true_box()
+                self.plot_true_segmentation()
+            
+        return
+
+    def plot_true_box(dataset) -> None:
+        """[绘制每张图片的真实框检测图]
+
+        Args:
+            dataset ([Dataset]): [Dataset类实例]
+            image (IMAGE): [IMAGE类实例]
+        """
+
+        # 类别色彩
+        colors = [[random.randint(0, 255) for _ in range(3)]
+                  for _ in range(len(dataset['detect_class_list_new']))]
+        # 统计各个类别的框数
+        nums = [[] for _ in range(len(dataset['detect_class_list_new']))]
+        image_count = 0
+        plot_true_box_success = 0
+        plot_true_box_fail = 0
+        total_box = 0
+        print('Output check true box annotation images:')
+        for image in tqdm(dataset['check_images_list']):
+            image_path = os.path.join(
+                dataset['temp_images_folder'], image.image_name)
+            output_image = cv2.imread(image_path)  # 读取对应标签图片
+            for box in image.true_box_list:  # 获取每张图片的bbox信息
+                try:
+                    nums[dataset['detect_class_list_new'].index(
+                        box.clss)].append(box.clss)
+                    color = colors[dataset['detect_class_list_new'].index(
+                        box.clss)]
+                    if dataset['target_detect_annotation_check_mask'] == False:
+                        cv2.rectangle(output_image, (int(box.xmin), int(box.ymin)),
+                                      (int(box.xmax), int(box.ymax)), color, thickness=2)
+                        plot_true_box_success += 1
+                    # 绘制透明锚框
+                    else:
+                        zeros1 = np.zeros((output_image.shape), dtype=np.uint8)
+                        zeros1_mask = cv2.rectangle(zeros1, (box.xmin, box.ymin),
+                                                    (box.xmax, box.ymax),
+                                                    color, thickness=-1)
+                        alpha = 1   # alpha 为第一张图片的透明度
+                        beta = 0.5  # beta 为第二张图片的透明度
+                        gamma = 0
+                        # cv2.addWeighted 将原始图片与 mask 融合
+                        mask_img = cv2.addWeighted(
+                            output_image, alpha, zeros1_mask, beta, gamma)
+                        output_image = mask_img
+                        plot_true_box_success += 1
+
+                    cv2.putText(output_image, box.clss, (int(box.xmin), int(box.ymin)),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 0))
+                except:
+                    print(image.image_name + str(box.clss) + "is not in list")
+                    plot_true_box_fail += 1
+                    continue
+                total_box += 1
+                # 输出图片
+            path = os.path.join(
+                dataset['check_annotation_output_folder'], image.image_name)
+            cv2.imwrite(path, output_image)
+            image_count += 1
+
+        # 输出检查统计
+        print("\nTotal check annotations count: \t%d" % image_count)
+        print('Check annotation true box count:')
+        print("Plot true box success image: \t%d" % plot_true_box_success)
+        print("Plot true box fail image:    \t%d" % plot_true_box_fail)
+        print('True box class count:')
+        for i in nums:
+            if len(i) != 0:
+                print(i[0] + ':' + str(len(i)))
+
+        with open(os.path.join(dataset['check_annotation_output_folder'], 'detect_class_count.txt'), 'w') as f:
+            for i in nums:
+                if len(i) != 0:
+                    temp = i[0] + ':' + str(len(i)) + '\n'
+                    f.write(temp)
+            f.close()
+
+        return
+
+    def plot_true_segment(dataset: dict) -> None:
+        """[绘制每张图片的真实分割检测图]
+
+        Args:
+            dataset (dict): [Dataset类实例]
+        """
+
+        colors = [[random.randint(0, 255) for _ in range(3)]
+                  for _ in range(len(dataset['segment_class_list_new']))]   # 类别色彩
+        # 统计各个类别的像素点
+        nums = [[] for _ in range(len(dataset['segment_class_list_new']))]
+        image_count = 0
+        plot_true_box_success = 0
+
+        print('Output check true segmentation annotation images:')
+        for image in tqdm(dataset['check_images_list']):
+            image_path = os.path.join(
+                dataset['check_annotation_output_folder'], image.image_name)
+            output_image = cv2.imread(image_path)  # 读取对应标签图片
+            for object in image.true_segmentation_list:  # 获取每张图片的bbox信息
+                nums[dataset['segment_class_list_new'].index(
+                    object.clss)].append(object.clss)
+                class_color = colors[dataset['segment_class_list_new'].index(
+                    object.clss)]
+                if dataset['target_segment_annotation_check_mask'] == False:
+                    points = np.array(object.segmentation)
+                    cv2.polylines(
+                        output_image, pts=[points], isClosed=True, color=class_color, thickness=2)
+                    plot_true_box_success += 1
+                # 绘制透明分割真实框
+                else:
+                    zeros1 = np.zeros((output_image.shape), dtype=np.uint8)
+                    points = np.array(object.segmentation)
+                    zeros1_mask = cv2.fillPoly(
+                        zeros1, pts=[points], color=class_color)
+                    alpha = 1   # alpha 为第一张图片的透明度
+                    beta = 0.3  # beta 为第二张图片的透明度
+                    gamma = 0
+                    # cv2.addWeighted 将原始图片与 mask 融合
+                    mask_img = cv2.addWeighted(
+                        output_image, alpha, zeros1_mask, beta, gamma)
+                    output_image = mask_img
+                    plot_true_box_success += 1
+
+                cv2.putText(output_image, object.clss, (int(object.segmentation[0][0]), int(object.segmentation[0][1])),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 0))
+                # 输出图片
+            path = os.path.join(
+                dataset['check_annotation_output_folder'], image.image_name)
+            cv2.imwrite(path, output_image)
+            image_count += 1
+
+        # 输出检查统计
+        print("\nTotal check annotations count: \t%d" % image_count)
+        print('Check annotation true segment count:')
+        print("Plot true segment success image: \t%d" % plot_true_box_success)
+        print("Plot true segment fail image:    \t%d" %
+              (len(dataset['check_images_list']) - image_count))
+        print('True box class count:')
+        for i in nums:
+            if len(i) != 0:
+                print(i[0] + ':' + str(len(i)))
+
+        with open(os.path.join(dataset['check_annotation_output_folder'], 'segment_class_count.txt'), 'w') as f:
+            for i in nums:
+                if len(i) != 0:
+                    temp = i[0] + ':' + str(len(i)) + '\n'
+                    f.write(temp)
+            f.close()
+
+        return
+
+    def plot_segment_annotation(dataset: dict, image: IMAGE, segment_annotation_output_path: str) -> None:
+        """[绘制分割标签图]
+
+        Args:
+            dataset (dict): [数据集信息字典]
+            image (IMAGE): [图片类实例]
+            segment_annotation_output_path (str): [分割标签图输出路径]
+        """
+
+        zeros = np.zeros((image.height, image.width), dtype=np.uint8)
+        if len(image.true_segmentation_list):
+            for seg in image.true_segmentation_list:
+                class_color = dataset['segment_class_list_new'].index(
+                    seg.clss)
+                points = np.array(seg.segmentation)
+                zeros_mask = cv2.fillPoly(
+                    zeros, pts=[points], color=class_color)
+                cv2.imwrite(segment_annotation_output_path, zeros_mask)
+        else:
+            cv2.imwrite(segment_annotation_output_path, zeros)
+
+        return
+
+    def plot_pick_class_segment_annotation(dataset: dict, image: IMAGE, segment_annotation_output_path: str, class_list: list, lane_color: int) -> None:
+        """[绘制分割标签图]
+
+        Args:
+            dataset (dict): [数据集信息字典]
+            image (IMAGE): [图片类实例]
+            segment_annotation_output_path (str): [分割标签图输出路径]
+        """
+
+        zeros = np.zeros((image.height, image.width), dtype=np.uint8)
+        if len(image.true_segmentation_list):
+            plot_true_segmentation_count = 0
+            for seg in image.true_segmentation_list:
+                if seg.clss not in class_list:
+                    continue
+                class_color = lane_color
+                points = np.array(seg.segmentation)
+                zeros_mask = cv2.fillPoly(
+                    zeros, pts=[points], color=class_color)
+                cv2.imwrite(segment_annotation_output_path, zeros_mask)
+                plot_true_segmentation_count += 1
+            if 0 == plot_true_segmentation_count:
+                cv2.imwrite(segment_annotation_output_path, zeros)
+        else:
+            cv2.imwrite(segment_annotation_output_path, zeros)
+
+        return
 
     def build_target_dataset_folder():
         # print('\nStart build target dataset folder:')

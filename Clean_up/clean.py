@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-01-19 16:10:23
+LastEditTime: 2022-01-19 17:41:12
 '''
 import time
 import yaml
@@ -37,16 +37,24 @@ if __name__ == "__main__":
     dataset_config = yaml.load(
         open(opt.config, 'r', encoding="utf-8"), Loader=yaml.FullLoader)
     dataset_config.update({'workers': opt.workers})
-    
-    Input_dataset = dataset.__dict__[dataset_config['Source_dataset_style']](dataset_config)
+
+    Input_dataset = dataset.__dict__[
+        dataset_config['Source_dataset_style']](dataset_config)
     # Input_dataset.source_dataset_copy_image_and_annotation()
     # Input_dataset.transform_to_temp_dataset()
     # Input_dataset.output_classname_file()
     # Input_dataset.delete_redundant_image()
     # Input_dataset.get_dataset_information()
+
+    # dataset.__dict__[dataset_config['Target_dataset_style']
+    #                  ].target_dataset(Input_dataset)
     
-    dataset.__dict__[dataset_config['Target_dataset_style']].target_dataset(Input_dataset)
-    # except:
-    #     print('No {} dataset output function.'.format(dataset_config['Target_dataset_style']))
-    dataset.__dict__[dataset_config['Target_dataset_style']].target_dataset_folder(Input_dataset)
+    dataset.__dict__[dataset_config['Target_dataset_style']
+                     ].target_dataset_annotation_check(Input_dataset)
+    
+    dataset.__dict__[dataset_config['Target_dataset_style']
+                     ].target_dataset_folder(Input_dataset)
+    
+    Input_dataset.target_dataset_annotation_check()
+    
     pass

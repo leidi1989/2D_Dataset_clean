@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-19 17:07:10
+LastEditTime: 2022-01-19 18:50:19
 '''
 import time
 import shutil
@@ -436,6 +436,7 @@ class COCO2017(Dataset_Base):
                         pool.apply_async(func=dataset.__dict__[dataset_instance.target_dataset_style].get_annotation,
                                          args=(dataset_instance, n,
                                                temp_annotation_path,
+                                               task,
                                                task_class_dict['Target_dataset_class'],
                                                class_count,),
                                          error_callback=err_call_back))
@@ -466,29 +467,27 @@ class COCO2017(Dataset_Base):
             IMAGE: [输出IMAGE类变量]
         """
 
-        with open(temp_annotation_path, 'r') as f:
-            image_name = temp_annotation_path.split(
-                os.sep)[-1].replace('.json', '.' + dataset_instance.temp_image_form)
-            image_path = os.path.join(
-                dataset_instance.temp_images_folder, image_name)
-            if os.path.splitext(image_path)[-1] == 'png':
-                img = Image.open(image_path)
-                height, width = img.height, img.width
-                channels = 3
-            else:
-                image_size = cv2.imread(image_path).shape
-                height = int(image_size[0])
-                width = int(image_size[1])
-                channels = int(image_size[2])
+        image = dataset_instance.TEMP_LOAD(
+            dataset_instance, temp_annotation_path)
+        if image == None:
+            return
+        # 图片基础信息
+        image_information = {'license': random.randint(0, len(coco['licenses'])),
+                             'file_name': image.image_name_new,
+                             'coco_url': 'None',
+                             'height': image.height,
+                             'width': image.width,
+                             'date_captured': time.strftime('%Y/%m/%d %H:%M:%S', time.localtime()),
+                             'flickr_url': 'None',
+                             'id': n
+                             }
 
-            image = IMAGE(image_name, image_name,
-                          image_path, height, width, channels, [])
-
-        return image
+        return image_information
 
     @staticmethod
     def get_annotation(dataset_instance: object, n: int,
                        temp_annotation_path: str,
+                       task: str,
                        task_class: list,
                        task_class_count: int) -> None:
         """[获取暂存标注信息]
@@ -508,18 +507,154 @@ class COCO2017(Dataset_Base):
         for object in image.object_list:
             segmentation = np.asarray(
                 object.segmentation).flatten().tolist()
+            # class
+            if task == 'Detection':
+                clss = object.box_clss
+            elif task == 'Semantic_segmentation' or task == 'Instance_segmentation':
+                clss = object.segmentation_clss
+            elif task == 'Keypoint':
+                clss = object.keypoints_clss
             one_image_annotations_list.append({'bbox': object.box_xywh,
                                                'segmentation': [segmentation],
                                                'area': object.segmentation_area,
-                                               'iscrowd': object.iscrowd,
-                                               'keypoints':object.keypoints,
+                                               'iscrowd': object.segmentation_iscrowd,
+                                               'keypoints': object.keypoints,
                                                'num_keypoints': object.keypoints_num,
                                                'image_id': n,
-                                               'category_id': task_class.index(object.clss)
+                                               'category_id': task_class.index(clss)
                                                + task_class_count,
                                                'id': 0})
 
         return one_image_annotations_list
+
+    @staticmethod
+    def target_dataset_annotation_check(dataset_instance):
+        """[读取COCO2017数据集图片类检测列表]
+
+        Args:
+            dataset (dict): [数据集信息字典]
+
+        Returns:
+            list: [数据集图片类检测列表]
+        """
+
+        check_images_list = []
+        dataset_instance.target_check_file_name_list = os.listdir(
+            dataset_instance.target_dataset_annotations_folder)  # 读取target_annotations_folder文件夹下的全部文件名
+        images_data_list = []
+        images_data_dict = {}
+        for target_annotation in dataset_instance.target_check_file_name_list:
+            if target_annotation != 'instances_train2017.json':
+                continue
+            target_annotation_path = os.path.join(
+                dataset_instance.target_dataset_annotations_folder, target_annotation)
+            print('Loading instances_train2017.json:')
+            with open(target_annotation_path, 'r') as f:
+                data = json.loads(f.read())
+            name_dict = {}
+            for one_name in data['categories']:
+                name_dict['%s' % one_name['id']] = one_name['name']
+
+            print('Start to count images:')
+            total_image_count = 0
+            for d in tqdm(data['images']):
+                total_image_count += 1
+            check_images_count = min(
+                dataset_instance.target_dataset_annotations_check_count, total_image_count)
+            check_image_id_list = [random.randint(
+                0, total_image_count)for i in range(check_images_count)]
+
+            print('Start to load each annotation data file:')
+            for n in check_image_id_list:
+                d = data['images'][n]
+                img_id = d['id']
+                img_name = d['file_name']
+                img_name_new = img_name
+                img_path = os.path.join(
+                    dataset_instance.temp_images_folder, img_name_new)
+                img = Image.open(img_path)
+                height, width = img.height, img.width
+                channels = 3
+                # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，
+                # 并将初始化后的对象存入total_images_data_list
+                image = IMAGE(img_name, img_name_new,
+                              img_path, height, width, channels, [])
+                images_data_dict.update({img_id: image})
+
+            for one_annotation in tqdm(data['annotations']):
+                if one_annotation['image_id'] in images_data_dict:
+                    ann_image_id = one_annotation['image_id']   # 获取此bbox图片id
+                    box_xywh = []
+                    segmentation = []
+                    segmentation_area = None
+                    segmentation_iscrowd = 0
+                    keypoints_num = 0
+                    keypoints = []
+                    cls = name_dict[str(one_annotation['category_id'])]
+                    cls = cls.replace(' ', '').lower()
+                    image = images_data_dict[ann_image_id]
+
+                    # 获取真实框信息
+                    if 'bbox' in one_annotation and len(one_annotation['bbox']):
+                        box = [one_annotation['bbox'][0],
+                               one_annotation['bbox'][1],
+                               one_annotation['bbox'][0] +
+                               one_annotation['bbox'][2],
+                               one_annotation['bbox'][1] + one_annotation['bbox'][3]]
+                        xmin = max(min(int(box[0]), int(box[2]),
+                                       int(image.width)), 0.)
+                        ymin = max(min(int(box[1]), int(box[3]),
+                                       int(image.height)), 0.)
+                        xmax = min(max(int(box[2]), int(box[0]), 0.),
+                                   int(image.width))
+                        ymax = min(max(int(box[3]), int(box[1]), 0.),
+                                   int(image.height))
+                        box_xywh = [xmin, ymin, xmax-xmin, ymax-ymin]
+
+                    # 获取真实语义分割信息
+                    if 'segmentation' in one_annotation and len(one_annotation['segmentation']):
+                        for one_seg in one_annotation['segmentation']:
+                            segment = []
+                            point = []
+                            for i, x in enumerate(one_seg):
+                                if 0 == i % 2:
+                                    point.append(x)
+                                else:
+                                    point.append(x)
+                                    point = list(map(int, point))
+                                    segment.append(point)
+                                    if 2 != len(point):
+                                        print('Segmentation label wrong: ',
+                                              images_data_dict[ann_image_id].image_name_new)
+                                        continue
+                                    point = []
+                            segmentation = segment
+                            segmentation_area = one_annotation['area']
+                            if '1' == one_annotation['iscrowd']:
+                                segmentation_iscrowd = 1
+
+                    # 关键点信息
+                    if 'keypoints' in one_annotation and len(one_annotation['keypoints']) \
+                            and 'num_keypoints' in one_annotation:
+                        keypoints_num = one_annotation['num_keypoints']
+                        keypoints = one_annotation['keypoints']
+
+                    one_object = OBJECT(id, cls, cls, cls, cls,
+                                        box_xywh, segmentation, keypoints_num, keypoints,
+                                        segmentation_area=segmentation_area,
+                                        segmentation_iscrowd=segmentation_iscrowd
+                                        )
+                    images_data_dict[ann_image_id].objects_list.append(
+                        one_object)
+
+        for _, n in images_data_dict.items():
+            images_data_list.append(n)
+        random.shuffle(images_data_list)
+        check_images_count = min(
+            dataset['target_annotation_check_count'], len(images_data_list))
+        check_images_list = images_data_list[0:check_images_count]
+
+        return check_images_list
 
     @staticmethod
     def target_dataset_folder(dataset_instance):
