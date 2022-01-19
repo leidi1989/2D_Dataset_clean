@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-19 19:17:36
+LastEditTime: 2022-01-19 19:31:18
 '''
 import dataset
 from .dataset_characteristic import *
@@ -1199,7 +1199,7 @@ class Dataset_Base:
                     task == 'Multi_task':
                 self.plot_true_box(task, task_class_dict)
                 self.plot_true_segmentation(task, task_class_dict)
-            
+
         return
 
     def plot_true_box(dataset) -> None:
