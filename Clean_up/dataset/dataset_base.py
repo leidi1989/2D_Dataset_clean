@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-18 14:35:35
+LastEditTime: 2022-01-19 15:37:05
 '''
 from .dataset_characteristic import *
 from base.image_base import IMAGE, OBJECT
@@ -185,10 +185,10 @@ class Dataset_Base:
             dataset (dict): [数据集信息字典]
         """
 
-        self.divide_dataset()
-        if self.target_dataset_style == 'cityscapes_val':
-            self.image_mean_std()
-            return
+        # self.divide_dataset()
+        # if self.target_dataset_style == 'cityscapes_val':
+        #     self.image_mean_std()
+        #     return
         self.sample_statistics()
         self.image_mean_std()
         # image_resolution_analysis(dataset)
@@ -371,7 +371,7 @@ class Dataset_Base:
         """
 
         # 分割后各数据集annotation文件路径
-        total_annotation_detect_count_name = 'total_annotation_detect_count.txt'
+        total_annotation_count_name = 'Detection_total_annotation_detect_count.txt'
         divide_file_annotation_path = []
         for n in self.temp_divide_file_list:
             with open(n, 'r') as f:
@@ -447,14 +447,21 @@ class Dataset_Base:
                     dist_txt.write(str(key) + ':' +
                                    str('%0.2f%%' % value) + '\n')
                     print(str(key) + ':' + str('%0.2f%%' % value))
+            
 
-        self.plot_sample_statistics(task, task_class_dict)    # 绘图
+        self.plot_detection_sample_statistics(task, task_class_dict)    # 绘图
 
         return
 
-    def segmentation_sample_statistics(self, task, task_class_dict):
+    def segmentation_sample_statistics(self, task: str, task_class_dict: dict) -> None:
+        """[语义分割样本统计]
 
-        total_annotation_count_name = 'total_annotation_count.txt'
+        Args:
+            task (str): [任务类型]
+            task_class_dict (dict): [对应任务类别字典]
+        """
+        
+        total_annotation_count_name = 'Semantic_segmentation_total_annotation_count.txt'
         for divide_annotation_list, divide_distribution_file in tqdm(zip(self.temp_divide_file_annotation_path,
                                                                          self.temp_set_name_list),
                                                                      total=len(self.temp_divide_file_annotation_path)):
@@ -486,19 +493,19 @@ class Dataset_Base:
                 if image == None:
                     print('\nLoad erro: ', n)
                     continue
-                for m in image.true_segmentation_list:
-                    area = polygon_area(m.segmentation[:-1])
-                    if m.clss != 'unlabeled':
-                        one_set_class_pixal_dict[m.clss] += area
+                for object in image.object_list:
+                    area = polygon_area(object.segmentation[:-1])
+                    if object.clss != 'unlabeled':
+                        one_set_class_pixal_dict[object.clss] += area
                         if divide_distribution_file == 'total_distibution.txt':
-                            total_annotation_class_count_dict[m.clss] += 1
+                            total_annotation_class_count_dict[object.clss] += 1
                     else:
                         image_pixal -= area
                         if divide_distribution_file == 'total_distibution.txt' and \
                                 'unlabeled' in total_annotation_class_count_dict:
-                            total_annotation_class_count_dict[m.clss] += 1
+                            total_annotation_class_count_dict[object.clss] += 1
                 one_set_class_pixal_dict['unlabeled'] += image_pixal
-            self.temp_divide_count_dict_list.append(
+            self.temp_divide_count_dict_list_dict[task].append(
                 one_set_class_pixal_dict)
             # 计算数据集计数总数
             for _, value in one_set_class_pixal_dict.items():
@@ -509,7 +516,7 @@ class Dataset_Base:
                 else:
                     one_set_class_prop_dict[key] = (
                         float(value) / float(one_set_total_count)) * 100  # 计算个类别在此数据集占比
-            self.temp_divide_proportion_dict_list.append(
+            self.temp_divide_proportion_dict_list_dict[task].append(
                 one_set_class_prop_dict)
             # 统计标注数量
             if divide_distribution_file == 'total_distibution.txt':
@@ -539,6 +546,7 @@ class Dataset_Base:
                     dist_txt.write(str(key) + ':' +
                                    str('%0.2f%%' % value) + '\n')
                     print(str(key) + ':' + str('%0.2f%%' % value))
+                    
             # 记录统计标注数量
             if divide_distribution_file == 'total_distibution.txt':
                 with open(os.path.join(self.temp_sample_statistics_folder,
@@ -556,7 +564,7 @@ class Dataset_Base:
                                        str('%0.2f%%' % value) + '\n')
                         print(str(key) + ':' + str('%0.2f%%' % value))
 
-        self.plot_sample_statistics(task, task_class_dict)    # 绘图
+        self.plot_segmentation_sample_statistics(task, task_class_dict)    # 绘图
 
         return
 
@@ -645,7 +653,7 @@ class Dataset_Base:
                                    str('%0.2f%%' % value) + '\n')
                     print(str(key) + ':' + str('%0.2f%%' % value))
 
-        self.plot_sample_statistics(task, task_class_dict)    # 绘图
+        self.plot_segmentation_sample_statistics(task, task_class_dict)    # 绘图
 
         return
 
@@ -685,7 +693,7 @@ class Dataset_Base:
         mean_std_list = []
         for img_filename in tqdm(img_filenames):
             mean_std_list.append(pool.apply_async(func=self.get_image_mean_std, args=(
-                img_filename), error_callback=err_call_back))
+                img_filename,), error_callback=err_call_back))
         pool.close()
         pool.join()
 
@@ -717,12 +725,99 @@ class Dataset_Base:
         # print('\nStart build target dataset folder:')
         raise NotImplementedError("ERROR: func not implemented!")
 
-    def plot_sample_statistics(self, task, task_class_dict) -> None:
+    def plot_detection_sample_statistics(self, task, task_class_dict) -> None:
         """[绘制样本统计图]
 
         Args:
             dataset ([数据集类]): [数据集类实例]
         """
+        x = np.arange(len(task_class_dict['Target_dataset_class']))  # x为类别数量
+        fig = plt.figure(1, figsize=(
+            len(task_class_dict['Target_dataset_class']), 9))   # 图片宽比例为类别个数
+
+        # 绘图
+        # 绘制真实框数量柱状图
+        ax = fig.add_subplot(211)   # 单图显示类别计数柱状图
+        ax.set_title('Dataset distribution',
+                     bbox={'facecolor': '0.8', 'pad': 2})
+        # width_list = [-0.45, -0.15, 0.15, 0.45]
+        width_list = [0, 0, 0, 0, 0]
+        colors = ['dodgerblue', 'aquamarine',
+                  'pink', 'mediumpurple', 'slategrey']
+
+        print('Plot bar chart:')
+        for one_set_label_path_list, set_size, clrs in tqdm(zip(self.temp_divide_count_dict_list_dict[task],
+                                                                width_list, colors),
+                                                            total=len(self.temp_divide_count_dict_list_dict[task])):
+            labels = []     # class
+            values = []     # class count
+            # 遍历字典分别将键名和对应的键值存入绘图标签列表、绘图y轴列表中
+            # for key, value in sorted(one_set_label_path_list.items(), key=lambda kv: (kv[1], kv[0]), reverse=True):
+            for key, value in one_set_label_path_list.items():
+                labels.append(str(key))
+                values.append(int(value))
+            # 绘制数据集类别数量统计柱状图
+            ax.bar(x + set_size, values, width=0.6, color=clrs)
+            if colors.index(clrs) == 0:
+                for m, b in zip(x, values):     # 为柱状图添加标签
+                    plt.text(m + set_size, b, '%.0f' %
+                             b, ha='center', va='bottom', fontsize=10)
+            if colors.index(clrs) == 1:
+                for m, b in zip(x, values):     # 为柱状图添加标签
+                    plt.text(m + set_size, b, '%.0f' %
+                             b, ha='center', va='top', fontsize=10, color='r')
+            plt.xticks(x, labels, rotation=45)      # 使x轴标签逆时针倾斜45度
+            plt.subplots_adjust(left=0.2, bottom=0.2, right=0.8,
+                                top=0.8, wspace=0.3, hspace=0.2)
+            plt.legend(['Total', 'Train', 'val', 'test', 'redund'],
+                       loc='best', bbox_to_anchor=(1.05, 1.0), borderaxespad=0.)
+
+        # 绘制占比点线图
+        at = fig.add_subplot(212)   # 单图显示类别占比线条图
+        at.set_title('Dataset proportion',
+                     bbox={'facecolor': '0.8', 'pad': 2})
+        width_list = [0, 0, 0, 0, 0]
+        thread_type_list = ['*', '*--', '.-.', '+-.', '-']
+
+        print('Plot linear graph:')
+        for one_set_label_path_list, set_size, clrs, thread_type in tqdm(zip(self.temp_divide_proportion_dict_list_dict[task],
+                                                                             width_list, colors, thread_type_list),
+                                                                         total=len(self.temp_divide_proportion_dict_list_dict[task])):
+            labels = []     # class
+            values = []     # class count
+            # 遍历字典分别将键名和对应的键值存入绘图标签列表、绘图y轴列表中
+            # for key, value in sorted(one_set_label_path_list.items(), key=lambda kv: (kv[1], kv[0]), reverse=True):
+            for key, value in one_set_label_path_list.items():
+                labels.append(str(key))
+                values.append(float(value))
+            # 绘制数据集类别占比点线图状图
+            at.plot(x, values, thread_type, linewidth=2, color=clrs)
+            if colors.index(clrs) == 0:
+                for m, b in zip(x, values):     # 为图添加标签
+                    plt.text(m + set_size, b, '%.2f%%' %
+                             b, ha='center', va='bottom', fontsize=10)
+            if colors.index(clrs) == 1:
+                for m, b in zip(x, values):     # 为图添加标签
+                    plt.text(m + set_size, b, '%.2f%%' %
+                             b, ha='center', va='top', fontsize=10, color='r')
+            plt.xticks(x, labels, rotation=45)      # 使x轴标签逆时针倾斜45度
+            plt.tight_layout()
+        plt.legend(['Total', 'Train', 'val', 'test', 'redund'],
+                   loc='best', bbox_to_anchor=(1.05, 1.0), borderaxespad=0.)
+        plt.savefig(os.path.join(self.temp_sample_statistics_folder,
+                                 'Dataset distribution.tif'), bbox_inches='tight')
+        # plt.show()
+        plt.close(fig)
+
+        return
+
+    def plot_segmentation_sample_statistics(self, task, task_class_dict) -> None:
+        """[绘制样本统计图]
+
+        Args:
+            dataset ([数据集类]): [数据集类实例]
+        """
+
         if 'unlabeled' in task_class_dict['Target_dataset_class']:
             x = np.arange(
                 len(task_class_dict['Target_dataset_class']))  # x为类别数量
@@ -766,7 +861,8 @@ class Dataset_Base:
                              b, ha='center', va='top', fontsize=10, color='r')
             plt.xticks(x, labels, rotation=45)      # 使x轴标签逆时针倾斜45度
             plt.tight_layout()
-            plt.legend(['Total', 'Train', 'val', 'test', 'redund'], loc='best')
+            plt.legend(['Total', 'Train', 'val', 'test', 'redund'],
+                       loc='best', bbox_to_anchor=(1.05, 1.0), borderaxespad=0.)
 
         # 绘制占比点线图
         at = fig.add_subplot(212)   # 单图显示类别占比线条图
@@ -800,8 +896,9 @@ class Dataset_Base:
             plt.xticks(x, labels, rotation=45)      # 使x轴标签逆时针倾斜45度
             plt.subplots_adjust(left=0.2, bottom=0.2, right=0.8,
                                 top=0.8, wspace=0.3, hspace=0.2)
-        plt.legend(['Total', 'Train', 'val', 'test', 'redund'], loc='best')
-        plt.savefig(os.path.join(self.temp_informations_folder,
+        plt.legend(['Total', 'Train', 'val', 'test', 'redund'],
+                   loc='best', bbox_to_anchor=(1.05, 1.0), borderaxespad=0.)
+        plt.savefig(os.path.join(self.temp_sample_statistics_folder,
                                  'Dataset distribution.tif'), bbox_inches='tight')
         # plt.show()
         plt.close(fig)
