@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-19 15:37:05
+LastEditTime: 2022-01-19 15:57:32
 '''
 from .dataset_characteristic import *
 from base.image_base import IMAGE, OBJECT
@@ -185,10 +185,10 @@ class Dataset_Base:
             dataset (dict): [数据集信息字典]
         """
 
-        # self.divide_dataset()
-        # if self.target_dataset_style == 'cityscapes_val':
-        #     self.image_mean_std()
-        #     return
+        self.divide_dataset()
+        if self.target_dataset_style == 'cityscapes_val':
+            self.image_mean_std()
+            return
         self.sample_statistics()
         self.image_mean_std()
         # image_resolution_analysis(dataset)
@@ -717,13 +717,7 @@ class Dataset_Base:
 
         return
 
-    def transform_to_target_dataset():
-        # print('\nStart transform to target dataset:')
-        raise NotImplementedError("ERROR: func not implemented!")
-
-    def build_target_dataset_folder():
-        # print('\nStart build target dataset folder:')
-        raise NotImplementedError("ERROR: func not implemented!")
+    
 
     def plot_detection_sample_statistics(self, task, task_class_dict) -> None:
         """[绘制样本统计图]
@@ -1086,7 +1080,8 @@ class Dataset_Base:
 
         return
 
-    def TEMP_LOAD(self, temp_annotation_path: str) -> IMAGE:
+    @staticmethod
+    def TEMP_LOAD(dataset, temp_annotation_path: str) -> IMAGE:
         """[读取暂存annotation]
 
         Args:
@@ -1100,9 +1095,9 @@ class Dataset_Base:
         with open(temp_annotation_path, 'r') as f:
             data = json.loads(f.read())
             image_name = temp_annotation_path.split(
-                os.sep)[-1].replace('.json', '.' + self.temp_image_form)
+                os.sep)[-1].replace('.json', '.' + dataset.temp_image_form)
             image_path = os.path.join(
-                self.temp_images_folder, image_name)
+                dataset.temp_images_folder, image_name)
             if os.path.splitext(image_path)[-1] == 'png':
                 img = Image.open(image_path)
                 height, width = img.height, img.width
@@ -1150,7 +1145,7 @@ class Dataset_Base:
             temp_annotation_path (str): [暂存标签路径]
             process_output (dict): [进程输出字典]
         """
-        image = self.TEMP_LOAD(temp_annotation_path)
+        image = self.TEMP_LOAD(self, temp_annotation_path)
         if task == 'Detection':
             for object in image.object_list:
                 if object.box_clss in process_output:
@@ -1180,3 +1175,11 @@ class Dataset_Base:
                         {object.keypoints_clss: 1})
 
         return
+
+    def transform_to_target_dataset():
+        # print('\nStart transform to target dataset:')
+        raise NotImplementedError("ERROR: func not implemented!")
+
+    def build_target_dataset_folder():
+        # print('\nStart build target dataset folder:')
+        raise NotImplementedError("ERROR: func not implemented!")

@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-01-19 15:03:38
+LastEditTime: 2022-01-19 16:10:23
 '''
 import time
 import yaml
@@ -43,5 +43,10 @@ if __name__ == "__main__":
     # Input_dataset.transform_to_temp_dataset()
     # Input_dataset.output_classname_file()
     # Input_dataset.delete_redundant_image()
-    Input_dataset.get_dataset_information()
+    # Input_dataset.get_dataset_information()
+    
+    dataset.__dict__[dataset_config['Target_dataset_style']].target_dataset(Input_dataset)
+    # except:
+    #     print('No {} dataset output function.'.format(dataset_config['Target_dataset_style']))
+    dataset.__dict__[dataset_config['Target_dataset_style']].target_dataset_folder(Input_dataset)
     pass

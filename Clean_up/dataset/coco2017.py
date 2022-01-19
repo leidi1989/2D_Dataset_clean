@@ -4,12 +4,14 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-19 09:43:49
+LastEditTime: 2022-01-19 17:07:10
 '''
+import time
 import shutil
 from PIL import Image
 import multiprocessing
 
+import dataset
 from utils.utils import *
 from base.image_base import *
 from utils import image_form_transform
@@ -138,12 +140,6 @@ class COCO2017(Dataset_Base):
 
         return
 
-    def transform_to_target_dataset():
-        print('\nStart transform to target dataset:')
-
-    def build_target_dataset_folder():
-        print('\nStart build target dataset folder:')
-
     def source_dataset_copy_image(self, root: str, n: str) -> None:
         """[复制源数据集图片至暂存数据集并修改图片类别、添加文件名前缀]
 
@@ -210,14 +206,15 @@ class COCO2017(Dataset_Base):
 
         return
 
-    def load_image_annotation(self, id, one_annotation: dict,
+    def load_image_annotation(self, id: int, one_annotation: dict,
                               class_dict: dict, each_annotation_images_data_dict: dict) -> list:
         """[读取单个标签详细信息，并添加至each_annotation_images_data_dict]
 
         Args:
+            id(int): [标注id]
             dataset (dict): [数据集信息字典]
             one_annotation (dict): [单个数据字典信息]
-            class_dict (dict): [description]
+            class_dict (dict): [类别字典]
             process_output (dict): [each_annotation_images_data_dict进程间通信字典]
 
         Returns:
@@ -232,7 +229,7 @@ class COCO2017(Dataset_Base):
         keypoints = []
 
         ann_image_id = one_annotation['image_id']   # 获取此object图片id
-        
+
         cls = class_dict[str(one_annotation['category_id'])]     # 获取object类别
         cls = cls.replace(' ', '').lower()
         for _, task_class_dict in self.task_dict.items():
@@ -289,7 +286,7 @@ class COCO2017(Dataset_Base):
                             segmentation_area=segmentation_area,
                             segmentation_iscrowd=segmentation_iscrowd
                             )
-        
+
         return ann_image_id, one_object
 
     def output_temp_annotation(self, image: IMAGE, process_output: dict) -> None:
@@ -303,7 +300,7 @@ class COCO2017(Dataset_Base):
 
         if image == None:
             return
-        
+
         temp_annotation_output_path = os.path.join(
             self.temp_annotations_folder,
             image.file_name_new + '.' + self.temp_annotation_form)
@@ -324,3 +321,206 @@ class COCO2017(Dataset_Base):
             process_output['fail_count'] += 1
 
         return
+
+    @staticmethod
+    def target_dataset(dataset_instance: object):
+        """[输出temp dataset annotation]
+
+        Args:
+            dataset (Dataset): [dataset]
+        """
+
+        print('\nStart transform to target dataset:')
+        for dataset_temp_annotation_path_list in tqdm(dataset_instance.temp_divide_file_list[1:-1]):
+            # 声明coco字典及基础信息
+            coco = {'info': {'description': 'COCO 2017 Dataset',
+                             'url': 'http://cocodataset.org',
+                             'version': '1.0',
+                             'year': 2017,
+                             'contributor': 'leidi',
+                             'date_created': time.strftime('%Y/%m/%d %H:%M:%S', time.localtime())
+                             },
+                    'licenses': [
+                {
+                    'url': 'http://creativecommons.org/licenses/by-nc-sa/2.0/',
+                    'id': 1,
+                    'name': 'Attribution-NonCommercial-ShareAlike License'
+                },
+                {
+                    'url': 'http://creativecommons.org/licenses/by-nc/2.0/',
+                    'id': 2,
+                    'name': 'Attribution-NonCommercial License'
+                },
+                {
+                    'url': 'http://creativecommons.org/licenses/by-nc-nd/2.0/',
+                    'id': 3,
+                    'name': 'Attribution-NonCommercial-NoDerivs License'
+                },
+                {
+                    'url': 'http://creativecommons.org/licenses/by/2.0/',
+                    'id': 4,
+                    'name': 'Attribution License'
+                },
+                {
+                    'url': 'http://creativecommons.org/licenses/by-sa/2.0/',
+                    'id': 5,
+                    'name': 'Attribution-ShareAlike License'
+                },
+                {
+                    'url': 'http://creativecommons.org/licenses/by-nd/2.0/',
+                    'id': 6,
+                    'name': 'Attribution-NoDerivs License'
+                },
+                {
+                    'url': 'http://flickr.com/commons/usage/',
+                    'id': 7,
+                    'name': 'No known copyright restrictions'
+                },
+                {
+                    'url': 'http://www.usa.gov/copyright.shtml',
+                    'id': 8,
+                    'name': 'United States Government Work'
+                }
+            ],
+                'images': [],
+                'annotations': [],
+                'categories': []
+            }
+
+            # 将class_list_new转换为coco格式字典
+            class_count = 0
+            for task, task_class_dict in dataset_instance.task_dict.items():
+                for n, cls in enumerate(task_class_dict['Target_dataset_class']):
+                    category_item = {'supercategory': 'none',
+                                     'id': n + class_count,
+                                     'name': cls}
+                    coco['categories'].append(category_item)
+                    class_count += len(task_class_dict['Target_dataset_class'])
+
+                annotation_output_path = os.path.join(
+                    dataset_instance.target_dataset_annotations_folder, 'instances_' + os.path.splitext(
+                        dataset_temp_annotation_path_list.split(os.sep)[-1])[0]
+                    + str(2017) + '.' + dataset_instance.target_dataset_annotation_form)
+                annotation_path_list = []
+                with open(dataset_temp_annotation_path_list, 'r') as f:
+                    for n in f.readlines():
+                        annotation_path_list.append(n.replace('\n', '')
+                                                    .replace(dataset_instance.source_dataset_images_folder,
+                                                             dataset_instance.temp_annotations_folder)
+                                                    .replace(dataset_instance.target_dataset_image_form,
+                                                             dataset_instance.temp_annotation_form))
+
+                # 读取标签图片基础信息
+                print('Start load image information:')
+                image_information_list = []
+                pool = multiprocessing.Pool(dataset_instance.workers)
+                for n, temp_annotation_path in tqdm(enumerate(annotation_path_list)):
+                    image_information_list.append(
+                        pool.apply_async(func=dataset.__dict__[dataset_instance.target_dataset_style].get_image_information,
+                                         args=(dataset_instance, coco,
+                                               n, temp_annotation_path,),
+                                         error_callback=err_call_back))
+                pool.close()
+                pool.join()
+
+                for n in tqdm(image_information_list):
+                    coco['images'].append(n.get())
+                del image_information_list
+
+                # 读取标签标注基础信息
+                print('Start load annotation:')
+                annotations_list = []
+                pool = multiprocessing.Pool(dataset_instance.workers)
+                for n, temp_annotation_path in tqdm(enumerate(annotation_path_list)):
+                    annotations_list.append(
+                        pool.apply_async(func=dataset.__dict__[dataset_instance.target_dataset_style].get_annotation,
+                                         args=(dataset_instance, n,
+                                               temp_annotation_path,
+                                               task_class_dict['Target_dataset_class'],
+                                               class_count,),
+                                         error_callback=err_call_back))
+                pool.close()
+                pool.join()
+
+                annotation_id = 0
+                for n in tqdm(annotations_list):
+                    for m in n.get():
+                        m['id'] = annotation_id
+                        coco['annotations'].append(m)
+                        annotation_id += 1
+                del annotations_list
+
+            json.dump(coco, open(annotation_output_path, 'w'))
+
+        return
+
+    @staticmethod
+    def get_image_information(dataset_instance: object, coco: dict, n: int, temp_annotation_path: str) -> None:
+        """[读取暂存annotation]
+
+        Args:
+            dataset_instance (): [数据集信息字典]
+            temp_annotation_path (str): [annotation路径]
+
+        Returns:
+            IMAGE: [输出IMAGE类变量]
+        """
+
+        with open(temp_annotation_path, 'r') as f:
+            image_name = temp_annotation_path.split(
+                os.sep)[-1].replace('.json', '.' + dataset_instance.temp_image_form)
+            image_path = os.path.join(
+                dataset_instance.temp_images_folder, image_name)
+            if os.path.splitext(image_path)[-1] == 'png':
+                img = Image.open(image_path)
+                height, width = img.height, img.width
+                channels = 3
+            else:
+                image_size = cv2.imread(image_path).shape
+                height = int(image_size[0])
+                width = int(image_size[1])
+                channels = int(image_size[2])
+
+            image = IMAGE(image_name, image_name,
+                          image_path, height, width, channels, [])
+
+        return image
+
+    @staticmethod
+    def get_annotation(dataset_instance: object, n: int,
+                       temp_annotation_path: str,
+                       task_class: list,
+                       task_class_count: int) -> None:
+        """[获取暂存标注信息]
+
+        Args:
+            dataset (dict): [数据集信息字典]
+            n (int): [图片id]
+            temp_annotation_path (str): [暂存标签路径]
+        """
+
+        image = dataset_instance.TEMP_LOAD(
+            dataset_instance, temp_annotation_path)
+        if image == None:
+            return
+        # 获取图片分割信息
+        one_image_annotations_list = []
+        for object in image.object_list:
+            segmentation = np.asarray(
+                object.segmentation).flatten().tolist()
+            one_image_annotations_list.append({'bbox': object.box_xywh,
+                                               'segmentation': [segmentation],
+                                               'area': object.segmentation_area,
+                                               'iscrowd': object.iscrowd,
+                                               'keypoints':object.keypoints,
+                                               'num_keypoints': object.keypoints_num,
+                                               'image_id': n,
+                                               'category_id': task_class.index(object.clss)
+                                               + task_class_count,
+                                               'id': 0})
+
+        return one_image_annotations_list
+
+    @staticmethod
+    def target_dataset_folder(dataset_instance):
+        print('\nStart build target dataset folder:')
