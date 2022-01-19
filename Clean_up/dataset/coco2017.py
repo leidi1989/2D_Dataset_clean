@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-19 19:06:57
+LastEditTime: 2022-01-19 19:30:13
 '''
 import time
 import shutil
@@ -395,7 +395,6 @@ class COCO2017(Dataset_Base):
                                      'id': n + class_count,
                                      'name': cls}
                     coco['categories'].append(category_item)
-                
 
                 annotation_output_path = os.path.join(
                     dataset_instance.target_dataset_annotations_folder, 'instances_' + os.path.splitext(
@@ -451,7 +450,7 @@ class COCO2017(Dataset_Base):
                         annotation_id += 1
                 del annotations_list
                 class_count += len(task_class_dict['Target_dataset_class'])
-                
+
             json.dump(coco, open(annotation_output_path, 'w'))
 
         return
@@ -659,4 +658,47 @@ class COCO2017(Dataset_Base):
 
     @staticmethod
     def target_dataset_folder(dataset_instance):
+        """[生成COCO 2017组织格式的数据集]
+
+        Args:
+            dataset_instance (dict): [数据集实例]
+        """
+
         print('\nStart build target dataset folder:')
+        # 调整image
+        output_root = check_output_path(
+            os.path.join(dataset_instance.dataset_output_folder, 'coco2017'))
+        shutil.rmtree(output_root)
+        output_root = check_output_path(
+            os.path.join(dataset_instance.dataset_output_folder, 'coco2017'))
+        annotations_output_folder = check_output_path(
+            os.path.join(output_root, 'annotations'))
+        # 调整ImageSets
+        print('Start copy images:')
+        for temp_divide_file in dataset_instance.temp_divide_file_list[1:4]:
+            image_list = []
+            coco_images_folder = os.path.splitext(
+                temp_divide_file.split(os.sep)[-1])[0]
+            image_output_folder = check_output_path(
+                os.path.join(output_root, coco_images_folder + '2017'))
+            with open(temp_divide_file, 'r') as f:
+                for n in f.readlines():
+                    image_list.append(n.replace('\n', ''))
+            pool = multiprocessing.Pool(dataset_instance.workers)
+            for image_input_path in tqdm(image_list):
+                image_output_path = image_input_path.replace(
+                    dataset_instance.temp_images_folder, image_output_folder)
+                pool.apply_async(func=shutil.copy,
+                                 args=(image_input_path, image_output_path,), error_callback=err_call_back)
+            pool.close()
+            pool.join()
+
+        print('Start copy annotations:')
+        for root, dirs, files in os.walk(dataset_instance.target_dataset_annotations_folder):
+            for n in tqdm(files):
+                annotations_input_path = os.path.join(root, n)
+                annotations_output_path = annotations_input_path.replace(
+                    dataset_instance.target_dataset_annotations_folder,
+                    annotations_output_folder)
+                shutil.copy(annotations_input_path, annotations_output_path)
+        return
