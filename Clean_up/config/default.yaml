@@ -34,7 +34,7 @@ Task_and_class_config:
   Semantic_segmentation:
     Source_dataset_class_file_path: /mnt/data_1/hy_program/2D_Dataset_clean/Clean_up/data/test_2_classes.name
     Modify_class_file_path: /mnt/data_1/hy_program/2D_Dataset_clean/Clean_up/data/test_2_classes_modify.txt
-    Target_each_class_object_pixel_limit_file_path: 
+    Target_each_class_object_pixel_limit_file_path:
 
 # progress debug
 debug: False
