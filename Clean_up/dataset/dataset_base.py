@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-20 12:37:12
+LastEditTime: 2022-01-20 15:44:37
 '''
 import dataset
 from utils.utils import *
@@ -108,6 +108,8 @@ class Dataset_Base:
         self.temp_divide_count_dict_list_dict = {}
         # 声明set类别计数字典列表顺序为ttvt
         self.temp_divide_proportion_dict_list_dict = {}
+        self.temp_merge_class_list = {'Merge_source_dataset_class_list': [],
+                                      'Merge_target_dataset_class_list': []}
 
         # target check
         self.target_dataset_annotations_check_count = dataset_config[
@@ -122,7 +124,7 @@ class Dataset_Base:
         # others
         self.workers = dataset_config['workers']
         self.debug = dataset_config['debug']
-
+        self.task_convert = {}
         for task, task_info in dataset_config['Task_and_class_config'].items():
             source_dataset_class = get_class_list(
                 task_info['Source_dataset_class_file_path'])
@@ -132,10 +134,17 @@ class Dataset_Base:
                 source_dataset_class, modify_class_dict)
             object_pixel_limit_dict = get_class_pixel_limit(
                 task_info['Target_each_class_object_pixel_limit_file_path'])
+            need_conver = task_info['Need_convert']
             self.task_dict[task] = {'Source_dataset_class': source_dataset_class,
                                     'Modify_class_dict': modify_class_dict,
                                     'Target_dataset_class': target_dataset_class,
-                                    'Target_object_pixel_limit_dict': object_pixel_limit_dict}
+                                    'Target_object_pixel_limit_dict': object_pixel_limit_dict,
+                                    }
+            self.task_convert.update({task: need_conver})
+            self.temp_merge_class_list['Merge_source_dataset_class_list'].extend(
+                source_dataset_class)
+            self.temp_merge_class_list['Merge_target_dataset_class_list'].extend(
+                target_dataset_class)
 
     def source_dataset_copy_image_and_annotation(self):
         # print('\nStart source dataset copy image and annotation:')
@@ -172,6 +181,7 @@ class Dataset_Base:
         """[删除无标注图片]
         """
 
+        print('\nStar delete redundant image:')
         delete_count = 0
         for n in os.listdir(self.temp_images_folder):
             image_name = os.path.splitext(n)[0]
@@ -184,14 +194,14 @@ class Dataset_Base:
 
         return
 
-    def get_dataset_information(self):
-        # print('\nStart get temp dataset information:')
+    def get_dataset_information(self) -> None:
         """[数据集信息分析]
 
         Args:
             dataset (dict): [数据集信息字典]
         """
 
+        print('\nStart get temp dataset information:')
         self.divide_dataset()
         if self.target_dataset_style == 'cityscapes_val':
             self.image_mean_std()
@@ -358,7 +368,7 @@ class Dataset_Base:
                     annotation_path_list.append(annotation_path)
             self.temp_divide_file_annotation_path.append(annotation_path_list)
 
-        print('\nStart to statistic sample each dataset:')
+        print('\nStar statistic sample each dataset:')
         for task, task_class_dict in self.task_dict.items():
             if task == 'Detection':
                 self.detection_sample_statistics(task, task_class_dict)
@@ -378,14 +388,9 @@ class Dataset_Base:
             task (str): [任务类型]
             task_class_dict (dict): [任务类别字典]
         """
-        """[数据集样本统计]
-
-        Args:
-            dataset (dict): [数据集信息字典]
-        """
 
         # 分割后各数据集annotation文件路径
-        print('Star statistic detection sample:')
+        print('Start statistic detection sample:')
         total_annotation_count_name = 'Detection_total_annotation_count.txt'
         divide_file_annotation_path = []
         for n in self.temp_divide_file_list:
@@ -402,7 +407,7 @@ class Dataset_Base:
         self.temp_divide_count_dict_list_dict.update({task: []})
         # 声明set类别计数字典列表顺序为ttvt
         self.temp_divide_proportion_dict_list_dict.update({task: []})
-        print('\nStart to statistic sample each dataset:')
+        print('\nStar statistic sample each dataset:')
         for divide_annotation_list, divide_distribution_file in \
                 tqdm(zip(divide_file_annotation_path, self.temp_set_name_list),
                      total=len(divide_file_annotation_path)):
@@ -410,9 +415,6 @@ class Dataset_Base:
             one_set_class_count_dict = {}
             # 声明不同集的类别占比字典
             one_set_class_prop_dict = {}
-            # 全部标注统计
-            total_annotation_class_count_dict = {}
-            total_annotation_class_prop_dict = {}
             for one_class in task_class_dict['Target_dataset_class']:
                 # 读取不同类别进计数字典作为键
                 one_set_class_count_dict[one_class] = 0
@@ -449,19 +451,6 @@ class Dataset_Base:
                         float(value) / float(one_set_total_count)) * 100   # 计算个类别在此数据集占比
             self.temp_divide_proportion_dict_list_dict[task].append(
                 one_set_class_prop_dict)
-            # 统计标注数量
-            if divide_distribution_file == 'total_distibution.txt':
-                total_annotation_count = 0
-                for _, value in total_annotation_class_count_dict.items():  # 计算数据集计数总数
-                    total_annotation_count += value
-                for key, value in total_annotation_class_count_dict.items():
-                    if 0 == total_annotation_count:
-                        total_annotation_class_prop_dict[key] = 0
-                    else:
-                        total_annotation_class_prop_dict[key] = (
-                            float(value) / float(total_annotation_count)) * 100  # 计算个类别在此数据集占比
-                total_annotation_class_count_dict.update(
-                    {'total': total_annotation_count})
 
             # 记录每个集的类别分布
             with open(os.path.join(self.temp_sample_statistics_folder,
@@ -482,15 +471,15 @@ class Dataset_Base:
             if divide_distribution_file == 'total_distibution.txt':
                 with open(os.path.join(self.temp_sample_statistics_folder,
                                        total_annotation_count_name), 'w') as dist_txt:
-                    print('\n%s set class pixal count:' %
-                          total_annotation_count_name.split('_')[0])
-                    for key, value in total_annotation_class_count_dict.items():
+                    print('\n%s set class count:' %
+                          divide_distribution_file.split('_')[0])
+                    for key, value in one_set_class_count_dict.items():
                         dist_txt.write(str(key) + ':' + str(value) + '\n')
                         print(str(key) + ':' + str(value))
                     print('\n%s set porportion:' %
                           divide_distribution_file.split('_')[0])
                     dist_txt.write('\n')
-                    for key, value in total_annotation_class_prop_dict.items():
+                    for key, value in one_set_class_prop_dict.items():
                         dist_txt.write(str(key) + ':' +
                                        str('%0.2f%%' % value) + '\n')
                         print(str(key) + ':' + str('%0.2f%%' % value))
@@ -507,7 +496,7 @@ class Dataset_Base:
             task_class_dict (dict): [对应任务类别字典]
         """
 
-        print('Star statistic semantic segmentation sample:')
+        print('Start statistic semantic segmentation sample:')
         total_annotation_count_name = 'Semantic_segmentation_total_annotation_count.txt'
         # 声明set类别计数字典列表顺序为ttvt
         self.temp_divide_count_dict_list_dict.update({task: []})
@@ -719,6 +708,7 @@ class Dataset_Base:
         Returns:
             list: [图片均值和标准差列表]
         """
+
         try:
             img = Image.open(os.path.join(
                 self.source_dataset_images_folder, img_filename))
@@ -739,6 +729,7 @@ class Dataset_Base:
         Args:
             dataset (dict): [数据集信息字典]
         """
+
         img_filenames = os.listdir(self.source_dataset_images_folder)
         print('Start count images mean and std:')
         pool = multiprocessing.Pool(self.workers)
@@ -775,6 +766,7 @@ class Dataset_Base:
         Args:
             dataset ([数据集类]): [数据集类实例]
         """
+
         x = np.arange(len(task_class_dict['Target_dataset_class']))  # x为类别数量
         fig = plt.figure(1, figsize=(
             len(task_class_dict['Target_dataset_class']), 9))   # 图片宽比例为类别个数
@@ -814,8 +806,8 @@ class Dataset_Base:
             plt.subplots_adjust(left=0.2, bottom=0.2, right=0.8,
                                 top=0.8, wspace=0.3, hspace=0.2)
             plt.tight_layout()
-            plt.legend(['Total', 'Train', 'val', 'test', 'redund'],
-                       loc='best', bbox_to_anchor=(1.05, 1.0), borderaxespad=0.)
+        plt.legend(['Total', 'Train', 'val', 'test', 'redund'],
+                   loc='best', bbox_to_anchor=(1.05, 1.0), borderaxespad=0.)
 
         # 绘制占比点线图
         at = fig.add_subplot(212)   # 单图显示类别占比线条图
@@ -910,8 +902,8 @@ class Dataset_Base:
             plt.subplots_adjust(left=0.2, bottom=0.2, right=0.8,
                                 top=0.8, wspace=0.3, hspace=0.2)
             plt.tight_layout()
-            plt.legend(['Total', 'Train', 'val', 'test', 'redund'],
-                       loc='best', bbox_to_anchor=(1.05, 1.0), borderaxespad=0.)
+        plt.legend(['Total', 'Train', 'val', 'test', 'redund'],
+                   loc='best', bbox_to_anchor=(1.05, 1.0), borderaxespad=0.)
 
         # 绘制占比点线图
         at = fig.add_subplot(212)   # 单图显示类别占比线条图
@@ -1183,6 +1175,7 @@ class Dataset_Base:
                                     object['box_xywh'],
                                     object['segmentation'],
                                     object['keypoints_num'], object['keypoints'],
+                                    dataset_instance.task_convert,
                                     box_color=object['box_color'],
                                     box_tool=object['box_tool'],
                                     box_difficult=object['box_difficult'],

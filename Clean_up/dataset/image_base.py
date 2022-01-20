@@ -4,12 +4,13 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-01-20 11:15:01
+LastEditTime: 2022-01-20 15:35:38
 '''
 import os
 import cv2
 import json
 import numpy as np
+from sqlalchemy import false
 
 
 class BOX:
@@ -168,6 +169,8 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
                  keypoints_num: int,
                  keypoints: list,
 
+                 task_convert_dict: dict,
+
                  box_color: str = '',
                  box_tool: str = '',
                  box_difficult: int = 0,
@@ -206,13 +209,16 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
         self.object_id = object_id
         self.object_clss = object_clss
         self.object_convert_flag = ''
+        self.task_convert_dict = task_convert_dict
         if 0 == len(self.box_xywh)\
-                and 0 != len(self.segmentation):
+                and 0 != len(self.segmentation) \
+        and self.task_convert_dict['Detection']:
             self.box_xywh = self.true_segmentation_to_true_box()
             self.box_clss = self.segmentation_clss
             self.object_convert_flag = 'segmentation_to_box'
         if 0 == len(self.segmentation)\
-                and 0 != len(self.box_xywh):
+                and 0 != len(self.box_xywh) \
+        and self.task_convert_dict['Semantic_segmentation']:
             self.segmentation = self.true_box_to_true_segmentation()
             self.segmentation_clss = self.box_clss
             self.object_convert_flag = 'box_to_segmentation'
@@ -268,20 +274,30 @@ class IMAGE:
                         for (key, value) in task_class_dict['Modify_class_dict'].items():
                             if one_object.box_clss in set(value):
                                 one_object.box_clss = key
+                            else:
+                                pass
                     elif task == 'Semantic_segmentation':
                         for (key, value) in task_class_dict['Modify_class_dict'].items():
                             if one_object.segmentation_clss in set(value):
                                 one_object.segmentation_clss = key
+                            else:
+                                pass
                     elif task == 'Instance_segmentation':
                         for (key, value) in task_class_dict['Modify_class_dict'].items():
                             if one_object.box_clss in set(value):
                                 one_object.box_clss = key
+                            else:
+                                pass
                             if one_object.segmentation_clss in set(value):
                                 one_object.segmentation_clss = key
+                            else:
+                                pass
                     elif task == 'Keypoint':
                         for (key, value) in task_class_dict['Modify_class_dict'].items():
                             if one_object.keypoints_class in set(value):
                                 one_object.keypoints_class = key
+                            else:
+                                pass
 
         return
 

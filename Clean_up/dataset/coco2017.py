@@ -4,8 +4,9 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-20 11:16:13
+LastEditTime: 2022-01-20 15:53:57
 '''
+from lib2to3.pytree import convert
 import time
 import shutil
 from PIL import Image
@@ -232,9 +233,11 @@ class COCO2017(Dataset_Base):
 
         cls = class_dict[str(one_annotation['category_id'])]     # 获取object类别
         cls = cls.replace(' ', '').lower()
+        total_class = []
         for _, task_class_dict in self.task_dict.items():
-            if cls not in task_class_dict['Source_dataset_class']:
-                return
+            total_class.extend(task_class_dict['Source_dataset_class'])
+        if cls not in total_class:
+            return
         image = each_annotation_images_data_dict[ann_image_id]
 
         # 获取真实框信息
@@ -283,8 +286,9 @@ class COCO2017(Dataset_Base):
 
         one_object = OBJECT(id, cls, cls, cls, cls,
                             box_xywh, segmentation, keypoints_num, keypoints,
+                            self.task_convert,
                             segmentation_area=segmentation_area,
-                            segmentation_iscrowd=segmentation_iscrowd
+                            segmentation_iscrowd=segmentation_iscrowd,
                             )
 
         return ann_image_id, one_object
@@ -388,46 +392,46 @@ class COCO2017(Dataset_Base):
             }
 
             # 将class_list_new转换为coco格式字典
-            class_count = 0
+            for n, cls in enumerate(dataset_instance
+                                    .temp_merge_class_list['Merge_target_dataset_class_list']):
+                category_item = {'supercategory': 'none',
+                                 'id': n,
+                                 'name': cls}
+                coco['categories'].append(category_item)
+
+            annotation_output_path = os.path.join(
+                dataset_instance.target_dataset_annotations_folder, 'instances_' + os.path.splitext(
+                    dataset_temp_annotation_path_list.split(os.sep)[-1])[0]
+                + str(2017) + '.' + dataset_instance.target_dataset_annotation_form)
+            annotation_path_list = []
+            with open(dataset_temp_annotation_path_list, 'r') as f:
+                for n in f.readlines():
+                    annotation_path_list.append(n.replace('\n', '')
+                                                .replace(dataset_instance.source_dataset_images_folder,
+                                                         dataset_instance.temp_annotations_folder)
+                                                .replace(dataset_instance.target_dataset_image_form,
+                                                         dataset_instance.temp_annotation_form))
+
+            # 读取标签图片基础信息
+            print('Start load image information:')
+            image_information_list = []
+            pool = multiprocessing.Pool(dataset_instance.workers)
+            for n, temp_annotation_path in tqdm(enumerate(annotation_path_list)):
+                image_information_list.append(
+                    pool.apply_async(func=dataset.__dict__[dataset_instance.target_dataset_style].get_image_information,
+                                     args=(dataset_instance, coco,
+                                           n, temp_annotation_path,),
+                                     error_callback=err_call_back))
+            pool.close()
+            pool.join()
+
+            for n in tqdm(image_information_list):
+                coco['images'].append(n.get())
+            del image_information_list
+
+            # 读取图片标注基础信息
+            print('Start load annotation:')
             for task, task_class_dict in dataset_instance.task_dict.items():
-                for n, cls in enumerate(task_class_dict['Target_dataset_class']):
-                    category_item = {'supercategory': 'none',
-                                     'id': n + class_count,
-                                     'name': cls}
-                    coco['categories'].append(category_item)
-
-                annotation_output_path = os.path.join(
-                    dataset_instance.target_dataset_annotations_folder, 'instances_' + os.path.splitext(
-                        dataset_temp_annotation_path_list.split(os.sep)[-1])[0]
-                    + str(2017) + '.' + dataset_instance.target_dataset_annotation_form)
-                annotation_path_list = []
-                with open(dataset_temp_annotation_path_list, 'r') as f:
-                    for n in f.readlines():
-                        annotation_path_list.append(n.replace('\n', '')
-                                                    .replace(dataset_instance.source_dataset_images_folder,
-                                                             dataset_instance.temp_annotations_folder)
-                                                    .replace(dataset_instance.target_dataset_image_form,
-                                                             dataset_instance.temp_annotation_form))
-
-                # 读取标签图片基础信息
-                print('Start load image information:')
-                image_information_list = []
-                pool = multiprocessing.Pool(dataset_instance.workers)
-                for n, temp_annotation_path in tqdm(enumerate(annotation_path_list)):
-                    image_information_list.append(
-                        pool.apply_async(func=dataset.__dict__[dataset_instance.target_dataset_style].get_image_information,
-                                         args=(dataset_instance, coco,
-                                               n, temp_annotation_path,),
-                                         error_callback=err_call_back))
-                pool.close()
-                pool.join()
-
-                for n in tqdm(image_information_list):
-                    coco['images'].append(n.get())
-                del image_information_list
-
-                # 读取标签标注基础信息
-                print('Start load annotation:')
                 annotations_list = []
                 pool = multiprocessing.Pool(dataset_instance.workers)
                 for n, temp_annotation_path in tqdm(enumerate(annotation_path_list)):
@@ -436,8 +440,7 @@ class COCO2017(Dataset_Base):
                                          args=(dataset_instance, n,
                                                temp_annotation_path,
                                                task,
-                                               task_class_dict['Target_dataset_class'],
-                                               class_count,),
+                                               task_class_dict,),
                                          error_callback=err_call_back))
                 pool.close()
                 pool.join()
@@ -449,7 +452,6 @@ class COCO2017(Dataset_Base):
                         coco['annotations'].append(m)
                         annotation_id += 1
                 del annotations_list
-                class_count += len(task_class_dict['Target_dataset_class'])
 
             json.dump(coco, open(annotation_output_path, 'w'))
 
@@ -485,11 +487,11 @@ class COCO2017(Dataset_Base):
         return image_information
 
     @staticmethod
-    def get_annotation(dataset_instance: object, n: int,
+    def get_annotation(dataset_instance: object,
+                       n: int,
                        temp_annotation_path: str,
                        task: str,
-                       task_class: list,
-                       task_class_count: int) -> None:
+                       task_class_dict: dict) -> None:
         """[获取暂存标注信息]
 
         Args:
@@ -502,7 +504,7 @@ class COCO2017(Dataset_Base):
             dataset_instance, temp_annotation_path)
         if image == None:
             return
-        # 获取图片分割信息
+        # 获取图片标注信息
         one_image_annotations_list = []
         for object in image.object_list:
             segmentation = np.asarray(
@@ -510,34 +512,69 @@ class COCO2017(Dataset_Base):
             # class
             if task == 'Detection':
                 clss = object.box_clss
-            elif task == 'Semantic_segmentation' or task == 'Instance_segmentation':
+                one_image_annotations_list.append({'bbox': object.box_xywh,
+                                                   'area': object.box_get_area(),
+                                                   'iscrowd': object.segmentation_iscrowd,
+                                                   'keypoints': object.keypoints,
+                                                   'num_keypoints': object.keypoints_num,
+                                                   'image_id': n,
+                                                   'category_id': dataset_instance
+                                                   .temp_merge_class_list['Merge_target_dataset_class_list']
+                                                   .index(clss),
+                                                   'id': 0})
+            elif task == 'Semantic_segmentation':
                 clss = object.segmentation_clss
+                one_image_annotations_list.append({'segmentation': [segmentation],
+                                                   'area': object.segmentation_area,
+                                                   'iscrowd': object.segmentation_iscrowd,
+                                                   'keypoints': object.keypoints,
+                                                   'num_keypoints': object.keypoints_num,
+                                                   'image_id': n,
+                                                   'category_id': dataset_instance
+                                                   .temp_merge_class_list['Merge_target_dataset_class_list']
+                                                   .index(clss),
+                                                   'id': 0})
+            elif task == 'Instance_segmentation':
+                clss = object.segmentation_clss
+                one_image_annotations_list.append({'bbox': object.box_xywh,
+                                                   'segmentation': [segmentation],
+                                                   'area': object.segmentation_area,
+                                                   'iscrowd': object.segmentation_iscrowd,
+                                                   'keypoints': object.keypoints,
+                                                   'num_keypoints': object.keypoints_num,
+                                                   'image_id': n,
+                                                   'category_id': dataset_instance
+                                                   .temp_merge_class_list['Merge_target_dataset_class_list']
+                                                   .index(clss),
+                                                   'id': 0})
             elif task == 'Keypoint':
                 clss = object.keypoints_clss
-            one_image_annotations_list.append({'bbox': object.box_xywh,
-                                               'segmentation': [segmentation],
-                                               'area': object.segmentation_area,
-                                               'iscrowd': object.segmentation_iscrowd,
-                                               'keypoints': object.keypoints,
-                                               'num_keypoints': object.keypoints_num,
-                                               'image_id': n,
-                                               'category_id': task_class.index(clss)
-                                               + task_class_count,
-                                               'id': 0})
+                one_image_annotations_list.append({'bbox': object.box_xywh,
+                                                   'segmentation': [segmentation],
+                                                   'area': object.segmentation_area,
+                                                   'iscrowd': object.segmentation_iscrowd,
+                                                   'keypoints': object.keypoints,
+                                                   'num_keypoints': object.keypoints_num,
+                                                   'image_id': n,
+                                                   'category_id': dataset_instance
+                                                   .temp_merge_class_list['Merge_target_dataset_class_list']
+                                                   .index(clss),
+                                                   'id': 0})
 
         return one_image_annotations_list
 
     @staticmethod
-    def annotation_check(dataset_instance):
+    def annotation_check(dataset_instance: object) -> None:
         """[读取COCO2017数据集图片类检测列表]
 
         Args:
-            dataset (dict): [数据集信息字典]
+            dataset_instance (object): [数据集实例]
 
         Returns:
             list: [数据集图片类检测列表]
         """
 
+        print('Start check target annotations:')
         check_images_list = []
         dataset_instance.target_check_file_name_list = os.listdir(
             dataset_instance.target_dataset_annotations_folder)  # 读取target_annotations_folder文件夹下的全部文件名
@@ -555,7 +592,7 @@ class COCO2017(Dataset_Base):
             for one_name in data['categories']:
                 name_dict['%s' % one_name['id']] = one_name['name']
 
-            print('Start to count images:')
+            print('Start count images:')
             total_image_count = 0
             for d in tqdm(data['images']):
                 total_image_count += 1
@@ -564,7 +601,7 @@ class COCO2017(Dataset_Base):
             check_image_id_list = [random.randint(
                 0, total_image_count)for i in range(check_images_count)]
 
-            print('Start to load each annotation data file:')
+            print('Start load each annotation data file:')
             for n in check_image_id_list:
                 d = data['images'][n]
                 img_id = d['id']
@@ -641,6 +678,7 @@ class COCO2017(Dataset_Base):
 
                     one_object = OBJECT(id, cls, cls, cls, cls,
                                         box_xywh, segmentation, keypoints_num, keypoints,
+                                        dataset_instance.task_convert,
                                         segmentation_area=segmentation_area,
                                         segmentation_iscrowd=segmentation_iscrowd
                                         )
@@ -657,11 +695,11 @@ class COCO2017(Dataset_Base):
         return check_images_list
 
     @staticmethod
-    def target_dataset_folder(dataset_instance):
+    def target_dataset_folder(dataset_instance: object) -> None:
         """[生成COCO 2017组织格式的数据集]
 
         Args:
-            dataset_instance (dict): [数据集实例]
+            dataset_instance (object): [数据集实例]
         """
 
         print('\nStart build target dataset folder:')
