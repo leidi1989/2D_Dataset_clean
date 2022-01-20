@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-20 15:56:20
+LastEditTime: 2022-01-20 15:58:27
 '''
 from lib2to3.pytree import convert
 import time
@@ -568,7 +568,7 @@ class COCO2017(Dataset_Base):
         return one_image_annotations_list
 
     @staticmethod
-    def annotation_check(dataset_instance: object) -> None:
+    def annotation_check(dataset_instance: object) -> list:
         """[读取COCO2017数据集图片类检测列表]
 
         Args:
