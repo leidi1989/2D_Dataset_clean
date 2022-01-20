@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-20 15:57:35
+LastEditTime: 2022-01-20 16:46:47
 '''
 import dataset
 from utils.utils import *
@@ -971,40 +971,42 @@ class Dataset_Base:
                 self.temp_images_folder, image.image_name)
             output_image = cv2.imread(image_path)  # 读取对应标签图片
             for object in image.object_list:  # 获取每张图片的bbox信息
-                try:
-                    nums[task_class_dict['Target_dataset_class'].index(
-                        object.box_clss)].append(object.box_clss)
-                    color = colors[task_class_dict['Target_dataset_class'].index(
-                        object.box_clss)]
-                    # if dataset['target_annotation_check_mask'] == False:
-                    cv2.rectangle(output_image,
-                                  (int(object.box_xywh[0]),
-                                   int(object.box_xywh[1])),
-                                  (int(object.box_xywh[0]+object.box_xywh[2]),
-                                   int(object.box_xywh[1]+object.box_xywh[3])), color, thickness=2)
-                    plot_true_box_success += 1
-                    # 绘制透明锚框
-                    # else:
-                    #     zeros1 = np.zeros((output_image.shape), dtype=np.uint8)
-                    #     zeros1_mask = cv2.rectangle(zeros1, (box.xmin, box.ymin),
-                    #                                 (box.xmax, box.ymax),
-                    #                                 color, thickness=-1)
-                    #     alpha = 1   # alpha 为第一张图片的透明度
-                    #     beta = 0.5  # beta 为第二张图片的透明度
-                    #     gamma = 0
-                    #     # cv2.addWeighted 将原始图片与 mask 融合
-                    #     mask_img = cv2.addWeighted(
-                    #         output_image, alpha, zeros1_mask, beta, gamma)
-                    #     output_image = mask_img
-                    #     plot_true_box_success += 1
-
-                    cv2.putText(output_image, object.box_clss, (int(object.box_xywh[0]), int(object.box_xywh[1])),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 0))
-                except:
-                    print(image.image_name +
-                          str(object.box_clss) + "is not in list")
-                    plot_true_box_fail += 1
+                if not len(object.box_xywh):
                     continue
+                # try:
+                nums[task_class_dict['Target_dataset_class'].index(
+                    object.box_clss)].append(object.box_clss)
+                color = colors[task_class_dict['Target_dataset_class'].index(
+                    object.box_clss)]
+                # if dataset['target_annotation_check_mask'] == False:
+                cv2.rectangle(output_image,
+                                (int(object.box_xywh[0]),
+                                int(object.box_xywh[1])),
+                                (int(object.box_xywh[0]+object.box_xywh[2]),
+                                int(object.box_xywh[1]+object.box_xywh[3])), color, thickness=2)
+                plot_true_box_success += 1
+                # 绘制透明锚框
+                # else:
+                #     zeros1 = np.zeros((output_image.shape), dtype=np.uint8)
+                #     zeros1_mask = cv2.rectangle(zeros1, (box.xmin, box.ymin),
+                #                                 (box.xmax, box.ymax),
+                #                                 color, thickness=-1)
+                #     alpha = 1   # alpha 为第一张图片的透明度
+                #     beta = 0.5  # beta 为第二张图片的透明度
+                #     gamma = 0
+                #     # cv2.addWeighted 将原始图片与 mask 融合
+                #     mask_img = cv2.addWeighted(
+                #         output_image, alpha, zeros1_mask, beta, gamma)
+                #     output_image = mask_img
+                #     plot_true_box_success += 1
+
+                cv2.putText(output_image, object.box_clss, (int(object.box_xywh[0]), int(object.box_xywh[1])),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 0))
+                # except:
+                #     print(image.image_name + ' ' +
+                #           str(object.box_clss) + " is not in {} class list".format(task))
+                #     plot_true_box_fail += 1
+                #     continue
                 total_box += 1
                 # 输出图片
             path = os.path.join(
@@ -1058,35 +1060,42 @@ class Dataset_Base:
                     self.temp_images_folder, image.image_name)
             output_image = cv2.imread(image_path)  # 读取对应标签图片
             for object in image.object_list:  # 获取每张图片的bbox信息
-                # try:
-                nums[task_class_dict['Target_dataset_class'].index(
-                    object.segmentation_clss)].append(object.segmentation_clss)
-                class_color = colors[task_class_dict['Target_dataset_class'].index(
-                    object.segmentation_clss)]
-                if self.target_dataset_annotation_check_mask == False:
-                    points = np.array(object.segmentation)
-                    cv2.polylines(
-                        output_image, pts=[points], isClosed=True, color=class_color, thickness=2)
-                    plot_true_box_success += 1
-                # 绘制透明真实框
-                else:
-                    zeros1 = np.zeros((output_image.shape), dtype=np.uint8)
-                    points = np.array(object.segmentation)
-                    zeros1_mask = cv2.fillPoly(
-                        zeros1, pts=[points], color=class_color)
-                    alpha = 1   # alpha 为第一张图片的透明度
-                    beta = 0.5  # beta 为第二张图片的透明度
-                    gamma = 0
-                    # cv2.addWeighted 将原始图片与 mask 融合
-                    mask_img = cv2.addWeighted(
-                        output_image, alpha, zeros1_mask, beta, gamma)
-                    output_image = mask_img
-                    plot_true_box_success += 1
+                if len(object.segmentation):
+                    continue
+                try:
+                    nums[task_class_dict['Target_dataset_class'].index(
+                        object.segmentation_clss)].append(object.segmentation_clss)
+                    class_color = colors[task_class_dict['Target_dataset_class'].index(
+                        object.segmentation_clss)]
+                    if self.target_dataset_annotation_check_mask == False:
+                        points = np.array(object.segmentation)
+                        cv2.polylines(
+                            output_image, pts=[points], isClosed=True, color=class_color, thickness=2)
+                        plot_true_box_success += 1
+                    # 绘制透明真实框
+                    else:
+                        zeros1 = np.zeros((output_image.shape), dtype=np.uint8)
+                        points = np.array(object.segmentation)
+                        zeros1_mask = cv2.fillPoly(
+                            zeros1, pts=[points], color=class_color)
+                        alpha = 1   # alpha 为第一张图片的透明度
+                        beta = 0.5  # beta 为第二张图片的透明度
+                        gamma = 0
+                        # cv2.addWeighted 将原始图片与 mask 融合
+                        mask_img = cv2.addWeighted(
+                            output_image, alpha, zeros1_mask, beta, gamma)
+                        output_image = mask_img
+                        plot_true_box_success += 1
 
-                cv2.putText(output_image, object.segmentation_clss,
-                            (int(object.segmentation[0][0]), int(
-                                object.segmentation[0][1])),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 0))
+                    cv2.putText(output_image, object.segmentation_clss,
+                                (int(object.segmentation[0][0]), int(
+                                    object.segmentation[0][1])),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 0))
+                except:
+                    print(image.image_name + ' ' +
+                        str(object.segmentation_clss) + " is not in {} class list".format(task))
+                    plot_true_box_fail += 1
+                    continue
                 total_box += 1
                 # 输出图片
             path = os.path.join(

@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-01-20 15:35:38
+LastEditTime: 2022-01-20 16:05:51
 '''
 import os
 import cv2
@@ -91,8 +91,11 @@ class SEGMENTATION:
         self.segmentation_clss = segmentation_clss
         self.segmentation = segmentation
         if segmentation_area == None:
-            self.segmentation_area = int(
-                cv2.contourArea(np.array(self.segmentation)))
+            if len(self.segmentation):
+                self.segmentation_area = int(
+                    cv2.contourArea(np.array(self.segmentation)))
+            else:
+                self.segmentation_area = 0
         else:
             self.segmentation_area = segmentation_area
         self.segmentation_iscrowd = int(segmentation_iscrowd)

@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-20 15:58:27
+LastEditTime: 2022-01-20 17:40:17
 '''
 from lib2to3.pytree import convert
 import time
@@ -510,34 +510,42 @@ class COCO2017(Dataset_Base):
             # class
             if task == 'Detection':
                 clss = object.box_clss
+                if clss not in task_class_dict['Target_dataset_class']:
+                    continue
+                category_id = dataset_instance.temp_merge_class_list['Merge_target_dataset_class_list'].index(
+                    clss)
                 one_image_annotations_list.append({'bbox': object.box_xywh,
                                                    'area': object.box_get_area(),
                                                    'iscrowd': object.segmentation_iscrowd,
                                                    'keypoints': object.keypoints,
                                                    'num_keypoints': object.keypoints_num,
                                                    'image_id': n,
-                                                   'category_id': dataset_instance
-                                                   .temp_merge_class_list['Merge_target_dataset_class_list']
-                                                   .index(clss),
+                                                   'category_id': category_id,
                                                    'id': 0})
             elif task == 'Semantic_segmentation':
                 segmentation = np.asarray(
                     object.segmentation).flatten().tolist()
                 clss = object.segmentation_clss
+                if clss not in task_class_dict['Target_dataset_class']:
+                    continue
+                category_id = dataset_instance.temp_merge_class_list['Merge_target_dataset_class_list'].index(
+                    clss)
                 one_image_annotations_list.append({'segmentation': [segmentation],
                                                    'area': object.segmentation_area,
                                                    'iscrowd': object.segmentation_iscrowd,
                                                    'keypoints': object.keypoints,
                                                    'num_keypoints': object.keypoints_num,
                                                    'image_id': n,
-                                                   'category_id': dataset_instance
-                                                   .temp_merge_class_list['Merge_target_dataset_class_list']
-                                                   .index(clss),
+                                                   'category_id': category_id,
                                                    'id': 0})
             elif task == 'Instance_segmentation':
                 segmentation = np.asarray(
                     object.segmentation).flatten().tolist()
                 clss = object.segmentation_clss
+                if clss not in task_class_dict['Target_dataset_class']:
+                    continue
+                category_id = dataset_instance.temp_merge_class_list['Merge_target_dataset_class_list'].index(
+                    clss)
                 one_image_annotations_list.append({'bbox': object.box_xywh,
                                                    'segmentation': [segmentation],
                                                    'area': object.segmentation_area,
@@ -545,14 +553,14 @@ class COCO2017(Dataset_Base):
                                                    'keypoints': object.keypoints,
                                                    'num_keypoints': object.keypoints_num,
                                                    'image_id': n,
-                                                   'category_id': dataset_instance
-                                                   .temp_merge_class_list['Merge_target_dataset_class_list']
-                                                   .index(clss),
+                                                   'category_id': category_id,
                                                    'id': 0})
             elif task == 'Keypoint':
                 segmentation = np.asarray(
                     object.segmentation).flatten().tolist()
                 clss = object.keypoints_clss
+                if clss not in task_class_dict['Target_dataset_class']:
+                    continue
                 one_image_annotations_list.append({'bbox': object.box_xywh,
                                                    'segmentation': [segmentation],
                                                    'area': object.segmentation_area,
