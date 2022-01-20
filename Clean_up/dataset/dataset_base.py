@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-20 15:44:37
+LastEditTime: 2022-01-20 15:57:35
 '''
 import dataset
 from utils.utils import *
@@ -1261,85 +1261,6 @@ class Dataset_Base:
                 self.plot_true_segmentation(task, task_class_dict)
 
         return
-
-    # def plot_true_box(dataset) -> None:
-    #     """[绘制每张图片的真实框检测图]
-
-    #     Args:
-    #         dataset ([Dataset]): [Dataset类实例]
-    #         image (IMAGE): [IMAGE类实例]
-    #     """
-
-    #     # 类别色彩
-    #     colors = [[random.randint(0, 255) for _ in range(3)]
-    #               for _ in range(len(dataset['detect_class_list_new']))]
-    #     # 统计各个类别的框数
-    #     nums = [[] for _ in range(len(dataset['detect_class_list_new']))]
-    #     image_count = 0
-    #     plot_true_box_success = 0
-    #     plot_true_box_fail = 0
-    #     total_box = 0
-    #     print('Output check true box annotation images:')
-    #     for image in tqdm(dataset['check_images_list']):
-    #         image_path = os.path.join(
-    #             dataset['temp_images_folder'], image.image_name)
-    #         output_image = cv2.imread(image_path)  # 读取对应标签图片
-    #         for box in image.true_box_list:  # 获取每张图片的bbox信息
-    #             try:
-    #                 nums[dataset['detect_class_list_new'].index(
-    #                     box.clss)].append(box.clss)
-    #                 color = colors[dataset['detect_class_list_new'].index(
-    #                     box.clss)]
-    #                 if dataset['target_detect_annotation_check_mask'] == False:
-    #                     cv2.rectangle(output_image, (int(box.xmin), int(box.ymin)),
-    #                                   (int(box.xmax), int(box.ymax)), color, thickness=2)
-    #                     plot_true_box_success += 1
-    #                 # 绘制透明锚框
-    #                 else:
-    #                     zeros1 = np.zeros((output_image.shape), dtype=np.uint8)
-    #                     zeros1_mask = cv2.rectangle(zeros1, (box.xmin, box.ymin),
-    #                                                 (box.xmax, box.ymax),
-    #                                                 color, thickness=-1)
-    #                     alpha = 1   # alpha 为第一张图片的透明度
-    #                     beta = 0.5  # beta 为第二张图片的透明度
-    #                     gamma = 0
-    #                     # cv2.addWeighted 将原始图片与 mask 融合
-    #                     mask_img = cv2.addWeighted(
-    #                         output_image, alpha, zeros1_mask, beta, gamma)
-    #                     output_image = mask_img
-    #                     plot_true_box_success += 1
-
-    #                 cv2.putText(output_image, box.clss, (int(box.xmin), int(box.ymin)),
-    #                             cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 0))
-    #             except:
-    #                 print(image.image_name + str(box.clss) + "is not in list")
-    #                 plot_true_box_fail += 1
-    #                 continue
-    #             total_box += 1
-    #             # 输出图片
-    #         path = os.path.join(
-    #             dataset['check_annotation_output_folder'], image.image_name)
-    #         cv2.imwrite(path, output_image)
-    #         image_count += 1
-
-    #     # 输出检查统计
-    #     print("\nTotal check annotations count: \t%d" % image_count)
-    #     print('Check annotation true box count:')
-    #     print("Plot true box success image: \t%d" % plot_true_box_success)
-    #     print("Plot true box fail image:    \t%d" % plot_true_box_fail)
-    #     print('True box class count:')
-    #     for i in nums:
-    #         if len(i) != 0:
-    #             print(i[0] + ':' + str(len(i)))
-
-    #     with open(os.path.join(dataset['check_annotation_output_folder'], 'detect_class_count.txt'), 'w') as f:
-    #         for i in nums:
-    #             if len(i) != 0:
-    #                 temp = i[0] + ':' + str(len(i)) + '\n'
-    #                 f.write(temp)
-    #         f.close()
-
-    #     return
 
     def plot_true_segment(dataset: dict) -> None:
         """[绘制每张图片的真实分割检测图]
