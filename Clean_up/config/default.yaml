@@ -25,9 +25,6 @@ Target_dataset_check_annotations_count: 100
 # check target annotations show annotations as mask
 Target_dataset_check_annotations_output_as_mask: True
 
-# dataset task style: Detection, Semantic_segmentation, Instance_segmentation, Multi_task
-Dataset_style: Detection
-
 # Task and class config
 Task_and_class_config:
   # Detection, Semantic_segmentation, Instance_segmentation, Keypoint

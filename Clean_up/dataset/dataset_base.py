@@ -4,12 +4,13 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-20 10:16:57
+LastEditTime: 2022-01-20 11:44:22
 '''
 import dataset
-from .dataset_characteristic import *
-from Clean_up.dataset.image_base import IMAGE, OBJECT
 from utils.utils import *
+from .dataset_characteristic import *
+from .image_base import IMAGE, OBJECT
+
 import os
 import cv2
 import math
@@ -29,10 +30,12 @@ class Dataset_Base:
     """[数据集基础类]
     """
 
-    def __init__(self, dataset_config) -> None:
+    def __init__(self, dataset_config: dict) -> None:
+        """[数据集基础类]
 
-        # Dataset_style
-        self.dataset_style = dataset_config['Dataset_style']
+        Args:
+            dataset_config (dict): [数据集配置信息字典]
+        """
 
         # Source_dataset
         self.dataset_input_folder = check_input_path(
@@ -165,7 +168,9 @@ class Dataset_Base:
 
         return
 
-    def delete_redundant_image(self):
+    def delete_redundant_image(self) -> None:
+        """[删除无标注图片]
+        """
 
         delete_count = 0
         for n in os.listdir(self.temp_images_folder):
@@ -359,13 +364,20 @@ class Dataset_Base:
                 self.detection_sample_statistics(task, task_class_dict)
             elif task == 'Segmentation' or \
                     task == 'Instance_segmentation':
+                self.detection_sample_statistics(task, task_class_dict)
                 self.segmentation_sample_statistics(task, task_class_dict)
             elif task == 'Keypoint':
                 self.keypoint_sample_statistics(task, task_class_dict)
 
         return
 
-    def detection_sample_statistics(self, task, task_class_dict):
+    def detection_sample_statistics(self, task: str, task_class_dict: dict) -> None:
+        """[数据集样本统计]
+
+        Args:
+            task (str): [任务类型]
+            task_class_dict (dict): [任务类别字典]
+        """
         """[数据集样本统计]
 
         Args:
@@ -373,7 +385,8 @@ class Dataset_Base:
         """
 
         # 分割后各数据集annotation文件路径
-        total_annotation_count_name = 'Detection_total_annotation_detect_count.txt'
+        print('Star statistic detection sample:')
+        total_annotation_count_name = 'Detection_total_annotation_count.txt'
         divide_file_annotation_path = []
         for n in self.temp_divide_file_list:
             with open(n, 'r') as f:
@@ -397,6 +410,9 @@ class Dataset_Base:
             one_set_class_count_dict = {}
             # 声明不同集的类别占比字典
             one_set_class_prop_dict = {}
+            # 全部标注统计
+            total_annotation_class_count_dict = {}
+            total_annotation_class_prop_dict = {}
             for one_class in task_class_dict['Target_dataset_class']:
                 # 读取不同类别进计数字典作为键
                 one_set_class_count_dict[one_class] = 0
@@ -433,10 +449,23 @@ class Dataset_Base:
                         float(value) / float(one_set_total_count)) * 100   # 计算个类别在此数据集占比
             self.temp_divide_proportion_dict_list_dict[task].append(
                 one_set_class_prop_dict)
+            # 统计标注数量
+            if divide_distribution_file == 'total_distibution.txt':
+                total_annotation_count = 0
+                for _, value in total_annotation_class_count_dict.items():  # 计算数据集计数总数
+                    total_annotation_count += value
+                for key, value in total_annotation_class_count_dict.items():
+                    if 0 == total_annotation_count:
+                        total_annotation_class_prop_dict[key] = 0
+                    else:
+                        total_annotation_class_prop_dict[key] = (
+                            float(value) / float(total_annotation_count)) * 100  # 计算个类别在此数据集占比
+                total_annotation_class_count_dict.update(
+                    {'total': total_annotation_count})
 
             # 记录每个集的类别分布
             with open(os.path.join(self.temp_sample_statistics_folder,
-                                   divide_distribution_file), 'w') as dist_txt:
+                                   'Detection_' + divide_distribution_file), 'w') as dist_txt:
                 print('\n%s set class count:' %
                       divide_distribution_file.split('_')[0])
                 for key, value in one_set_class_count_dict.items():
@@ -449,6 +478,22 @@ class Dataset_Base:
                     dist_txt.write(str(key) + ':' +
                                    str('%0.2f%%' % value) + '\n')
                     print(str(key) + ':' + str('%0.2f%%' % value))
+            # 记录统计标注数量
+            if divide_distribution_file == 'total_distibution.txt':
+                with open(os.path.join(self.temp_sample_statistics_folder,
+                                       total_annotation_count_name), 'w') as dist_txt:
+                    print('\n%s set class pixal count:' %
+                          total_annotation_count_name.split('_')[0])
+                    for key, value in total_annotation_class_count_dict.items():
+                        dist_txt.write(str(key) + ':' + str(value) + '\n')
+                        print(str(key) + ':' + str(value))
+                    print('\n%s set porportion:' %
+                          divide_distribution_file.split('_')[0])
+                    dist_txt.write('\n')
+                    for key, value in total_annotation_class_prop_dict.items():
+                        dist_txt.write(str(key) + ':' +
+                                       str('%0.2f%%' % value) + '\n')
+                        print(str(key) + ':' + str('%0.2f%%' % value))
 
         self.plot_detection_sample_statistics(task, task_class_dict)    # 绘图
 
@@ -462,7 +507,13 @@ class Dataset_Base:
             task_class_dict (dict): [对应任务类别字典]
         """
 
+        print('Star statistic semantic segmentation sample:')
         total_annotation_count_name = 'Semantic_segmentation_total_annotation_count.txt'
+        # 声明set类别计数字典列表顺序为ttvt
+        self.temp_divide_count_dict_list_dict.update({task: []})
+        # 声明set类别计数字典列表顺序为ttvt
+        self.temp_divide_proportion_dict_list_dict.update({task: []})
+
         for divide_annotation_list, divide_distribution_file in tqdm(zip(self.temp_divide_file_annotation_path,
                                                                          self.temp_set_name_list),
                                                                      total=len(self.temp_divide_file_annotation_path)):
@@ -496,15 +547,15 @@ class Dataset_Base:
                     continue
                 for object in image.object_list:
                     area = polygon_area(object.segmentation[:-1])
-                    if object.clss != 'unlabeled':
-                        one_set_class_pixal_dict[object.clss] += area
+                    if object.segmentation_clss != 'unlabeled':
+                        one_set_class_pixal_dict[object.segmentation_clss] += area
                         if divide_distribution_file == 'total_distibution.txt':
-                            total_annotation_class_count_dict[object.clss] += 1
+                            total_annotation_class_count_dict[object.segmentation_clss] += 1
                     else:
                         image_pixal -= area
                         if divide_distribution_file == 'total_distibution.txt' and \
                                 'unlabeled' in total_annotation_class_count_dict:
-                            total_annotation_class_count_dict[object.clss] += 1
+                            total_annotation_class_count_dict[object.segmentation_clss] += 1
                 one_set_class_pixal_dict['unlabeled'] += image_pixal
             self.temp_divide_count_dict_list_dict[task].append(
                 one_set_class_pixal_dict)
@@ -534,7 +585,7 @@ class Dataset_Base:
                     {'total': total_annotation_count})
             # 记录每个集的类别分布
             with open(os.path.join(self.temp_sample_statistics_folder,
-                                   divide_distribution_file), 'w') as dist_txt:
+                                   'Semantic_segmentation_' + divide_distribution_file), 'w') as dist_txt:
                 print('\n%s set class pixal count:' %
                       divide_distribution_file.split('_')[0])
                 for key, value in one_set_class_pixal_dict.items():
@@ -762,6 +813,7 @@ class Dataset_Base:
             plt.xticks(x, labels, rotation=45)      # 使x轴标签逆时针倾斜45度
             plt.subplots_adjust(left=0.2, bottom=0.2, right=0.8,
                                 top=0.8, wspace=0.3, hspace=0.2)
+            plt.tight_layout()
             plt.legend(['Total', 'Train', 'val', 'test', 'redund'],
                        loc='best', bbox_to_anchor=(1.05, 1.0), borderaxespad=0.)
 
@@ -794,11 +846,13 @@ class Dataset_Base:
                     plt.text(m + set_size, b, '%.2f%%' %
                              b, ha='center', va='top', fontsize=10, color='r')
             plt.xticks(x, labels, rotation=45)      # 使x轴标签逆时针倾斜45度
+            plt.subplots_adjust(left=0.2, bottom=0.2, right=0.8,
+                                top=0.8, wspace=0.3, hspace=0.2)
             plt.tight_layout()
         plt.legend(['Total', 'Train', 'val', 'test', 'redund'],
                    loc='best', bbox_to_anchor=(1.05, 1.0), borderaxespad=0.)
         plt.savefig(os.path.join(self.temp_sample_statistics_folder,
-                                 'Dataset distribution.tif'), bbox_inches='tight')
+                                 'Detection dataset distribution.tif'), bbox_inches='tight')
         # plt.show()
         plt.close(fig)
 
@@ -853,6 +907,8 @@ class Dataset_Base:
                     plt.text(m + set_size, b, '%.0f' %
                              b, ha='center', va='top', fontsize=10, color='r')
             plt.xticks(x, labels, rotation=45)      # 使x轴标签逆时针倾斜45度
+            plt.subplots_adjust(left=0.2, bottom=0.2, right=0.8,
+                                top=0.8, wspace=0.3, hspace=0.2)
             plt.tight_layout()
             plt.legend(['Total', 'Train', 'val', 'test', 'redund'],
                        loc='best', bbox_to_anchor=(1.05, 1.0), borderaxespad=0.)
@@ -889,10 +945,11 @@ class Dataset_Base:
             plt.xticks(x, labels, rotation=45)      # 使x轴标签逆时针倾斜45度
             plt.subplots_adjust(left=0.2, bottom=0.2, right=0.8,
                                 top=0.8, wspace=0.3, hspace=0.2)
+            plt.tight_layout()
         plt.legend(['Total', 'Train', 'val', 'test', 'redund'],
                    loc='best', bbox_to_anchor=(1.05, 1.0), borderaxespad=0.)
         plt.savefig(os.path.join(self.temp_sample_statistics_folder,
-                                 'Dataset distribution.tif'), bbox_inches='tight')
+                                 'Semantic segmentation dataset distribution.tif'), bbox_inches='tight')
         # plt.show()
         plt.close(fig)
 
@@ -1084,7 +1141,7 @@ class Dataset_Base:
         return
 
     @ staticmethod
-    def TEMP_LOAD(dataset, temp_annotation_path: str) -> IMAGE:
+    def TEMP_LOAD(dataset_instance, temp_annotation_path: str) -> IMAGE:
         """[读取暂存annotation]
 
         Args:
@@ -1098,9 +1155,9 @@ class Dataset_Base:
         with open(temp_annotation_path, 'r') as f:
             data = json.loads(f.read())
             image_name = temp_annotation_path.split(
-                os.sep)[-1].replace('.json', '.' + dataset.temp_image_form)
+                os.sep)[-1].replace('.json', '.' + dataset_instance.temp_image_form)
             image_path = os.path.join(
-                dataset.temp_images_folder, image_name)
+                dataset_instance.temp_images_folder, image_name)
             if os.path.splitext(image_path)[-1] == 'png':
                 img = Image.open(image_path)
                 height, width = img.height, img.width

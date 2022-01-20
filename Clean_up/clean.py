@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-01-20 09:50:00
+LastEditTime: 2022-01-20 11:19:43
 '''
 import time
 import yaml
@@ -14,12 +14,29 @@ import multiprocessing
 import dataset
 
 
-def main(dataset_info: dict) -> None:
+def main(dataset_config: dict) -> None:
     """[数据集清理]
 
     Args:
         dataset_info (dict): [数据集信息字典]
     """
+
+    Input_dataset = dataset.__dict__[
+        dataset_config['Source_dataset_style']](dataset_config)
+
+    # Input_dataset.source_dataset_copy_image_and_annotation()
+    # Input_dataset.transform_to_temp_dataset()
+    # Input_dataset.output_classname_file()
+    # Input_dataset.delete_redundant_image()
+    Input_dataset.get_dataset_information()
+
+    dataset.__dict__[dataset_config['Target_dataset_style']
+                     ].target_dataset(Input_dataset)
+
+    Input_dataset.target_dataset_annotation_check()
+
+    # dataset.__dict__[dataset_config['Target_dataset_style']
+    #                  ].target_dataset_folder(Input_dataset)
 
     return
 
@@ -38,20 +55,5 @@ if __name__ == "__main__":
         open(opt.config, 'r', encoding="utf-8"), Loader=yaml.FullLoader)
     dataset_config.update({'workers': opt.workers})
 
-    Input_dataset = dataset.__dict__[
-        dataset_config['Source_dataset_style']](dataset_config)
-    # Input_dataset.source_dataset_copy_image_and_annotation()
-    # Input_dataset.transform_to_temp_dataset()
-    # Input_dataset.output_classname_file()
-    # Input_dataset.delete_redundant_image()
-    # Input_dataset.get_dataset_information()
-
-    # dataset.__dict__[dataset_config['Target_dataset_style']
-    #                  ].target_dataset(Input_dataset)
-
-    Input_dataset.target_dataset_annotation_check()
-
-    dataset.__dict__[dataset_config['Target_dataset_style']
-                     ].target_dataset_folder(Input_dataset)
-
-    pass
+    main(dataset_config)
+    

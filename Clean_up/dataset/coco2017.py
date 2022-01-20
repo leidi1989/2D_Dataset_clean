@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-20 09:59:28
+LastEditTime: 2022-01-20 11:16:13
 '''
 import time
 import shutil
@@ -13,9 +13,9 @@ import multiprocessing
 
 import dataset
 from utils.utils import *
-from Clean_up.dataset.image_base import *
-from utils import image_form_transform
+from .image_base import *
 from .dataset_characteristic import *
+from utils import image_form_transform
 from dataset.dataset_base import Dataset_Base
 
 
@@ -86,7 +86,7 @@ class COCO2017(Dataset_Base):
             pool = multiprocessing.Pool(self.workers)
             for id, one_annotation in tqdm(enumerate(data['annotations'])):
                 total_image_annotation_list.append(pool.apply_async(func=self.load_image_annotation, args=(
-                    id, one_annotation, class_dict, total_annotations_dict,),
+                    id, one_annotation, class_dict, total_annotations_dict),
                     error_callback=err_call_back))
             pool.close()
             pool.join()

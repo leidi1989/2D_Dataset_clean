@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-01-20 10:04:01
+LastEditTime: 2022-01-20 11:15:01
 '''
 import os
 import cv2
@@ -53,6 +53,21 @@ class BOX:
 
         return self.box_xywh[2] * self.box_xywh[3]
 
+    def true_box_to_true_segmentation(self) -> list:
+        """[获取由真实框转换来的分割包围框]
+
+        Returns:
+            list: [真实框转换来的分割包围框]
+        """
+
+        point_0 = [self.box_xywh[0], self.box_xywh[1]]
+        point_1 = [self.box_xywh[0] + self.box_xywh[2], self.box_xywh[1]]
+        point_2 = [self.box_xywh[0] + self.box_xywh[2],
+                   self.box_xywh[1] + self.box_xywh[3]]
+        point_3 = [self.box_xywh[0], self.box_xywh[1] + self.box_xywh[3]]
+
+        return [point_0, point_1, point_2, point_3]
+
 
 class SEGMENTATION:
     """真分割类"""
@@ -99,9 +114,6 @@ class SEGMENTATION:
 
     def true_segmentation_to_true_box(self) -> list:
         """[将分割按最外围矩形框转换为bbox]
-
-        Args:
-            object (object): [标注目标]
 
         Returns:
             list: [转换后真实框左上点坐标、宽、高]
@@ -193,6 +205,17 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
         KEYPOINTS.__init__(self, keypoints_clss, keypoints_num, keypoints)
         self.object_id = object_id
         self.object_clss = object_clss
+        self.object_convert_flag = ''
+        if 0 == len(self.box_xywh)\
+                and 0 != len(self.segmentation):
+            self.box_xywh = self.true_segmentation_to_true_box()
+            self.box_clss = self.segmentation_clss
+            self.object_convert_flag = 'segmentation_to_box'
+        if 0 == len(self.segmentation)\
+                and 0 != len(self.box_xywh):
+            self.segmentation = self.true_box_to_true_segmentation()
+            self.segmentation_clss = self.box_clss
+            self.object_convert_flag = 'box_to_segmentation'
 
 
 class IMAGE:
@@ -229,13 +252,14 @@ class IMAGE:
         self.channels = channels_in                         # 图片通道数
         self.object_list = object_list_in
 
-    def modify_object_list(self, input_dataset: object) -> None:
+    def modify_object_list(self, dataset_instance: object) -> None:
         """[修改真实框类别]
 
         Args:
-            input_dataset (object): [输入数据集实例]
+            dataset_instance (object): [输入数据集实例]
         """
-        for task, task_class_dict in input_dataset.task_dict.items():
+
+        for task, task_class_dict in dataset_instance.task_dict.items():
             if task_class_dict['Modify_class_dict'] is not None:
                 for one_object in self.object_list:
                     # 遍历融合类别文件字典，完成label中的类别修改，
