@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-01-19 19:31:23
+LastEditTime: 2022-01-20 09:50:00
 '''
 import time
 import yaml
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     # dataset.__dict__[dataset_config['Target_dataset_style']
     #                  ].target_dataset(Input_dataset)
 
-    # Input_dataset.target_dataset_annotation_check()
+    Input_dataset.target_dataset_annotation_check()
 
     dataset.__dict__[dataset_config['Target_dataset_style']
                      ].target_dataset_folder(Input_dataset)
