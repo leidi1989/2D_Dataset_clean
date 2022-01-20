@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-20 11:44:22
+LastEditTime: 2022-01-20 12:37:12
 '''
 import dataset
 from utils.utils import *
@@ -1058,8 +1058,12 @@ class Dataset_Base:
         total_box = 0
         print('Output check images:')
         for image in tqdm(self.target_dataset_check_images_list):
-            image_path = os.path.join(
-                self.temp_images_folder, image.image_name)
+            if task == 'Instance_segmentation':
+                image_path = os.path.join(
+                    self.target_dataset_annotation_check_output_folder, image.image_name)
+            else:
+                image_path = os.path.join(
+                    self.temp_images_folder, image.image_name)
             output_image = cv2.imread(image_path)  # 读取对应标签图片
             for object in image.object_list:  # 获取每张图片的bbox信息
                 # try:
@@ -1126,6 +1130,7 @@ class Dataset_Base:
             image (IMAGE): [图片类实例]
             segment_annotation_output_path (str): [分割标签图输出路径]
         """
+
         zeros = np.zeros((image.height, image.width), dtype=np.uint8)
         if len(image.true_segmentation_list):
             for seg in image.true_segmentation_list:
@@ -1205,6 +1210,7 @@ class Dataset_Base:
             temp_annotation_path (str): [暂存标签路径]
             process_output (dict): [进程输出字典]
         """
+
         image = self.TEMP_LOAD(self, temp_annotation_path)
         if task == 'Detection':
             for object in image.object_list:
