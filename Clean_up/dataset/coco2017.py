@@ -586,7 +586,7 @@ class COCO2017(Dataset_Base):
             list: [数据集图片类检测列表]
         """
 
-        print('Start check target annotations:')
+        
         check_images_list = []
         dataset_instance.target_check_file_name_list = os.listdir(
             dataset_instance.target_dataset_annotations_folder)  # 读取target_annotations_folder文件夹下的全部文件名
