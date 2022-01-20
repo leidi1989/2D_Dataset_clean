@@ -1,1 +1,2 @@
+parkingspace:parkingspace
 parkinglimiter:parkinglimiter
