@@ -4,11 +4,11 @@ Version:
 Author: Leidi
 Date: 2021-08-06 09:06:35
 LastEditors: Leidi
-LastEditTime: 2021-12-31 16:21:08
+LastEditTime: 2022-01-20 10:01:08
 '''
 # -*- coding: utf-8 -*-
 import numpy as np
-from base.image_base import *
+from Clean_up.dataset.image_base import *
 
 
 def yolo(size: list, box: list) -> tuple:
@@ -99,17 +99,17 @@ def temp_box_to_coco_box(xyxy: list) -> list:
     return [int(xyxy[0]), int(xyxy[1]), int(width), int(hight)]
 
 
-def true_segmentation_to_true_box(true_segmentation: TRUE_SEGMENTATION) -> list:
+def true_segmentation_to_true_box(object: object) -> list:
     """[将分割按最外围矩形框转换为bbox]
 
     Args:
-        true_segmentation (TRUE_SEGMENTATION): [真实分割]
+        object (object): [标注目标]
 
     Returns:
         list: [转换后真实框左上点坐标、宽、高]
     """
 
-    segmentation = np.asarray(true_segmentation.segmentation)
+    segmentation = np.asarray(object.segmentation)
     min_x = np.min(segmentation[:, 0])
     min_y = np.min(segmentation[:, 1])
     max_x = np.max(segmentation[:, 0])

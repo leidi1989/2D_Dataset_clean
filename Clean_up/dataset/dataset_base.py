@@ -4,11 +4,11 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-20 09:57:18
+LastEditTime: 2022-01-20 10:16:57
 '''
 import dataset
 from .dataset_characteristic import *
-from base.image_base import IMAGE, OBJECT
+from Clean_up.dataset.image_base import IMAGE, OBJECT
 from utils.utils import *
 import os
 import cv2
@@ -952,7 +952,8 @@ class Dataset_Base:
                     cv2.putText(output_image, object.box_clss, (int(object.box_xywh[0]), int(object.box_xywh[1])),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 0))
                 except:
-                    print(image.image_name + str(object.box_clss) + "is not in list")
+                    print(image.image_name +
+                          str(object.box_clss) + "is not in list")
                     plot_true_box_fail += 1
                     continue
                 total_box += 1

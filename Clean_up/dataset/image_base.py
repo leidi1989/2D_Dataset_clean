@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-01-18 14:12:29
+LastEditTime: 2022-01-20 10:04:01
 '''
 import os
 import cv2
@@ -81,7 +81,12 @@ class SEGMENTATION:
             self.segmentation_area = segmentation_area
         self.segmentation_iscrowd = int(segmentation_iscrowd)
 
-    def segmentation_get_bbox_area(self):
+    def segmentation_get_bbox_area(self) -> int:
+        """[获取语义分割外包围框面积]
+
+        Returns:
+            int: [语义分割外包围框面积]
+        """
 
         segmentation = np.asarray(self.segmentation)
         min_x = int(np.min(segmentation[:, 0]))
@@ -91,6 +96,27 @@ class SEGMENTATION:
         box_xywh = [min_x, min_y, max_x-min_x, max_y-min_y]
 
         return box_xywh[2] * box_xywh[3]
+
+    def true_segmentation_to_true_box(self) -> list:
+        """[将分割按最外围矩形框转换为bbox]
+
+        Args:
+            object (object): [标注目标]
+
+        Returns:
+            list: [转换后真实框左上点坐标、宽、高]
+        """
+
+        segmentation = np.asarray(self.segmentation)
+        min_x = np.min(segmentation[:, 0])
+        min_y = np.min(segmentation[:, 1])
+        max_x = np.max(segmentation[:, 0])
+        max_y = np.max(segmentation[:, 1])
+        width = max_x - min_x
+        hight = max_y - min_y
+        bbox = [int(min_x), int(min_y), int(width), int(hight)]
+
+        return bbox
 
 
 class KEYPOINTS:
