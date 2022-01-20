@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-20 17:40:17
+LastEditTime: 2022-01-20 18:45:16
 '''
 from lib2to3.pytree import convert
 import time
@@ -586,7 +586,6 @@ class COCO2017(Dataset_Base):
             list: [数据集图片类检测列表]
         """
 
-        
         check_images_list = []
         dataset_instance.target_check_file_name_list = os.listdir(
             dataset_instance.target_dataset_annotations_folder)  # 读取target_annotations_folder文件夹下的全部文件名
