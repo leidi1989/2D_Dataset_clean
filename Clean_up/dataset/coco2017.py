@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-20 15:53:57
+LastEditTime: 2022-01-20 15:56:20
 '''
 from lib2to3.pytree import convert
 import time
@@ -507,8 +507,6 @@ class COCO2017(Dataset_Base):
         # 获取图片标注信息
         one_image_annotations_list = []
         for object in image.object_list:
-            segmentation = np.asarray(
-                object.segmentation).flatten().tolist()
             # class
             if task == 'Detection':
                 clss = object.box_clss
@@ -523,6 +521,8 @@ class COCO2017(Dataset_Base):
                                                    .index(clss),
                                                    'id': 0})
             elif task == 'Semantic_segmentation':
+                segmentation = np.asarray(
+                    object.segmentation).flatten().tolist()
                 clss = object.segmentation_clss
                 one_image_annotations_list.append({'segmentation': [segmentation],
                                                    'area': object.segmentation_area,
@@ -535,6 +535,8 @@ class COCO2017(Dataset_Base):
                                                    .index(clss),
                                                    'id': 0})
             elif task == 'Instance_segmentation':
+                segmentation = np.asarray(
+                    object.segmentation).flatten().tolist()
                 clss = object.segmentation_clss
                 one_image_annotations_list.append({'bbox': object.box_xywh,
                                                    'segmentation': [segmentation],
@@ -548,6 +550,8 @@ class COCO2017(Dataset_Base):
                                                    .index(clss),
                                                    'id': 0})
             elif task == 'Keypoint':
+                segmentation = np.asarray(
+                    object.segmentation).flatten().tolist()
                 clss = object.keypoints_clss
                 one_image_annotations_list.append({'bbox': object.box_xywh,
                                                    'segmentation': [segmentation],
