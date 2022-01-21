@@ -28,16 +28,16 @@ Target_dataset_check_annotations_output_as_mask: True
 # Task and class config
 Task_and_class_config:
   # Detection, Semantic_segmentation, Instance_segmentation, Keypoint
-  Detection:
+  # Detection:
+  #   Source_dataset_class_file_path: /mnt/data_1/hy_program/2D_Dataset_clean/Clean_up/data/test_detection_1_classes.name
+  #   Modify_class_file_path: /mnt/data_1/hy_program/2D_Dataset_clean/Clean_up/data/test_detection_1_classes_modify.txt
+  #   Target_each_class_object_pixel_limit_file_path:
+  #   Need_convert: False
+  Semantic_segmentation:
     Source_dataset_class_file_path: /mnt/data_1/hy_program/2D_Dataset_clean/Clean_up/data/test_detection_1_classes.name
     Modify_class_file_path: /mnt/data_1/hy_program/2D_Dataset_clean/Clean_up/data/test_detection_1_classes_modify.txt
     Target_each_class_object_pixel_limit_file_path:
     Need_convert: False
-  # Semantic_segmentation:
-  #   Source_dataset_class_file_path: /mnt/data_1/hy_program/2D_Dataset_clean/Clean_up/data/test_segmentation_1_classes.name
-  #   Modify_class_file_path: /mnt/data_1/hy_program/2D_Dataset_clean/Clean_up/data/test_segmentation_1_classes_modify.txt
-  #   Target_each_class_object_pixel_limit_file_path:
-  #   Need_convert: False
 
 # progress debug
 debug: False

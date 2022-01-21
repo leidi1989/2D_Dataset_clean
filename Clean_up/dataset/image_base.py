@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-01-20 16:05:51
+LastEditTime: 2022-01-20 19:07:15
 '''
 import os
 import cv2
@@ -214,14 +214,16 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
         self.object_convert_flag = ''
         self.task_convert_dict = task_convert_dict
         if 0 == len(self.box_xywh)\
-                and 0 != len(self.segmentation) \
-        and self.task_convert_dict['Detection']:
+                and 0 != len(self.segmentation)  \
+            and 'Detection' in self.task_convert_dict \
+                and self.task_convert_dict['Detection']:
             self.box_xywh = self.true_segmentation_to_true_box()
             self.box_clss = self.segmentation_clss
             self.object_convert_flag = 'segmentation_to_box'
         if 0 == len(self.segmentation)\
                 and 0 != len(self.box_xywh) \
-        and self.task_convert_dict['Semantic_segmentation']:
+            and 'Semantic_segmentation' in self.task_convert_dict \
+                and self.task_convert_dict['Semantic_segmentation']:
             self.segmentation = self.true_box_to_true_segmentation()
             self.segmentation_clss = self.box_clss
             self.object_convert_flag = 'box_to_segmentation'
