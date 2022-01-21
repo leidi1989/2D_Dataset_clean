@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2022-01-21 17:01:19
+LastEditTime: 2022-01-21 17:41:30
 '''
 # -*- coding: utf-8 -*-
 import os
@@ -581,10 +581,12 @@ def multiprocessing_list_tqdm(file_list: list,
     Args:
         file_list (list): [计数文件列表]
         topic (str, optional): [主题]. Defaults to ''.
+        position (int, optional): [位置]. Defaults to None.
+        leave (bool, optional): [是否留屏]. Defaults to True.
 
     Returns:
-        [type]: [pbar, lambda *args: pbar.update()]
-    """
+        [type]: [description]
+    """    
 
     pbar = tqdm(total=len(file_list), position=position, leave=leave)
     pbar.set_description(topic)
@@ -601,6 +603,8 @@ def multiprocessing_object_tqdm(count: int,
     Args:
         count (int): [计数总量]
         topic (str, optional): [主题]. Defaults to ''.
+        position (int, optional): [位置]. Defaults to None.
+        leave (bool, optional): [是否留屏]. Defaults to True.
 
     Returns:
         [type]: [pbar, lambda *args: pbar.update()]

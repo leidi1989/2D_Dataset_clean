@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-21 16:37:07
+LastEditTime: 2022-01-21 17:45:33
 '''
 import dataset
 from utils.utils import *
@@ -208,9 +208,8 @@ class Dataset_Base:
         """[输出类别文件]
         """
 
-        print('Output class name file:')
-        for task, task_class_dict in tqdm(self.task_dict.items()):
-            print('Output {} class name file:'.format(task))
+        print('\nOutput task class name file.')
+        for task, task_class_dict in self.task_dict.items():
             with open(os.path.join(self.temp_informations_folder, task + '_classes.names'), 'w') as f:
                 if len(task_class_dict['Target_dataset_class']):
                     f.write('\n'.join(str(n)
@@ -280,6 +279,7 @@ class Dataset_Base:
             dataset (dict): [数据集信息字典]
         """
 
+        print('\nStart divide dataset:')
         Main_path = check_output_path(self.temp_informations_folder, 'Main')
         # 统计数据集不同场景图片数量
         scene_count_dict = {}   # 场景图片计数字典
@@ -333,13 +333,13 @@ class Dataset_Base:
         num_count = 0   # 图片计数
         trainval_list = []  # 训练集、验证集列表
         for set_name, set_one_path in zip(set_name_list, set_dict_list):
-            print('\nOutput images path {}.txt:'.format(set_name))
+            print('Output images path {}.txt.'.format(set_name))
             with open(os.path.join(self.temp_informations_folder, '%s.txt' % set_name), 'w') as f:
                 # 判断读取列表是否不存在，入若不存在则遍历下一数据集图片
                 if len(set_one_path):
                     if self.target_dataset_style != 'cityscapes_val':
                         random.shuffle(set_one_path['image_name_list'])
-                    for n in tqdm(set_one_path['image_name_list']):
+                    for n in set_one_path['image_name_list']:
                         image_path = os.path.join(
                             self.temp_images_folder, n + '.' + self.target_dataset_image_form)
                         f.write('%s\n' % image_path)
@@ -349,13 +349,13 @@ class Dataset_Base:
                     print('No file divide to {}.'.format(set_name))
                     f.close()
                     continue
-            print('\nOutput file name {}.txt :'.format(set_name))
+            print('Output file name {}.txt.'.format(set_name))
             with open(os.path.join(Main_path, '%s.txt' % set_name), 'w') as f:
                 # 判断读取列表是否不存在，入若不存在则遍历下一数据集图片
                 if len(set_one_path):
                     if self.target_dataset_style != 'cityscapes_val':
                         random.shuffle(set_one_path['image_name_list'])
-                    for n in tqdm(set_one_path['image_name_list']):
+                    for n in set_one_path['image_name_list']:
                         file_name = n.split(os.sep)[-1]
                         f.write('%s\n' % file_name)
                         if set_name == 'train' or set_name == 'val':
@@ -364,34 +364,35 @@ class Dataset_Base:
                 else:
                     f.close()
                     continue
-        print('\nOutput file name trainval.txt:')
+        print('Output file name trainval.txt.')
         with open(os.path.join(Main_path, 'trainval.txt'), 'w') as f:
             if len(trainval_list):
-                f.write('\n'.join(str(n) for n in tqdm(trainval_list)))
+                f.write('\n'.join(str(n) for n in trainval_list))
                 f.close()
             else:
                 f.close()
-        print('\nOutput total.txt:')
+        print('Output total.txt.')
         with open(os.path.join(self.temp_informations_folder, 'total.txt'), 'w') as f:
             if len(trainval_list):
-                for n in tqdm(total_list):
+                for n in total_list:
                     image_path = os.path.join(
                         self.temp_images_folder, n + '.' + self.target_dataset_image_form)
                     f.write('%s\n' % image_path)
                 f.close()
             else:
                 f.close()
-        print('\nOutput total_file_name.txt:')
+        print('Output total_file_name.txt.')
         with open(os.path.join(self.temp_informations_folder, 'total_file_name.txt'), 'w') as f:
             if len(total_list):
-                for n in tqdm(total_list):
+                for n in total_list:
                     f.write('%s\n' % n)
                 f.close()
             else:
                 f.close()
-        print('\nTotal images: %d' % num_count)
-        print('\nDivide files has been create in %s\n' %
+        print('Total images: %d' % num_count)
+        print('Divide files has been create in:\n%s' %
               self.temp_informations_folder)
+        print('Divide dataset end.')
 
         return
 
@@ -414,8 +415,9 @@ class Dataset_Base:
         for task, task_class_dict in self.task_dict.items():
             if task == 'Detection':
                 self.detection_sample_statistics(task, task_class_dict)
-            elif task == 'Segmentation' or \
-                    task == 'Instance_segmentation':
+            elif task == 'Semantic_segmentation':
+                self.segmentation_sample_statistics(task, task_class_dict)
+            elif task == 'Instance_segmentation':
                 self.detection_sample_statistics(task, task_class_dict)
                 self.segmentation_sample_statistics(task, task_class_dict)
             elif task == 'Keypoint':
@@ -452,7 +454,7 @@ class Dataset_Base:
         print('\nStar statistic sample each dataset:')
         for divide_annotation_list, divide_distribution_file in \
                 tqdm(zip(divide_file_annotation_path, self.temp_set_name_list),
-                     total=len(divide_file_annotation_path)):
+                     total=len(divide_file_annotation_path), desc='Statistic detection sample'):
             # 声明不同集的类别计数字典
             one_set_class_count_dict = {}
             # 声明不同集的类别占比字典
@@ -464,6 +466,10 @@ class Dataset_Base:
                 one_set_class_prop_dict[one_class] = float(0)
 
             # 统计全部labels各类别数量
+            pbar, update = multiprocessing_list_tqdm(divide_annotation_list,
+                                                     topic='Count {} class pixal'.format(
+                                                         divide_distribution_file),
+                                                     leave=False)
             process_output = multiprocessing.Manager().dict()
             pool = multiprocessing.Pool(self.workers)
             process_total_annotation_detect_class_count_dict = multiprocessing.Manager(
@@ -472,9 +478,11 @@ class Dataset_Base:
                 pool.apply_async(func=self.get_temp_annotations_classes_count, args=(
                     n, process_output, process_total_annotation_detect_class_count_dict,
                     task, task_class_dict,),
+                    callback=update,
                     error_callback=err_call_back)
             pool.close()
             pool.join()
+            pbar.close()
             for key in one_set_class_count_dict.keys():
                 if key in process_output:
                     one_set_class_count_dict[key] = process_output[key]
@@ -502,7 +510,7 @@ class Dataset_Base:
                 for key, value in one_set_class_count_dict.items():
                     dist_txt.write(str(key) + ':' + str(value) + '\n')
                     print(str(key) + ':' + str(value))
-                print('\n%s set porportion:' %
+                print('%s set porportion:' %
                       divide_distribution_file.split('_')[0])
                 dist_txt.write('\n')
                 for key, value in one_set_class_prop_dict.items():
@@ -518,7 +526,7 @@ class Dataset_Base:
                     for key, value in one_set_class_count_dict.items():
                         dist_txt.write(str(key) + ':' + str(value) + '\n')
                         print(str(key) + ':' + str(value))
-                    print('\n%s set porportion:' %
+                    print('%s set porportion:' %
                           divide_distribution_file.split('_')[0])
                     dist_txt.write('\n')
                     for key, value in one_set_class_prop_dict.items():
@@ -547,7 +555,9 @@ class Dataset_Base:
 
         for divide_annotation_list, divide_distribution_file in tqdm(zip(self.temp_divide_file_annotation_path,
                                                                          self.temp_set_name_list),
-                                                                     total=len(self.temp_divide_file_annotation_path)):
+                                                                     total=len(
+                                                                         self.temp_divide_file_annotation_path),
+                                                                     desc='Statistic semantic segmentation sample'):
             # 声明不同集的类别计数字典
             one_set_class_pixal_dict = {}
             # 声明不同集的类别占比字典
@@ -570,7 +580,10 @@ class Dataset_Base:
             if 'unlabeled' not in one_set_class_prop_dict:
                 one_set_class_prop_dict.update({'unlabeled': 0})
             # 统计全部labels各类别像素点数量
-            for n in tqdm(divide_annotation_list):
+            for n in tqdm(divide_annotation_list,
+                          desc='Count {} class pixal'.format(
+                              divide_distribution_file),
+                          leave=False):
                 image = self.TEMP_LOAD(self, n)
                 image_pixal = image.height*image.width
                 if image == None:
@@ -622,7 +635,7 @@ class Dataset_Base:
                 for key, value in one_set_class_pixal_dict.items():
                     dist_txt.write(str(key) + ':' + str(value) + '\n')
                     print(str(key) + ':' + str(value))
-                print('\n%s set porportion:' %
+                print('%s set porportion:' %
                       divide_distribution_file.split('_')[0])
                 dist_txt.write('\n')
                 for key, value in one_set_class_prop_dict.items():
@@ -639,7 +652,7 @@ class Dataset_Base:
                     for key, value in total_annotation_class_count_dict.items():
                         dist_txt.write(str(key) + ':' + str(value) + '\n')
                         print(str(key) + ':' + str(value))
-                    print('\n%s set porportion:' %
+                    print('%s set porportion:' %
                           divide_distribution_file.split('_')[0])
                     dist_txt.write('\n')
                     for key, value in total_annotation_class_prop_dict.items():
@@ -659,7 +672,7 @@ class Dataset_Base:
         """
 
         # 分割后各数据集annotation文件路径
-        total_annotation_detect_count_name = 'keypoint_total_annotation_count.txt'
+        total_annotation_keypoint_count_name = 'keypoint_total_annotation_count.txt'
         divide_file_annotation_path = []
         for n in self.temp_divide_file_list:
             with open(n, 'r') as f:
@@ -774,11 +787,15 @@ class Dataset_Base:
 
         img_filenames = os.listdir(self.source_dataset_images_folder)
         print('Start count images mean and std:')
+        pbar, update = multiprocessing_list_tqdm(
+            img_filenames, topic='Count images mean and std')
         pool = multiprocessing.Pool(self.workers)
         mean_std_list = []
-        for img_filename in tqdm(img_filenames):
-            mean_std_list.append(pool.apply_async(func=self.get_image_mean_std, args=(
-                img_filename,), error_callback=err_call_back))
+        for img_filename in img_filenames:
+            mean_std_list.append(pool.apply_async(func=self.get_image_mean_std,
+                                                  args=(img_filename,),
+                                                  callback=update,
+                                                  error_callback=err_call_back))
         pool.close()
         pool.join()
 
@@ -799,6 +816,7 @@ class Dataset_Base:
             f.close()
         print('mean: {}'.format(m[0][::-1]))
         print('std: {}'.format(s[0][::-1]))
+        print('Count images mean and std end.')
 
         return
 

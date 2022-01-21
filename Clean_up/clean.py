@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-01-21 16:38:00
+LastEditTime: 2022-01-21 17:13:21
 '''
 import time
 import yaml
@@ -27,10 +27,10 @@ def main(dataset_config: dict) -> None:
         print('Dataset initialize wrong, abort.')
         
     # Input_dataset.source_dataset_copy_image_and_annotation()
-    Input_dataset.transform_to_temp_dataset()
+    # Input_dataset.transform_to_temp_dataset()
     # Input_dataset.output_classname_file()
     # Input_dataset.delete_redundant_image()
-    # Input_dataset.get_dataset_information()
+    Input_dataset.get_dataset_information()
 
     # dataset.__dict__[dataset_config['Target_dataset_style']
     #                  ].target_dataset(Input_dataset)
