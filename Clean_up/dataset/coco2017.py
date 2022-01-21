@@ -4,13 +4,17 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-20 18:45:16
+LastEditTime: 2022-01-21 17:04:03
 '''
 from lib2to3.pytree import convert
+from subprocess import call
 import time
 import shutil
 from PIL import Image
 import multiprocessing
+
+from numpy import delete
+from sqlalchemy import desc
 
 import dataset
 from utils.utils import *
@@ -27,117 +31,35 @@ class COCO2017(Dataset_Base):
 
     def source_dataset_copy_image_and_annotation(self):
         print('\nStart source dataset copy image and annotation:')
-        print('Copy images: ')
-        for root, _, files in tqdm(os.walk(self.dataset_input_folder)):
+        pbar, update = multiprocessing_object_tqdm(
+            self.source_dataset_image_count, 'Copy images')
+        for root, _, files in os.walk(self.dataset_input_folder):
             pool = multiprocessing.Pool(self.workers)
-            for n in tqdm(files):
+            for n in files:
                 if n.endswith(self.source_dataset_image_form):
                     pool.apply_async(self.source_dataset_copy_image,
-                                     args=(root, n,), error_callback=err_call_back)
+                                     args=(root, n,),
+                                     callback=update,
+                                     error_callback=err_call_back)
             pool.close()
             pool.join()
-            print('Move images count: {}\n'.format(
-                len(os.listdir(self.source_dataset_images_folder))))
+        pbar.close()
 
-        print('Copy annotations: ')
-        for root, _, files in tqdm(os.walk(self.dataset_input_folder)):
+        pbar, update = multiprocessing_object_tqdm(
+            self.source_dataset_annotation_count, 'Copy annotations')
+        for root, _, files in os.walk(self.dataset_input_folder):
             pool = multiprocessing.Pool(self.workers)
-            for n in tqdm(files):
+            for n in files:
                 if n.endswith(self.source_dataset_annotation_form):
                     pool.apply_async(self.source_dataset_copy_annotation,
-                                     args=(root, n,), error_callback=err_call_back)
+                                     args=(root, n,),
+                                     callback=update,
+                                     error_callback=err_call_back)
             pool.close()
             pool.join()
-        print('Move annotations count: {}\n'.format(
-            len(os.listdir(self.source_dataset_annotations_folder))))
+        pbar.close()
 
-        return
-
-    def transform_to_temp_dataset(self):
-        print('\nStart transform to temp dataset:')
-        success_count = 0
-        fail_count = 0
-        no_object = 0
-        temp_file_name_list = []
-
-        for source_annotation_name in tqdm(os.listdir(self.source_dataset_annotations_folder)):
-            source_annotation_path = os.path.join(
-                self.source_dataset_annotations_folder, source_annotation_name)
-            with open(source_annotation_path, 'r') as f:
-                data = json.loads(f.read())
-
-            del f
-
-            class_dict = {}
-            for n in data['categories']:
-                class_dict['%s' % n['id']] = n['name']
-
-            # 获取data字典中images内的图片信息，file_name、height、width
-            total_annotations_dict = multiprocessing.Manager().dict()
-            pool = multiprocessing.Pool(self.workers)
-            for image_base_information in tqdm(data['images']):
-                pool.apply_async(func=self.load_image_base_information, args=(
-                    image_base_information, total_annotations_dict,),
-                    error_callback=err_call_back)
-            pool.close()
-            pool.join()
-
-            # 读取目标标注信息
-            total_image_annotation_list = []
-            pool = multiprocessing.Pool(self.workers)
-            for id, one_annotation in tqdm(enumerate(data['annotations'])):
-                total_image_annotation_list.append(pool.apply_async(func=self.load_image_annotation, args=(
-                    id, one_annotation, class_dict, total_annotations_dict),
-                    error_callback=err_call_back))
-            pool.close()
-            pool.join()
-
-            del data
-
-            total_images_data_dict = {}
-            for image_true_annotation in total_image_annotation_list:
-                if image_true_annotation.get() is None:
-                    continue
-                if image_true_annotation.get()[0] not in total_images_data_dict:
-                    total_images_data_dict[image_true_annotation.get(
-                    )[0]] = total_annotations_dict[image_true_annotation.get()[0]]
-                    total_images_data_dict[image_true_annotation.get()[0]].object_list.append(
-                        image_true_annotation.get()[1])
-                else:
-                    total_images_data_dict[image_true_annotation.get()[0]].object_list.append(
-                        image_true_annotation.get()[1])
-
-            del total_annotations_dict, total_image_annotation_list
-
-            # 输出读取的source annotation至temp annotation
-            process_temp_file_name_list = multiprocessing.Manager().list()
-            process_output = multiprocessing.Manager().dict({'success_count': 0,
-                                                             'fail_count': 0,
-                                                             'no_object': 0,
-                                                             'temp_file_name_list': process_temp_file_name_list
-                                                             })
-            pool = multiprocessing.Pool(self.workers)
-            for _, image in tqdm(total_images_data_dict.items()):
-                pool.apply_async(func=self.output_temp_annotation, args=(
-                    image, process_output,),
-                    error_callback=err_call_back)
-            pool.close()
-            pool.join()
-
-            # 更新输出统计
-            success_count += process_output['success_count']
-            fail_count += process_output['fail_count']
-            no_object += process_output['no_object']
-            temp_file_name_list += process_output['temp_file_name_list']
-
-        # 输出读取统计结果
-        print('\nSource dataset convert to temp dataset file count: ')
-        print('Total annotations:         \t {} '.format(
-            len(os.listdir(self.source_dataset_annotations_folder))))
-        print('Convert fail:              \t {} '.format(fail_count))
-        print('No object delete images: \t {} '.format(no_object))
-        print('Convert success:           \t {} '.format(success_count))
-        self.temp_annotation_name_list = temp_file_name_list
+        print('Copy images and annotations end.')
 
         return
 
@@ -148,7 +70,6 @@ class COCO2017(Dataset_Base):
             dataset (dict): [数据集信息字典]
             root (str): [文件所在目录]
             n (str): [文件名]
-
         """
 
         image = os.path.join(root, n)
@@ -178,6 +99,110 @@ class COCO2017(Dataset_Base):
         temp_annotation = os.path.join(
             self.source_dataset_annotations_folder, n)
         shutil.copy(annotation, temp_annotation)
+
+        return
+
+    def transform_to_temp_dataset(self):
+        print('\nStart transform to temp dataset:')
+        success_count = 0
+        fail_count = 0
+        no_object = 0
+        temp_file_name_list = []
+
+        for source_annotation_name in tqdm(os.listdir(self.source_dataset_annotations_folder),
+                                           desc='Total annotations'):
+            source_annotation_path = os.path.join(
+                self.source_dataset_annotations_folder, source_annotation_name)
+            with open(source_annotation_path, 'r') as f:
+                data = json.loads(f.read())
+
+            del f
+
+            class_dict = {}
+            for n in data['categories']:
+                class_dict['%s' % n['id']] = n['name']
+
+            # 获取data字典中images内的图片信息，file_name、height、width
+            pbar, update = multiprocessing_list_tqdm(
+                data['images'], 'Load image base information', leave=False)
+            total_annotations_dict = multiprocessing.Manager().dict()
+            pool = multiprocessing.Pool(self.workers)
+            for image_base_information in data['images']:
+                pool.apply_async(func=self.load_image_base_information,
+                                 args=(image_base_information,
+                                       total_annotations_dict,),
+                                 callback=update,
+                                 error_callback=err_call_back)
+            pool.close()
+            pool.join()
+            pbar.close()
+
+            # 读取目标标注信息
+            pbar, update = multiprocessing_list_tqdm(
+                data['annotations'], 'Load image annotation', leave=False)
+            total_image_annotation_list = []
+            pool = multiprocessing.Pool(self.workers)
+            for id, one_annotation in enumerate(data['annotations']):
+                total_image_annotation_list.append(pool.apply_async(func=self.load_image_annotation,
+                                                                    args=(
+                                                                        id, one_annotation, class_dict, total_annotations_dict),
+                                                                    callback=update,
+                                                                    error_callback=err_call_back))
+            pool.close()
+            pool.join()
+            pbar.close()
+
+            del data
+
+            total_images_data_dict = {}
+            for image_true_annotation in total_image_annotation_list:
+                if image_true_annotation.get() is None:
+                    continue
+                if image_true_annotation.get()[0] not in total_images_data_dict:
+                    total_images_data_dict[image_true_annotation.get(
+                    )[0]] = total_annotations_dict[image_true_annotation.get()[0]]
+                    total_images_data_dict[image_true_annotation.get()[0]].object_list.append(
+                        image_true_annotation.get()[1])
+                else:
+                    total_images_data_dict[image_true_annotation.get()[0]].object_list.append(
+                        image_true_annotation.get()[1])
+
+            del total_annotations_dict, total_image_annotation_list
+
+            # 输出读取的source annotation至temp annotation
+            pbar, update = multiprocessing_list_tqdm(
+                total_images_data_dict, 'Output temp annotation', leave=False)
+            process_temp_file_name_list = multiprocessing.Manager().list()
+            process_output = multiprocessing.Manager().dict({'success_count': 0,
+                                                             'fail_count': 0,
+                                                             'no_object': 0,
+                                                             'temp_file_name_list': process_temp_file_name_list
+                                                             })
+            pool = multiprocessing.Pool(self.workers)
+            for _, image in total_images_data_dict.items():
+                pool.apply_async(func=self.output_temp_annotation,
+                                 args=(image, process_output,),
+                                 callback=update,
+                                 error_callback=err_call_back)
+            pool.close()
+            pool.join()
+            pbar.close()
+
+            # 更新输出统计
+            success_count += process_output['success_count']
+            fail_count += process_output['fail_count']
+            no_object += process_output['no_object']
+            temp_file_name_list += process_output['temp_file_name_list']
+
+        # 输出读取统计结果
+        print('\nSource dataset convert to temp dataset file count: ')
+        print('Total annotations:         \t {} '.format(
+            len(os.listdir(self.source_dataset_annotations_folder))))
+        print('Convert fail:              \t {} '.format(fail_count))
+        print('No object delete images: \t {} '.format(no_object))
+        print('Convert success:           \t {} '.format(success_count))
+        self.temp_annotation_name_list = temp_file_name_list
+        print('Source dataset annotation transform to temp dataset end.')
 
         return
 

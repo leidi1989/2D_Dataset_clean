@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-01-20 19:07:47
+LastEditTime: 2022-01-21 16:38:00
 '''
 import time
 import yaml
@@ -20,20 +20,22 @@ def main(dataset_config: dict) -> None:
     Args:
         dataset_info (dict): [数据集信息字典]
     """
-
-    Input_dataset = dataset.__dict__[
-        dataset_config['Source_dataset_style']](dataset_config)
-
-    Input_dataset.source_dataset_copy_image_and_annotation()
+    try:
+        Input_dataset = dataset.__dict__[
+            dataset_config['Source_dataset_style']](dataset_config)
+    except:
+        print('Dataset initialize wrong, abort.')
+        
+    # Input_dataset.source_dataset_copy_image_and_annotation()
     Input_dataset.transform_to_temp_dataset()
-    Input_dataset.output_classname_file()
-    Input_dataset.delete_redundant_image()
-    Input_dataset.get_dataset_information()
+    # Input_dataset.output_classname_file()
+    # Input_dataset.delete_redundant_image()
+    # Input_dataset.get_dataset_information()
 
-    dataset.__dict__[dataset_config['Target_dataset_style']
-                     ].target_dataset(Input_dataset)
+    # dataset.__dict__[dataset_config['Target_dataset_style']
+    #                  ].target_dataset(Input_dataset)
 
-    Input_dataset.target_dataset_annotation_check()
+    # Input_dataset.target_dataset_annotation_check()
 
     # dataset.__dict__[dataset_config['Target_dataset_style']
     #                  ].target_dataset_folder(Input_dataset)

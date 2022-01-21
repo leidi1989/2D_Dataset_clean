@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-20 18:44:33
+LastEditTime: 2022-01-21 16:37:07
 '''
 import dataset
 from utils.utils import *
@@ -37,6 +37,7 @@ class Dataset_Base:
             dataset_config (dict): [数据集配置信息字典]
         """
 
+        print('Start dataset instance initialize:')
         # Source_dataset
         self.dataset_input_folder = check_input_path(
             dataset_config['Dataset_input_folder'])
@@ -49,6 +50,8 @@ class Dataset_Base:
             dataset_config['Source_dataset_style']]['annotation']
         self.source_dataset_annotations_folder = check_output_path(
             os.path.join(dataset_config['Dataset_output_folder'], 'source_dataset_annotations'))
+        self.source_dataset_image_count = self.get_source_dataset_image_count()
+        self.source_dataset_annotation_count = self.get_source_dataset_annotation_count()
         self.task_dict = dict()
 
         # File_prefix
@@ -146,6 +149,9 @@ class Dataset_Base:
             self.temp_merge_class_list['Merge_target_dataset_class_list'].extend(
                 target_dataset_class)
 
+        print('Dataset instance initialize end.')
+        return True
+
     def source_dataset_copy_image_and_annotation(self):
         # print('\nStart source dataset copy image and annotation:')
         raise NotImplementedError("ERROR: func not implemented!")
@@ -161,6 +167,42 @@ class Dataset_Base:
     def transform_to_temp_dataset(self):
         # print('\nStart transform to temp dataset:')
         raise NotImplementedError("ERROR: func not implemented!")
+
+    def init_success(self):
+        """[数据集实例初始化输出]
+        """
+
+        pass
+
+    def get_source_dataset_image_count(self) -> int:
+        """[获取源数据集图片数量]
+
+        Returns:
+            int: [源数据集图片数量]
+        """
+
+        image_count = 0
+        for root, _, files in os.walk(self.dataset_input_folder):
+            for n in files:
+                if n.endswith(self.source_dataset_image_form):
+                    image_count += 1
+
+        return image_count
+
+    def get_source_dataset_annotation_count(self) -> int:
+        """[获取源数据集标注文件数量]
+
+        Returns:
+            int: [源数据集标注文件数量]
+        """
+
+        annotation_count = 0
+        for root, _, files in os.walk(self.dataset_input_folder):
+            for n in files:
+                if n.endswith(self.source_dataset_annotation_form):
+                    annotation_count += 1
+
+        return annotation_count
 
     def output_classname_file(self) -> None:
         """[输出类别文件]

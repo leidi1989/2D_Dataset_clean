@@ -4,13 +4,14 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2022-01-19 09:34:16
+LastEditTime: 2022-01-21 17:01:19
 '''
 # -*- coding: utf-8 -*-
 import os
 import json
 import random
 import numpy as np
+from sqlalchemy import func
 from tqdm import tqdm
 
 
@@ -31,7 +32,7 @@ def check_input_path(path: str) -> str:
 
 
 def check_output_path(path: str, attach: str = '') -> str:
-    """[检查输出路径是否存在]
+    """[检查输出路径是否存在，若不存在则创建路径]
 
     Args:
         path (str): [输出路径]
@@ -42,11 +43,10 @@ def check_output_path(path: str, attach: str = '') -> str:
     """
 
     if os.path.exists(os.path.join(path, attach)):
-        print(os.path.join(path, attach))
 
         return os.path.join(path, attach)
     else:
-        print(os.path.join(path, attach))
+        print('Create folder: ', os.path.join(path, attach))
         os.makedirs(os.path.join(path, attach))
 
         return os.path.join(path, attach)
@@ -117,10 +117,9 @@ def get_class_list(source_dataset_class_file_path: str) -> list:
     """
     if source_dataset_class_file_path == '':
         return None
-    print("\nGet source dataset class list:")
     class_list = []     # 类别列表
     with open(source_dataset_class_file_path, 'r') as class_file:
-        for one_line in tqdm(class_file.read().splitlines()):
+        for one_line in class_file.read().splitlines():
             re_one_line = one_line.replace(' ', '').lower()
             class_list.append(re_one_line)
 
@@ -168,7 +167,6 @@ def get_new_class_names_list(source_class_list: list,
     """
 
     if modify_class_dict == None:
-
         return source_class_list
     else:
         new_class_names_list = []   # 新类别列表
@@ -189,8 +187,8 @@ def get_temp_annotations_name_list(temp_annotations_folder: str) -> list:
     """
 
     temp_file_name_list = []    # 暂存数据集全量文件名称列表
-    print('Get temp file name list:')
-    for n in tqdm(os.listdir(temp_annotations_folder)):
+    print('Get temp file name list.')
+    for n in os.listdir(temp_annotations_folder):
         temp_file_name_list.append(os.path.splitext(n.split(os.sep)[-1])[0])
 
     return temp_file_name_list
@@ -260,8 +258,8 @@ def temp_annotations_path_list(temp_annotations_folder: str) -> list:
     """
 
     temp_annotation_path_list = []  # 暂存数据集全量标签路径列表
-    print('Get temp annotation path:')
-    for n in tqdm(os.listdir(temp_annotations_folder)):
+    print('Get temp annotation path.')
+    for n in os.listdir(temp_annotations_folder):
         temp_annotation_path_list.append(
             os.path.join(temp_annotations_folder, n))
 
@@ -279,19 +277,19 @@ def total_file(temp_informations_folder: str) -> list:
     """
 
     total_list = []  # 暂存数据集全量图片文件名列表
-    print('\nGet total file name list:')
+    print('Get total file name list.')
     try:
         with open(os.path.join(temp_informations_folder, 'total.txt'), 'r') as f:
-            for n in tqdm(f.read().splitlines()):
+            for n in f.read().splitlines():
                 total_list.append(os.path.splitext(n.split(os.sep)[-1])[0])
             f.close()
 
         total_file_name_path = os.path.join(
             temp_informations_folder, 'total_file_name.txt')
-        print('\nOutput total_file_name.txt:')
+        print('Output total_file_name.txt.')
         with open(total_file_name_path, 'w') as f:
             if len(total_list):
-                for n in tqdm(total_list):
+                for n in total_list:
                     f.write('%s\n' % n)
                 f.close()
             else:
@@ -467,8 +465,6 @@ def get_class_pixel_limit(class_pixel_distance_file_path: str) -> dict:
 
     if class_pixel_distance_file_path == '' \
             or class_pixel_distance_file_path == None:
-        print('\nUnlimit pixel.')
-
         return None
 
     class_pixel_limit_dict = {}  # 类别像素大小限制字典
@@ -482,7 +478,6 @@ def get_class_pixel_limit(class_pixel_distance_file_path: str) -> dict:
             else:
                 print('Class pixel distance file wrong!')
                 print('Unlimit true box pixel.')
-
                 return None
 
     return class_pixel_limit_dict
@@ -575,3 +570,43 @@ def RGB_to_Hex(tmp: int) -> str:
         strs += str(hex(num))[-2:].replace('x', '0').upper()
 
     return strs
+
+
+def multiprocessing_list_tqdm(file_list: list,
+                              topic: str = '',
+                              position: int = None,
+                              leave: bool = True):
+    """[多进程列表tqdm]
+
+    Args:
+        file_list (list): [计数文件列表]
+        topic (str, optional): [主题]. Defaults to ''.
+
+    Returns:
+        [type]: [pbar, lambda *args: pbar.update()]
+    """
+
+    pbar = tqdm(total=len(file_list), position=position, leave=leave)
+    pbar.set_description(topic)
+
+    return pbar, lambda *args: pbar.update()
+
+
+def multiprocessing_object_tqdm(count: int,
+                                topic: str = '',
+                                position: int = None,
+                                leave: bool = True):
+    """[多进程计数tqdm]
+
+    Args:
+        count (int): [计数总量]
+        topic (str, optional): [主题]. Defaults to ''.
+
+    Returns:
+        [type]: [pbar, lambda *args: pbar.update()]
+    """
+
+    pbar = tqdm(total=count, position=position, leave=leave)
+    pbar.set_description(topic)
+
+    return pbar, lambda *args: pbar.update()
