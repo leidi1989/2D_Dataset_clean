@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-21 17:57:00
+LastEditTime: 2022-01-21 18:28:53
 '''
 import dataset
 from utils.utils import *
@@ -437,8 +437,8 @@ class Dataset_Base:
         print('Start statistic detection sample:')
         total_annotation_count_name = 'Detection_total_annotation_count.txt'
         divide_file_annotation_path = []
-        for n in self.temp_divide_file_list:
-            with open(n, 'r') as f:
+        for temp_annotation_path in self.temp_divide_file_list:
+            with open(temp_annotation_path, 'r') as f:
                 annotation_path_list = []
                 for m in f.read().splitlines():
                     file_name = os.path.splitext(m.split(os.sep)[-1])[0]
@@ -467,16 +467,16 @@ class Dataset_Base:
 
             # 统计全部labels各类别数量
             pbar, update = multiprocessing_list_tqdm(divide_annotation_list,
-                                                     topic='Count {} class pixal'.format(
+                                                     topic='Count {} class box'.format(
                                                          divide_distribution_file),
                                                      leave=False)
             process_output = multiprocessing.Manager().dict()
             pool = multiprocessing.Pool(self.workers)
             process_total_annotation_detect_class_count_dict = multiprocessing.Manager(
             ).dict({x: 0 for x in task_class_dict['Target_dataset_class']})
-            for n in tqdm(divide_annotation_list):
+            for temp_annotation_path in tqdm(divide_annotation_list):
                 pool.apply_async(func=self.get_temp_annotations_classes_count, args=(
-                    n, process_output, process_total_annotation_detect_class_count_dict,
+                    temp_annotation_path, process_output, process_total_annotation_detect_class_count_dict,
                     task, task_class_dict,),
                     callback=update,
                     error_callback=err_call_back)
@@ -517,6 +517,7 @@ class Dataset_Base:
                     dist_txt.write(str(key) + ':' +
                                    str('%0.2f%%' % value) + '\n')
                     print(str(key) + ':' + str('%0.2f%%' % value))
+
             # 记录统计标注数量
             if divide_distribution_file == 'total_distibution.txt':
                 with open(os.path.join(self.temp_sample_statistics_folder,
@@ -582,10 +583,37 @@ class Dataset_Base:
                 one_set_class_prop_dict.update({'unlabeled': 0})
 
             # 统计全部labels各类别像素点数量
-            process_output = multiprocessing.Manager().dict()
+
+            # TODO segmentation_sample_statistics多进程改进
+            image_class_pixal_dict_list = []
+            total_image_class_pixal_dict_list =[]
+            total_annotation_class_count_dict_list = []
+            pbar, update = multiprocessing_list_tqdm(divide_annotation_list,
+                                                     topic='Count {} class pixal'.format(
+                                                         divide_distribution_file),
+                                                     leave=False)
             pool = multiprocessing.Pool(self.workers)
-            process_total_annotation_detect_class_count_dict = multiprocessing.Manager(
-            ).dict({x: 0 for x in task_class_dict['Target_dataset_class']})
+            for temp_annotation_path in tqdm(divide_annotation_list):
+                image_class_pixal_dict_list = pool.apply_async(func=self.get_temp_segmentation_class_pixal, args=(
+                    temp_annotation_path,
+                    divide_distribution_file,
+                    total_annotation_class_count_dict,),
+                    callback=update,
+                    error_callback=err_call_back)
+                total_image_class_pixal_dict_list.extend(image_class_pixal_dict_list.get()[0])
+                total_annotation_class_count_dict_list.extend(image_class_pixal_dict_list[1])
+                        
+            pool.close()
+            pool.join()
+            pbar.close()
+
+            # 获取多进程结果
+            for n in total_image_class_pixal_dict_list:
+                image_class_pixal_dict = n.get()
+                pass
+                # one_set_class_pixal_dict[]
+            
+            # old
             for n in tqdm(divide_annotation_list,
                           desc='Count {} class pixal'.format(
                               divide_distribution_file),
@@ -607,6 +635,7 @@ class Dataset_Base:
                                 'unlabeled' in total_annotation_class_count_dict:
                             total_annotation_class_count_dict[object.segmentation_clss] += 1
                 one_set_class_pixal_dict['unlabeled'] += image_pixal
+
             self.temp_divide_count_dict_list_dict[task].append(
                 one_set_class_pixal_dict)
 
@@ -673,30 +702,36 @@ class Dataset_Base:
 
         return
 
-    def get_segmentation_pixal(self, n,
-                               one_set_class_pixal_dict,
-                               divide_distribution_file,
-                               total_annotation_class_count_dict):
+    def get_temp_segmentation_class_pixal(self,
+                                          temp_annotation_path,
+                                          divide_distribution_file,
+                                          total_annotation_class_count_dict):
 
-        image = self.TEMP_LOAD(self, n)
+        image_class_pixal_dict_list = []
+        total_annotation_class_count_dict_list = []
+
+        image = self.TEMP_LOAD(self, temp_annotation_path)
         image_pixal = image.height*image.width
         if image == None:
-            print('Load erro: ', n)
+            print('Load erro: ', temp_annotation_path)
             return
         for object in image.object_list:
             area = polygon_area(object.segmentation[:-1])
             if object.segmentation_clss != 'unlabeled':
-                one_set_class_pixal_dict[object.segmentation_clss] += area
+                image_class_pixal_dict_list.append(
+                    {object.segmentation_clss: area})
                 if divide_distribution_file == 'total_distibution.txt':
-                    total_annotation_class_count_dict[object.segmentation_clss] += 1
+                    total_annotation_class_count_dict_list.append(
+                        {object.segmentation_clss: 1})
             else:
                 image_pixal -= area
                 if divide_distribution_file == 'total_distibution.txt' and \
                         'unlabeled' in total_annotation_class_count_dict:
-                    total_annotation_class_count_dict[object.segmentation_clss] += 1
-        one_set_class_pixal_dict['unlabeled'] += image_pixal
+                    total_annotation_class_count_dict_list.append(
+                        {object.segmentation_clss: 1})
+        image_class_pixal_dict_list.append({'unlabeled': image_pixal})
 
-        return
+        return [image_class_pixal_dict_list, total_annotation_class_count_dict_list]
 
     def keypoint_sample_statistics(self, task, task_class_dict):
         """[数据集样本统计]
