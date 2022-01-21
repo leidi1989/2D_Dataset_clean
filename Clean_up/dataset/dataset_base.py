@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-21 17:45:33
+LastEditTime: 2022-01-21 17:57:00
 '''
 import dataset
 from utils.utils import *
@@ -565,6 +565,7 @@ class Dataset_Base:
             # 全部标注统计
             total_annotation_class_count_dict = {}
             total_annotation_class_prop_dict = {}
+
             # 声明单数据集像素点计数总数
             one_set_total_count = 0
             for one_class in task_class_dict['Target_dataset_class']:
@@ -579,7 +580,12 @@ class Dataset_Base:
                 one_set_class_pixal_dict.update({'unlabeled': 0})
             if 'unlabeled' not in one_set_class_prop_dict:
                 one_set_class_prop_dict.update({'unlabeled': 0})
+
             # 统计全部labels各类别像素点数量
+            process_output = multiprocessing.Manager().dict()
+            pool = multiprocessing.Pool(self.workers)
+            process_total_annotation_detect_class_count_dict = multiprocessing.Manager(
+            ).dict({x: 0 for x in task_class_dict['Target_dataset_class']})
             for n in tqdm(divide_annotation_list,
                           desc='Count {} class pixal'.format(
                               divide_distribution_file),
@@ -587,7 +593,7 @@ class Dataset_Base:
                 image = self.TEMP_LOAD(self, n)
                 image_pixal = image.height*image.width
                 if image == None:
-                    print('\nLoad erro: ', n)
+                    print('Load erro: ', n)
                     continue
                 for object in image.object_list:
                     area = polygon_area(object.segmentation[:-1])
@@ -603,6 +609,7 @@ class Dataset_Base:
                 one_set_class_pixal_dict['unlabeled'] += image_pixal
             self.temp_divide_count_dict_list_dict[task].append(
                 one_set_class_pixal_dict)
+
             # 计算数据集计数总数
             for _, value in one_set_class_pixal_dict.items():
                 one_set_total_count += value
@@ -614,6 +621,7 @@ class Dataset_Base:
                         float(value) / float(one_set_total_count)) * 100  # 计算个类别在此数据集占比
             self.temp_divide_proportion_dict_list_dict[task].append(
                 one_set_class_prop_dict)
+
             # 统计标注数量
             if divide_distribution_file == 'total_distibution.txt':
                 total_annotation_count = 0
@@ -627,6 +635,7 @@ class Dataset_Base:
                             float(value) / float(total_annotation_count)) * 100  # 计算个类别在此数据集占比
                 total_annotation_class_count_dict.update(
                     {'total': total_annotation_count})
+
             # 记录每个集的类别分布
             with open(os.path.join(self.temp_sample_statistics_folder,
                                    'Semantic_segmentation_' + divide_distribution_file), 'w') as dist_txt:
@@ -661,6 +670,31 @@ class Dataset_Base:
                         print(str(key) + ':' + str('%0.2f%%' % value))
 
         self.plot_segmentation_sample_statistics(task, task_class_dict)    # 绘图
+
+        return
+
+    def get_segmentation_pixal(self, n,
+                               one_set_class_pixal_dict,
+                               divide_distribution_file,
+                               total_annotation_class_count_dict):
+
+        image = self.TEMP_LOAD(self, n)
+        image_pixal = image.height*image.width
+        if image == None:
+            print('Load erro: ', n)
+            return
+        for object in image.object_list:
+            area = polygon_area(object.segmentation[:-1])
+            if object.segmentation_clss != 'unlabeled':
+                one_set_class_pixal_dict[object.segmentation_clss] += area
+                if divide_distribution_file == 'total_distibution.txt':
+                    total_annotation_class_count_dict[object.segmentation_clss] += 1
+            else:
+                image_pixal -= area
+                if divide_distribution_file == 'total_distibution.txt' and \
+                        'unlabeled' in total_annotation_class_count_dict:
+                    total_annotation_class_count_dict[object.segmentation_clss] += 1
+        one_set_class_pixal_dict['unlabeled'] += image_pixal
 
         return
 
