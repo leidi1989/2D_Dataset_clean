@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-24 16:07:32
+LastEditTime: 2022-01-24 16:14:16
 '''
 import dataset
 from utils.utils import *
@@ -989,9 +989,11 @@ class Dataset_Base:
             for key, value in one_set_label_path_list.items():
                 labels.append(str(key))
                 values.append(int(value))
-                bar_width = max(bar_width, int(math.log10(value) if 0 != value else 1))
+                bar_width = max(bar_width, int(
+                    math.log10(value) if 0 != value else 1))
             # 绘制数据集类别数量统计柱状图
-            ax.bar(x + set_size, values, width=0.3 * bar_width, color=clrs)
+            ax.bar(x + set_size + 0.3 * bar_width, values,
+                   width=0.3 * bar_width, color=clrs)
             if colors.index(clrs) == 0:
                 for m, b in zip(x, values):     # 为柱状图添加标签
                     plt.text(m + set_size, b, '%.0f' %
@@ -1074,7 +1076,7 @@ class Dataset_Base:
         colors = ['dodgerblue', 'aquamarine',
                   'pink', 'mediumpurple', 'slategrey']
         bar_width = 0
-        
+
         print('Plot bar chart.')
         for one_set_label_path_list, set_size, clrs in \
             zip(self.temp_divide_count_dict_list_dict[task],
@@ -1086,9 +1088,11 @@ class Dataset_Base:
             for key, value in one_set_label_path_list.items():
                 labels.append(str(key))
                 values.append(int(value))
-                bar_width = max(bar_width, int(math.log10(value) if 0 != value else 1))
+                bar_width = max(bar_width, int(
+                    math.log10(value) if 0 != value else 1))
             # 绘制数据集类别数量统计柱状图
-            ax.bar(x + set_size, values, width=0.3 * bar_width, color=clrs)
+            ax.bar(x + set_size + 0.3 * bar_width, values,
+                   width=0.3 * bar_width, color=clrs)
             if colors.index(clrs) == 0:
                 for m, b in zip(x, values):     # 为柱状图添加标签
                     plt.text(m + set_size, b, '%.0f' %
@@ -1114,7 +1118,7 @@ class Dataset_Base:
         print('Plot linear graph.')
         for one_set_label_path_list, set_size, clrs, thread_type \
             in zip(self.temp_divide_proportion_dict_list_dict[task],
-                        width_list, colors, thread_type_list):
+                   width_list, colors, thread_type_list):
             labels = []     # class
             values = []     # class count
             # 遍历字典分别将键名和对应的键值存入绘图标签列表、绘图y轴列表中
