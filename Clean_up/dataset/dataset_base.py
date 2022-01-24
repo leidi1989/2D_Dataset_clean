@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-21 18:28:53
+LastEditTime: 2022-01-24 16:07:32
 '''
 import dataset
 from utils.utils import *
@@ -565,6 +565,7 @@ class Dataset_Base:
             one_set_class_prop_dict = {}
             # 全部标注统计
             total_annotation_class_count_dict = {}
+            total_annotation_class_pixal_dict = {}
             total_annotation_class_prop_dict = {}
 
             # 声明单数据集像素点计数总数
@@ -586,56 +587,36 @@ class Dataset_Base:
 
             # TODO segmentation_sample_statistics多进程改进
             image_class_pixal_dict_list = []
-            total_image_class_pixal_dict_list =[]
+            total_image_class_pixal_dict_list = []
             total_annotation_class_count_dict_list = []
             pbar, update = multiprocessing_list_tqdm(divide_annotation_list,
                                                      topic='Count {} class pixal'.format(
                                                          divide_distribution_file),
                                                      leave=False)
             pool = multiprocessing.Pool(self.workers)
-            for temp_annotation_path in tqdm(divide_annotation_list):
+            for temp_annotation_path in divide_annotation_list:
                 image_class_pixal_dict_list = pool.apply_async(func=self.get_temp_segmentation_class_pixal, args=(
                     temp_annotation_path,
                     divide_distribution_file,
                     total_annotation_class_count_dict,),
                     callback=update,
                     error_callback=err_call_back)
-                total_image_class_pixal_dict_list.extend(image_class_pixal_dict_list.get()[0])
-                total_annotation_class_count_dict_list.extend(image_class_pixal_dict_list[1])
-                        
+                total_image_class_pixal_dict_list.extend(
+                    image_class_pixal_dict_list.get()[0])
+                total_annotation_class_count_dict_list.extend(
+                    image_class_pixal_dict_list.get()[1])
+
             pool.close()
             pool.join()
             pbar.close()
 
             # 获取多进程结果
             for n in total_image_class_pixal_dict_list:
-                image_class_pixal_dict = n.get()
-                pass
-                # one_set_class_pixal_dict[]
-            
-            # old
-            for n in tqdm(divide_annotation_list,
-                          desc='Count {} class pixal'.format(
-                              divide_distribution_file),
-                          leave=False):
-                image = self.TEMP_LOAD(self, n)
-                image_pixal = image.height*image.width
-                if image == None:
-                    print('Load erro: ', n)
-                    continue
-                for object in image.object_list:
-                    area = polygon_area(object.segmentation[:-1])
-                    if object.segmentation_clss != 'unlabeled':
-                        one_set_class_pixal_dict[object.segmentation_clss] += area
-                        if divide_distribution_file == 'total_distibution.txt':
-                            total_annotation_class_count_dict[object.segmentation_clss] += 1
+                for key, value in n.items():
+                    if key in one_set_class_pixal_dict:
+                        one_set_class_pixal_dict[key] += value
                     else:
-                        image_pixal -= area
-                        if divide_distribution_file == 'total_distibution.txt' and \
-                                'unlabeled' in total_annotation_class_count_dict:
-                            total_annotation_class_count_dict[object.segmentation_clss] += 1
-                one_set_class_pixal_dict['unlabeled'] += image_pixal
-
+                        one_set_class_pixal_dict.update({key: value})
             self.temp_divide_count_dict_list_dict[task].append(
                 one_set_class_pixal_dict)
 
@@ -699,6 +680,93 @@ class Dataset_Base:
                         print(str(key) + ':' + str('%0.2f%%' % value))
 
         self.plot_segmentation_sample_statistics(task, task_class_dict)    # 绘图
+
+        # old
+        #     for n in tqdm(divide_annotation_list,
+        #                   desc='Count {} class pixal'.format(
+        #                       divide_distribution_file),
+        #                   leave=False):
+        #         image = self.TEMP_LOAD(self, n)
+        #         image_pixal = image.height*image.width
+        #         if image == None:
+        #             print('Load erro: ', n)
+        #             continue
+        #         for object in image.object_list:
+        #             area = polygon_area(object.segmentation[:-1])
+        #             if object.segmentation_clss != 'unlabeled':
+        #                 one_set_class_pixal_dict[object.segmentation_clss] += area
+        #                 if divide_distribution_file == 'total_distibution.txt':
+        #                     total_annotation_class_count_dict[object.segmentation_clss] += 1
+        #             else:
+        #                 image_pixal -= area
+        #                 if divide_distribution_file == 'total_distibution.txt' and \
+        #                         'unlabeled' in total_annotation_class_count_dict:
+        #                     total_annotation_class_count_dict[object.segmentation_clss] += 1
+        #         one_set_class_pixal_dict['unlabeled'] += image_pixal
+
+        #     self.temp_divide_count_dict_list_dict[task].append(
+        #         one_set_class_pixal_dict)
+
+        #     # 计算数据集计数总数
+        #     for _, value in one_set_class_pixal_dict.items():
+        #         one_set_total_count += value
+        #     for key, value in one_set_class_pixal_dict.items():
+        #         if 0 == one_set_total_count:
+        #             one_set_class_prop_dict[key] = 0
+        #         else:
+        #             one_set_class_prop_dict[key] = (
+        #                 float(value) / float(one_set_total_count)) * 100  # 计算个类别在此数据集占比
+        #     self.temp_divide_proportion_dict_list_dict[task].append(
+        #         one_set_class_prop_dict)
+
+        #     # 统计标注数量
+        #     if divide_distribution_file == 'total_distibution.txt':
+        #         total_annotation_count = 0
+        #         for _, value in total_annotation_class_count_dict.items():  # 计算数据集计数总数
+        #             total_annotation_count += value
+        #         for key, value in total_annotation_class_count_dict.items():
+        #             if 0 == total_annotation_count:
+        #                 total_annotation_class_prop_dict[key] = 0
+        #             else:
+        #                 total_annotation_class_prop_dict[key] = (
+        #                     float(value) / float(total_annotation_count)) * 100  # 计算个类别在此数据集占比
+        #         total_annotation_class_count_dict.update(
+        #             {'total': total_annotation_count})
+
+        #     # 记录每个集的类别分布
+        #     with open(os.path.join(self.temp_sample_statistics_folder,
+        #                            'Semantic_segmentation_' + divide_distribution_file), 'w') as dist_txt:
+        #         print('\n%s set class pixal count:' %
+        #               divide_distribution_file.split('_')[0])
+        #         for key, value in one_set_class_pixal_dict.items():
+        #             dist_txt.write(str(key) + ':' + str(value) + '\n')
+        #             print(str(key) + ':' + str(value))
+        #         print('%s set porportion:' %
+        #               divide_distribution_file.split('_')[0])
+        #         dist_txt.write('\n')
+        #         for key, value in one_set_class_prop_dict.items():
+        #             dist_txt.write(str(key) + ':' +
+        #                            str('%0.2f%%' % value) + '\n')
+        #             print(str(key) + ':' + str('%0.2f%%' % value))
+
+        #     # 记录统计标注数量
+        #     if divide_distribution_file == 'total_distibution.txt':
+        #         with open(os.path.join(self.temp_sample_statistics_folder,
+        #                                total_annotation_count_name), 'w') as dist_txt:
+        #             print('\n%s set class pixal count:' %
+        #                   total_annotation_count_name.split('_')[0])
+        #             for key, value in total_annotation_class_count_dict.items():
+        #                 dist_txt.write(str(key) + ':' + str(value) + '\n')
+        #                 print(str(key) + ':' + str(value))
+        #             print('%s set porportion:' %
+        #                   divide_distribution_file.split('_')[0])
+        #             dist_txt.write('\n')
+        #             for key, value in total_annotation_class_prop_dict.items():
+        #                 dist_txt.write(str(key) + ':' +
+        #                                str('%0.2f%%' % value) + '\n')
+        #                 print(str(key) + ':' + str('%0.2f%%' % value))
+
+        # self.plot_segmentation_sample_statistics(task, task_class_dict)    # 绘图
 
         return
 
@@ -909,7 +977,7 @@ class Dataset_Base:
         width_list = [0, 0, 0, 0, 0]
         colors = ['dodgerblue', 'aquamarine',
                   'pink', 'mediumpurple', 'slategrey']
-
+        bar_width = 0
         print('Plot bar chart:')
         for one_set_label_path_list, set_size, clrs in tqdm(zip(self.temp_divide_count_dict_list_dict[task],
                                                                 width_list, colors),
@@ -921,8 +989,9 @@ class Dataset_Base:
             for key, value in one_set_label_path_list.items():
                 labels.append(str(key))
                 values.append(int(value))
+                bar_width = max(bar_width, int(math.log10(value) if 0 != value else 1))
             # 绘制数据集类别数量统计柱状图
-            ax.bar(x + set_size, values, width=0.6, color=clrs)
+            ax.bar(x + set_size, values, width=0.3 * bar_width, color=clrs)
             if colors.index(clrs) == 0:
                 for m, b in zip(x, values):     # 为柱状图添加标签
                     plt.text(m + set_size, b, '%.0f' %
@@ -1004,12 +1073,12 @@ class Dataset_Base:
         width_list = [0, 0, 0, 0, 0]
         colors = ['dodgerblue', 'aquamarine',
                   'pink', 'mediumpurple', 'slategrey']
-
-        print('Plot bar chart:')
+        bar_width = 0
+        
+        print('Plot bar chart.')
         for one_set_label_path_list, set_size, clrs in \
-            tqdm(zip(self.temp_divide_count_dict_list_dict[task],
-                     width_list, colors),
-                 total=len(self.temp_divide_count_dict_list_dict[task])):
+            zip(self.temp_divide_count_dict_list_dict[task],
+                width_list, colors):
             labels = []     # class
             values = []     # class count
             # 遍历字典分别将键名和对应的键值存入绘图标签列表、绘图y轴列表中
@@ -1017,8 +1086,9 @@ class Dataset_Base:
             for key, value in one_set_label_path_list.items():
                 labels.append(str(key))
                 values.append(int(value))
+                bar_width = max(bar_width, int(math.log10(value) if 0 != value else 1))
             # 绘制数据集类别数量统计柱状图
-            ax.bar(x + set_size, values, width=0.6, color=clrs)
+            ax.bar(x + set_size, values, width=0.3 * bar_width, color=clrs)
             if colors.index(clrs) == 0:
                 for m, b in zip(x, values):     # 为柱状图添加标签
                     plt.text(m + set_size, b, '%.0f' %
@@ -1041,11 +1111,10 @@ class Dataset_Base:
         width_list = [0, 0, 0, 0, 0]
         thread_type_list = ['*', '*--', '.-.', '+-.', '-']
 
-        print('Plot linear graph:')
+        print('Plot linear graph.')
         for one_set_label_path_list, set_size, clrs, thread_type \
-            in tqdm(zip(self.temp_divide_proportion_dict_list_dict[task],
-                        width_list, colors, thread_type_list),
-                    total=len(self.temp_divide_proportion_dict_list_dict[task])):
+            in zip(self.temp_divide_proportion_dict_list_dict[task],
+                        width_list, colors, thread_type_list):
             labels = []     # class
             values = []     # class count
             # 遍历字典分别将键名和对应的键值存入绘图标签列表、绘图y轴列表中
