@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-24 16:14:16
+LastEditTime: 2022-01-24 16:25:13
 '''
 import dataset
 from utils.utils import *
@@ -992,8 +992,8 @@ class Dataset_Base:
                 bar_width = max(bar_width, int(
                     math.log10(value) if 0 != value else 1))
             # 绘制数据集类别数量统计柱状图
-            ax.bar(x + set_size + 0.3 * bar_width, values,
-                   width=0.3 * bar_width, color=clrs)
+            ax.bar(x + set_size, values,
+                   width=1, color=clrs)
             if colors.index(clrs) == 0:
                 for m, b in zip(x, values):     # 为柱状图添加标签
                     plt.text(m + set_size, b, '%.0f' %
@@ -1091,8 +1091,8 @@ class Dataset_Base:
                 bar_width = max(bar_width, int(
                     math.log10(value) if 0 != value else 1))
             # 绘制数据集类别数量统计柱状图
-            ax.bar(x + set_size + 0.3 * bar_width, values,
-                   width=0.3 * bar_width, color=clrs)
+            ax.bar(x + set_size, values,
+                   width=1, color=clrs)
             if colors.index(clrs) == 0:
                 for m, b in zip(x, values):     # 为柱状图添加标签
                     plt.text(m + set_size, b, '%.0f' %
