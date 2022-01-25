@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-01-06 17:04:46
+LastEditTime: 2022-01-25 15:41:15
 '''
 from utils.utils import *
 
@@ -43,8 +43,8 @@ def main(dataset_info: dict) -> None:
     # check(dataset_info)
     # framework(dataset_info)
 
-    print('\nStart copy images and annotations:')
-    source_dataset.__dict__[dataset_info['source_dataset_stype']](dataset_info)
+    # print('\nStart copy images and annotations:')
+    # source_dataset.__dict__[dataset_info['source_dataset_stype']](dataset_info)
 
     print('\nStart to transform source annotation to temp annotation:')
     annotation_load.__dict__[
@@ -72,7 +72,7 @@ def main(dataset_info: dict) -> None:
 if __name__ == "__main__":
     time_start = time.time()
     parser = argparse.ArgumentParser(prog='cleaning.py')
-    parser.add_argument('--config', '--c', dest='config', default=r'/home/leidi/hy_program/2D_Dataset_clean/Detect_dataset_clean_up/config/default.yaml',
+    parser.add_argument('--config', '--c', dest='config', default=r'/mnt/data_1/hy_program/2D_Dataset_clean/Detect_dataset_clean_up/config/default.yaml',
                         type=str, help='dataset config file path')
     parser.add_argument('--workers', '--w', dest='workers', default=8,
                         type=int, help='maximum number of dataloader workers(multiprocessing.cpu_count())')

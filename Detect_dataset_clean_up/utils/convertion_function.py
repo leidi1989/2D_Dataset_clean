@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-06 09:06:35
 LastEditors: Leidi
-LastEditTime: 2021-12-27 11:00:16
+LastEditTime: 2022-01-25 15:32:54
 '''
 # -*- coding: utf-8 -*-
 import numpy as np
@@ -81,23 +81,23 @@ def coco_voc(xywh: list) -> list:
     return bbox
 
 
-def true_segmentation_to_true_box(true_segmentation: TRUE_SEGMENTATION) -> list:
-    """[将分割按最外围矩形框转换为bbox]
+# def true_segmentation_to_true_box(true_segmentation: TRUE_SEGMENTATION) -> list:
+#     """[将分割按最外围矩形框转换为bbox]
 
-    Args:
-        true_segmentation (TRUE_SEGMENTATION): [真实分割]
+#     Args:
+#         true_segmentation (TRUE_SEGMENTATION): [真实分割]
 
-    Returns:
-        list: [转换后真实框左上点坐标、宽、高]
-    """
+#     Returns:
+#         list: [转换后真实框左上点坐标、宽、高]
+#     """
 
-    segmentation = np.asarray(true_segmentation.segmentation)
-    min_x = np.min(segmentation[:, 0])
-    min_y = np.min(segmentation[:, 1])
-    max_x = np.max(segmentation[:, 0])
-    max_y = np.max(segmentation[:, 1])
-    width = max_x - min_x
-    hight = max_y - min_y
-    bbox = [str(min_x), str(min_y), str(width), str(hight)]
+#     segmentation = np.asarray(true_segmentation.segmentation)
+#     min_x = np.min(segmentation[:, 0])
+#     min_y = np.min(segmentation[:, 1])
+#     max_x = np.max(segmentation[:, 0])
+#     max_y = np.max(segmentation[:, 1])
+#     width = max_x - min_x
+#     hight = max_y - min_y
+#     bbox = [str(min_x), str(min_y), str(width), str(hight)]
 
-    return bbox
+#     return bbox

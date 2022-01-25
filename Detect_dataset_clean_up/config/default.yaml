@@ -1,8 +1,8 @@
 # dataset path
-root: /mnt/data_1/Dataset/Temp/coco2017
+root: /mnt/data_1/Dataset/Autopilot_detection_dataset/hy_parking_8_classes_20220125
 
 # output path
-target: /mnt/data_1/Dataset/Temp/coco2017_20220106
+target: /mnt/data_1/Dataset/Autopilot_detection_dataset/hy_parking_8_classes_20220125_20220125
 
 # dataset style: Detect, Instance_segmentation, Multi_task, Semantic_segmentation
 dataset_style: Detect
@@ -12,26 +12,26 @@ dataset_style: Detect
 srstyle: coco2017
 
 # output labels style: pascal_voc, coco2017, yolo, cvat_image_1_1
-tarstyle: cvat_image_1_1
+tarstyle: yolo
 
 # images or labels need to rename prefix
-prefix: yunce"
+prefix: hy_parking
 
 # name delimiter
 delimiter: _
 
 # dataset detect class path
-classes: /home/leidi/hy_program/2D_Dataset_clean/Detect_dataset_clean_up/data/yunce_parking_2_classes_coco2017_20220106.names
+classes: /mnt/data_1/hy_program/2D_Dataset_clean/Detect_dataset_clean_up/data/hy_parking_8_classes_20220125.names
 
 # dataset class modify file path
 modifyclassfile: ""
 
 # (train, val, test, redund)
 # proportion: 0.95,0.025,0.025
-proportion: 0.8,0.1,0.1
+proportion: 0.95,0.025,0.025
 
 # check target annotations
-check: 100
+check: 1000
 
 # transparent bounding box mask
 mask: False
