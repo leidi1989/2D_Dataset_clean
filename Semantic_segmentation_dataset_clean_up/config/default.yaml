@@ -1,8 +1,8 @@
 # dataset path
-root: /mnt/data_1/Dataset/Autopilot_semantic_segmentation_dataset/yunce/wudazhuoer_parking_fish_20211227170346
+root: /mnt/data_1/Dataset/Autopilot_semantic_segmentation_dataset/yunce/yunce_wudazhuoer_parking_fish_20211227170346
 
 # output path
-target: /mnt/data_1/Dataset/Autopilot_semantic_segmentation_dataset/yunce/wudazhuoer_parking_fish_20211227170346_20220124
+target: /mnt/data_1/Dataset/Autopilot_semantic_segmentation_dataset/yunce/yunce_wudazhuoer_parking_fish_20211227170346_20220124
 
 # input labels style: cityscapes, coco2017, huaweiyun_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017, yunce_segment_coco, yunce_segment_coco_one_image
 srstyle: yunce_segment_coco
@@ -20,7 +20,7 @@ delimiter: "@"
 classes: /mnt/data_1/hy_program/2D_Dataset_clean/Semantic_segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_infer_20211116.names
 
 # dataset class modify file path
-modifyclassfile: /mnt/data_1/hy_program/2D_Dataset_clean/Semantic_segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_road_lane_parkingline_parking_20211124.txt
+modifyclassfile: /mnt/data_1/hy_program/2D_Dataset_clean/Semantic_segmentation_dataset_clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_road_lane_parkingline_parking_6_classes_20211124.txt
 
 # (train, val, test, redund)
 proportion: 0.9,0.05,0.05,0

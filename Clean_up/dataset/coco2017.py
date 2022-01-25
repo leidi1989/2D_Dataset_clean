@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-21 17:04:03
+LastEditTime: 2022-01-24 17:03:31
 '''
 from lib2to3.pytree import convert
 from subprocess import call
@@ -360,7 +360,8 @@ class COCO2017(Dataset_Base):
         """
 
         print('\nStart transform to target dataset:')
-        for dataset_temp_annotation_path_list in tqdm(dataset_instance.temp_divide_file_list[1:-1]):
+        for dataset_temp_annotation_path_list in tqdm(dataset_instance.temp_divide_file_list[1:-1],
+                                                      desc='Transform to target dataset'):
             # 声明coco字典及基础信息
             coco = {'info': {'description': 'COCO 2017 Dataset',
                              'url': 'http://cocodataset.org',
@@ -440,24 +441,30 @@ class COCO2017(Dataset_Base):
             # 读取标签图片基础信息
             print('Start load image information:')
             image_information_list = []
+            pbar, update = multiprocessing_list_tqdm(
+                annotation_path_list, topic='Load image information')
             pool = multiprocessing.Pool(dataset_instance.workers)
-            for n, temp_annotation_path in tqdm(enumerate(annotation_path_list)):
+            for n, temp_annotation_path in enumerate(annotation_path_list):
                 image_information_list.append(
                     pool.apply_async(func=dataset.__dict__[dataset_instance.target_dataset_style].get_image_information,
                                      args=(dataset_instance, coco,
                                            n, temp_annotation_path,),
+                                     callback=update,
                                      error_callback=err_call_back))
             pool.close()
             pool.join()
+            pbar.close()
 
-            for n in tqdm(image_information_list):
+            for n in image_information_list:
                 coco['images'].append(n.get())
             del image_information_list
 
             # 读取图片标注基础信息
             print('Start load annotation:')
-            for task, task_class_dict in dataset_instance.task_dict.items():
+            for task, task_class_dict in tqdm(dataset_instance.task_dict.items(), desc='Load each task annotation'):
                 annotations_list = []
+                pbar, update = multiprocessing_list_tqdm(
+                    annotation_path_list, topic='Load annotation', leave=False)
                 pool = multiprocessing.Pool(dataset_instance.workers)
                 for n, temp_annotation_path in tqdm(enumerate(annotation_path_list)):
                     annotations_list.append(
@@ -466,9 +473,11 @@ class COCO2017(Dataset_Base):
                                                temp_annotation_path,
                                                task,
                                                task_class_dict,),
+                                         callback=update,
                                          error_callback=err_call_back))
                 pool.close()
                 pool.join()
+                pbar.close()
 
                 annotation_id = 0
                 for n in tqdm(annotations_list):
@@ -478,6 +487,7 @@ class COCO2017(Dataset_Base):
                         annotation_id += 1
                 del annotations_list
 
+            print('Output image annotation to json.')
             json.dump(coco, open(annotation_output_path, 'w'))
 
         return
@@ -758,18 +768,23 @@ class COCO2017(Dataset_Base):
             with open(temp_divide_file, 'r') as f:
                 for n in f.readlines():
                     image_list.append(n.replace('\n', ''))
+            pbar, update = multiprocessing_list_tqdm(
+                image_list, topic='Copy images', leave=False)
             pool = multiprocessing.Pool(dataset_instance.workers)
-            for image_input_path in tqdm(image_list):
+            for image_input_path in image_list:
                 image_output_path = image_input_path.replace(
                     dataset_instance.temp_images_folder, image_output_folder)
                 pool.apply_async(func=shutil.copy,
-                                 args=(image_input_path, image_output_path,), error_callback=err_call_back)
+                                 args=(image_input_path, image_output_path,),
+                                 callback=update,
+                                 error_callback=err_call_back)
             pool.close()
             pool.join()
+            pbar.close()
 
         print('Start copy annotations:')
         for root, dirs, files in os.walk(dataset_instance.target_dataset_annotations_folder):
-            for n in tqdm(files):
+            for n in tqdm(files, desc='Copy annotations'):
                 annotations_input_path = os.path.join(root, n)
                 annotations_output_path = annotations_input_path.replace(
                     dataset_instance.target_dataset_annotations_folder,

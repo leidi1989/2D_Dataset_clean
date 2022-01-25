@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-24 16:25:13
+LastEditTime: 2022-01-24 16:50:58
 '''
 import dataset
 from utils.utils import *
@@ -935,6 +935,7 @@ class Dataset_Base:
                                                   error_callback=err_call_back))
         pool.close()
         pool.join()
+        pbar.close()
 
         m_list, s_list = [], []
         for n in mean_std_list:
