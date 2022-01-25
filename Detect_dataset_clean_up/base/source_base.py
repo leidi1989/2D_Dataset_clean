@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-03 22:18:39
 LastEditors: Leidi
-LastEditTime: 2022-01-25 15:55:02
+LastEditTime: 2022-01-25 16:31:12
 '''
 import os
 import shutil
@@ -45,8 +45,8 @@ def copy_image(dataset: dict, root: str, n: str) -> None:
     else:
         temp_image = os.path.join(
             dataset['source_images_folder'], dataset['file_prefix'] + n)
-    if dataset['source_image_form'] != dataset['target_image_form']:
-        dataset['transform_type'] = dataset['source_image_form'] + \
+    if os.path.splitext(image)[1].replace('.', '') != dataset['target_image_form']:
+        dataset['transform_type'] = os.path.splitext(image)[1].replace('.', '') + \
             '_' + dataset['target_image_form']
         image_transform_function(
             dataset['transform_type'], image, temp_image)
@@ -93,7 +93,7 @@ def temp_image(dataset: dict) -> None:
         pool = multiprocessing.Pool(dataset['workers'])
         for n in tqdm(files):
             if os.path.splitext(n)[-1] == dataset['source_image_form'] \
-                or os.path.splitext(n)[-1] == '.png':
+                    or os.path.splitext(n)[-1] == '.png':
                 pool.apply_async(copy_image,
                                  args=(dataset, root, n),)
         pool.close()

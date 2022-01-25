@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-10-28 14:43:16
+LastEditTime: 2022-01-25 16:21:48
 '''
 import os
 from PIL import Image
@@ -25,8 +25,7 @@ def load_image_base_information(dataset: dict, image_base_information: dict, tot
     """
 
     image_id = image_base_information['id']
-    image_name = image_base_information['file_name'].split(
-        '.')[0] + '.' + dataset['temp_image_form']
+    image_name = os.path.splitext(image_base_information['file_name'])[0] + '.' + dataset['temp_image_form']
     image_name_new = dataset['file_prefix'] + image_name
     image_path = os.path.join(dataset['temp_images_folder'], image_name_new)
     img = Image.open(image_path)

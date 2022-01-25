@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2021-12-21 16:10:54
+LastEditTime: 2022-01-25 16:33:19
 '''
 # -*- coding: utf-8 -*-
 import os
@@ -22,7 +22,7 @@ def png_jpg(image_path: str, image_output_path: str) -> int:
     Returns:
         int: [description]
     """
-    if os.path.splitext(image_path)[-1] != 'png':
+    if os.path.splitext(image_path)[-1].replace('.', '') != 'png':
         return 0
     image_output_path = image_output_path.replace('.png', '.jpg')
     img = Image.open(image_path)
