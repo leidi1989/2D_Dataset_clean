@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2021-12-22 10:46:42
+LastEditTime: 2022-01-25 17:33:33
 '''
 import os
 import csv
@@ -1063,7 +1063,7 @@ annotation_load_function_dict = {'pascal_voc': PASCAL_VOC_LOAD,
                                  'myxb': MYXB_LOAD,
                                  'hy_highway': HY_HIGHWAY_LOAD,
                                  'yolo': YOLO_LOAD,
-                                 'cvat_coco2017':CVAT_COCO2017_LOAD,
+                                 'cvat_coco2017': CVAT_COCO2017_LOAD,
                                  'huawei_segment': HUAWEI_SEGMENT_LOAD,
                                  #  'ccpd': CCPD_LOAD,
                                  #  'licenseplate': LICENSEPLATE_LOAD
