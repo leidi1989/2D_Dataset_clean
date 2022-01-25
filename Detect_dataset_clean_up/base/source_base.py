@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-03 22:18:39
 LastEditors: Leidi
-LastEditTime: 2021-12-21 16:10:27
+LastEditTime: 2022-01-25 15:55:02
 '''
 import os
 import shutil
@@ -92,10 +92,10 @@ def temp_image(dataset: dict) -> None:
     for root, dirs, files in tqdm(os.walk(dataset['source_path'])):
         pool = multiprocessing.Pool(dataset['workers'])
         for n in tqdm(files):
-            if os.path.splitext(n)[-1] == dataset['source_image_form']:
+            if os.path.splitext(n)[-1] == dataset['source_image_form'] \
+                or os.path.splitext(n)[-1] == '.png':
                 pool.apply_async(copy_image,
                                  args=(dataset, root, n),)
-
         pool.close()
         pool.join()
     print('Move images count: {}\n'.format(

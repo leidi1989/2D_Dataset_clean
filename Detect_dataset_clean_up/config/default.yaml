@@ -7,8 +7,8 @@ target: /mnt/data_1/Dataset/Autopilot_detection_dataset/hy_parking_8_classes_202
 # dataset style: Detect, Instance_segmentation, Multi_task, Semantic_segmentation
 dataset_style: Detect
 
-# input labels style: pascal_voc, coco2017, kitti, yolo, tt100k, lisa, cctsdb,
-#                     huaweiyun_segment, sjt, myxb, hy_highway
+# input labels style: PASCAL_VOC, COCO2017, KITTI, YOLO, TT100K, LISA, CCTSDB,
+#                     HUAWEI_SEGMENT, SJT, MYXB, HY_HIGHWAY(小写)
 srstyle: coco2017
 
 # output labels style: pascal_voc, coco2017, yolo, cvat_image_1_1
