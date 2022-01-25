@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2022-01-25 16:21:48
+LastEditTime: 2022-01-25 16:48:56
 '''
 import os
 from PIL import Image
@@ -56,7 +56,7 @@ def load_image_annotation(dataset: dict, one_annotation: dict, class_dict: dict,
     ann_image_id = one_annotation['image_id']   # 获取此bbox图片id
     cls = class_dict[str(one_annotation['category_id'])]     # 获取bbox类别
     cls = cls.replace(' ', '').lower()
-    if cls not in dataset['source_segment_class_list']:
+    if cls not in dataset['source_class_list']:
         return
     image = total_annotations_dict[ann_image_id]
 
