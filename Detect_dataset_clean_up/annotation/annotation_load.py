@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2022-01-26 09:27:45
+LastEditTime: 2022-01-26 09:50:31
 '''
 import os
 import csv
@@ -123,7 +123,8 @@ def COCO2017_LOAD(dataset) -> None:
             class_dict['%s' % n['id']] = n['name']
 
         # 获取data字典中images内的图片信息，file_name、height、width
-        pabr, update = multiprocessing_list_tqdm(data['images'], desc='load image base information')
+        pabr, update = multiprocessing_list_tqdm(
+            data['images'], desc='load image base information')
         total_annotations_dict = multiprocessing.Manager().dict()
         pool = multiprocessing.Pool(dataset['workers'])
         for image_base_information in data['images']:
@@ -136,7 +137,8 @@ def COCO2017_LOAD(dataset) -> None:
         pabr.close()
 
         # 读取目标标注信息
-        pabr, update = multiprocessing_list_tqdm(data['annotations'], desc='load image annotation')
+        pabr, update = multiprocessing_list_tqdm(
+            data['annotations'], desc='load image annotation')
         total_image_box_list = []
         pool = multiprocessing.Pool(dataset['workers'])
         for one_annotation in data['annotations']:
@@ -150,19 +152,24 @@ def COCO2017_LOAD(dataset) -> None:
 
         total_images_data_dict = {}
         for image_true_box in tqdm(total_image_box_list, desc='total_image_box_list'):
-            if image_true_box.get() is None or image_true_box.get()[1] is None:
-                continue
-            if image_true_box.get()[0] not in total_images_data_dict:
-                total_images_data_dict[image_true_box.get(
-                )[0]] = total_annotations_dict[image_true_box.get()[0]]
-                total_images_data_dict[image_true_box.get()[0]].true_box_list.extend(
-                    image_true_box.get()[1])
-            else:
-                total_images_data_dict[image_true_box.get()[0]].true_box_list.extend(
-                    image_true_box.get()[1])
+            try:
+                if image_true_box.get()[1] is None:
+                    continue
+                if image_true_box.get()[0] not in total_images_data_dict \
+                        and image_true_box.get()[1] is not None:
+                    total_images_data_dict[image_true_box.get(
+                    )[0]] = total_annotations_dict[image_true_box.get()[0]]
+                    total_images_data_dict[image_true_box.get()[0]].true_box_list.extend(
+                        image_true_box.get()[1])
+                else:
+                    total_images_data_dict[image_true_box.get()[0]].true_box_list.extend(
+                        image_true_box.get()[1])
+            except:
+                print('erro: ', err_call_back())
 
         # 输出读取的source annotation至temp annotation
-        pabr, update = multiprocessing_list_tqdm(total_images_data_dict, desc='output temp annotation')
+        pabr, update = multiprocessing_list_tqdm(
+            total_images_data_dict, desc='output temp annotation')
         process_temp_file_name_list = multiprocessing.Manager().list()
         process_output = multiprocessing.Manager().dict({"success_count": 0,
                                                          "fail_count": 0,

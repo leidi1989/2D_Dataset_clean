@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-26 09:33:21
+LastEditTime: 2022-01-26 09:54:19
 '''
 from lib2to3.pytree import convert
 from subprocess import call
@@ -156,7 +156,7 @@ class COCO2017(Dataset_Base):
 
             total_images_data_dict = {}
             for image_true_annotation in total_image_annotation_list:
-                if image_true_annotation.get() is None:
+                if image_true_annotation.get()[1] is None:
                     continue
                 if image_true_annotation.get()[0] not in total_images_data_dict:
                     total_images_data_dict[image_true_annotation.get(
@@ -263,7 +263,10 @@ class COCO2017(Dataset_Base):
             total_class.extend(task_class_dict['Source_dataset_class'])
         if cls not in total_class:
             return
-        image = each_annotation_images_data_dict[ann_image_id]
+        if each_annotation_images_data_dict.has_key(ann_image_id):
+            image = each_annotation_images_data_dict[ann_image_id]
+        else:
+            return ann_image_id, None
 
         # 获取真实框信息
         if 'bbox' in one_annotation and len(one_annotation['bbox']):
