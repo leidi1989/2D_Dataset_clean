@@ -4,12 +4,14 @@ Version:
 Author: Leidi
 Date: 2021-08-03 22:18:39
 LastEditors: Leidi
-LastEditTime: 2022-01-25 16:44:58
+LastEditTime: 2022-01-26 10:43:58
 '''
 import os
 import shutil
+from sqlalchemy import desc
 from tqdm import tqdm
 import multiprocessing
+from utils.utils import multiprocessing_list_tqdm
 
 from utils.image_form_transform import image_transform_function
 from base.dataset_characteristic import ANNOTATAION_RENAME_WITH_FOLDER, IMAGE_RENAME_WITH_FOLDER
@@ -89,15 +91,20 @@ def temp_image(dataset: dict) -> None:
     """
 
     print('Copy images: ')
-    for root, dirs, files in tqdm(os.walk(dataset['source_path'])):
+
+    for root, dirs, files in tqdm(os.walk(dataset['source_path']), desc='Copy images'):
+        pbar, update = multiprocessing_list_tqdm(
+            files, desc='Copy images', leave=False)
         pool = multiprocessing.Pool(dataset['workers'])
-        for n in tqdm(files):
-            if os.path.splitext(n)[-1].replace('.','') == dataset['source_image_form'] \
+        for n in files:
+            if os.path.splitext(n)[-1].replace('.', '') == dataset['source_image_form'] \
                     or os.path.splitext(n)[-1] == '.png':
                 pool.apply_async(copy_image,
-                                 args=(dataset, root, n),)
+                                 args=(dataset, root, n),
+                                 callback=update)
         pool.close()
         pool.join()
+        pbar.close()
     print('Move images count: {}\n'.format(
         len(os.listdir(dataset['source_images_folder']))))
     return
@@ -111,14 +118,18 @@ def temp_annotation(dataset: dict) -> None:
     """
 
     print('Copy annotations: ')
-    for root, dirs, files in tqdm(os.walk(dataset['source_path'])):
+    for root, dirs, files in tqdm(os.walk(dataset['source_path']), desc='Copy images'):
+        pbar, update = multiprocessing_list_tqdm(
+            files, desc='Copy annotations', leave=False)
         pool = multiprocessing.Pool(dataset['workers'])
-        for n in tqdm(files):
-            if os.path.splitext(n)[1].replace('.','') == dataset['source_annotation_form']:
+        for n in files:
+            if os.path.splitext(n)[1].replace('.', '') == dataset['source_annotation_form']:
                 pool.apply_async(copy_annotation,
-                                 args=(dataset, root, n),)
+                                 args=(dataset, root, n),
+                                 callback=update)
         pool.close()
         pool.join()
+        pbar.close()
     print('Move annotations count: {}\n'.format(
         len(os.listdir(dataset['source_annotations_folder']))))
     return

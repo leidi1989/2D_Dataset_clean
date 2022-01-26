@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2022-01-26 09:50:31
+LastEditTime: 2022-01-26 09:57:10
 '''
 import os
 import csv
@@ -164,8 +164,9 @@ def COCO2017_LOAD(dataset) -> None:
                 else:
                     total_images_data_dict[image_true_box.get()[0]].true_box_list.extend(
                         image_true_box.get()[1])
-            except:
-                print('erro: ', err_call_back())
+            except Exception as e:
+                print('错误类型是',e.__class__.__name__)
+                print('错误明细是',e)
 
         # 输出读取的source annotation至temp annotation
         pabr, update = multiprocessing_list_tqdm(

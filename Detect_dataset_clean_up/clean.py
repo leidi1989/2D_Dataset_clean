@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-01-26 09:37:01
+LastEditTime: 2022-01-26 10:41:56
 '''
 from utils.utils import *
 
@@ -37,9 +37,9 @@ def main(dataset_info: dict) -> None:
         dataset_info (dict): [数据集信息字典]
     """
 
-    # source(dataset_info)
+    source(dataset_info)
     temp(dataset_info)
-    information(dataset_info)
+    # information(dataset_info)
     # out(dataset_info)
     # check(dataset_info)
     # framework(dataset_info)

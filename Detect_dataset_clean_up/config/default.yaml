@@ -1,8 +1,8 @@
 # dataset path
-root: /mnt/data_1/Dataset/Autopilot_detection_dataset/hy_parking/hy_parking_8_classes_20220125
+root: /mnt/data_1/Dataset/dataset_temp/hy_fish_eye_parking/hy_parking_8_classes_20220125
 
 # output path
-target: /mnt/data_1/Dataset/Autopilot_detection_dataset/hy_parking/hy_parking_8_classes_20220125_20220126
+target: /mnt/data_1/Dataset/dataset_temp/hy_fish_eye_parking/hy_parking_8_classes_20220125_20220126
 
 # dataset style: Detect, Instance_segmentation, Multi_task, Semantic_segmentation
 dataset_style: Detect

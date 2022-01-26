@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-26 09:54:19
+LastEditTime: 2022-01-26 10:16:44
 '''
 from lib2to3.pytree import convert
 from subprocess import call
@@ -263,7 +263,7 @@ class COCO2017(Dataset_Base):
             total_class.extend(task_class_dict['Source_dataset_class'])
         if cls not in total_class:
             return
-        if each_annotation_images_data_dict.has_key(ann_image_id):
+        if ann_image_id in each_annotation_images_data_dict.keys():
             image = each_annotation_images_data_dict[ann_image_id]
         else:
             return ann_image_id, None

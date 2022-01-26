@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2022-01-26 09:51:59
+LastEditTime: 2022-01-26 10:15:48
 '''
 import os
 from PIL import Image
@@ -58,7 +58,7 @@ def load_image_annotation(dataset: dict, one_annotation: dict, class_dict: dict,
     cls = cls.replace(' ', '').lower()
     if cls not in dataset['source_class_list']:
         return
-    if total_annotations_dict.has_key(ann_image_id):
+    if ann_image_id in total_annotations_dict.keys():
         image = total_annotations_dict[ann_image_id]
     else:
         return ann_image_id, []
