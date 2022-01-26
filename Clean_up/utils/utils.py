@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2022-01-21 17:41:30
+LastEditTime: 2022-01-26 09:30:21
 '''
 # -*- coding: utf-8 -*-
 import os
@@ -573,7 +573,7 @@ def RGB_to_Hex(tmp: int) -> str:
 
 
 def multiprocessing_list_tqdm(file_list: list,
-                              topic: str = '',
+                              desc: str = '',
                               position: int = None,
                               leave: bool = True):
     """[多进程列表tqdm]
@@ -588,14 +588,13 @@ def multiprocessing_list_tqdm(file_list: list,
         [type]: [description]
     """    
 
-    pbar = tqdm(total=len(file_list), position=position, leave=leave)
-    pbar.set_description(topic)
+    pbar = tqdm(total=len(file_list), position=position, leave=leave, desc=desc)
 
     return pbar, lambda *args: pbar.update()
 
 
 def multiprocessing_object_tqdm(count: int,
-                                topic: str = '',
+                                desc: str = '',
                                 position: int = None,
                                 leave: bool = True):
     """[多进程计数tqdm]
@@ -610,7 +609,6 @@ def multiprocessing_object_tqdm(count: int,
         [type]: [pbar, lambda *args: pbar.update()]
     """
 
-    pbar = tqdm(total=count, position=position, leave=leave)
-    pbar.set_description(topic)
+    pbar = tqdm(total=count, position=position, leave=leave, desc=desc)
 
     return pbar, lambda *args: pbar.update()

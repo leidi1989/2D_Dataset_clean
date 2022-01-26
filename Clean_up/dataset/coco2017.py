@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-24 17:03:31
+LastEditTime: 2022-01-26 09:33:21
 '''
 from lib2to3.pytree import convert
 from subprocess import call
@@ -124,7 +124,7 @@ class COCO2017(Dataset_Base):
 
             # 获取data字典中images内的图片信息，file_name、height、width
             pbar, update = multiprocessing_list_tqdm(
-                data['images'], 'Load image base information', leave=False)
+                data['images'], desc='Load image base information', leave=False)
             total_annotations_dict = multiprocessing.Manager().dict()
             pool = multiprocessing.Pool(self.workers)
             for image_base_information in data['images']:
@@ -139,7 +139,7 @@ class COCO2017(Dataset_Base):
 
             # 读取目标标注信息
             pbar, update = multiprocessing_list_tqdm(
-                data['annotations'], 'Load image annotation', leave=False)
+                data['annotations'], desc='Load image annotation', leave=False)
             total_image_annotation_list = []
             pool = multiprocessing.Pool(self.workers)
             for id, one_annotation in enumerate(data['annotations']):
@@ -171,7 +171,7 @@ class COCO2017(Dataset_Base):
 
             # 输出读取的source annotation至temp annotation
             pbar, update = multiprocessing_list_tqdm(
-                total_images_data_dict, 'Output temp annotation', leave=False)
+                total_images_data_dict, desc='Output temp annotation', leave=False)
             process_temp_file_name_list = multiprocessing.Manager().list()
             process_output = multiprocessing.Manager().dict({'success_count': 0,
                                                              'fail_count': 0,
@@ -442,7 +442,7 @@ class COCO2017(Dataset_Base):
             print('Start load image information:')
             image_information_list = []
             pbar, update = multiprocessing_list_tqdm(
-                annotation_path_list, topic='Load image information')
+                annotation_path_list, desc='Load image information')
             pool = multiprocessing.Pool(dataset_instance.workers)
             for n, temp_annotation_path in enumerate(annotation_path_list):
                 image_information_list.append(
@@ -464,7 +464,7 @@ class COCO2017(Dataset_Base):
             for task, task_class_dict in tqdm(dataset_instance.task_dict.items(), desc='Load each task annotation'):
                 annotations_list = []
                 pbar, update = multiprocessing_list_tqdm(
-                    annotation_path_list, topic='Load annotation', leave=False)
+                    annotation_path_list, desc='Load annotation', leave=False)
                 pool = multiprocessing.Pool(dataset_instance.workers)
                 for n, temp_annotation_path in tqdm(enumerate(annotation_path_list)):
                     annotations_list.append(
@@ -769,7 +769,7 @@ class COCO2017(Dataset_Base):
                 for n in f.readlines():
                     image_list.append(n.replace('\n', ''))
             pbar, update = multiprocessing_list_tqdm(
-                image_list, topic='Copy images', leave=False)
+                image_list, desc='Copy images', leave=False)
             pool = multiprocessing.Pool(dataset_instance.workers)
             for image_input_path in image_list:
                 image_output_path = image_input_path.replace(

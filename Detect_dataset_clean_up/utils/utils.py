@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2021-12-21 16:10:40
+LastEditTime: 2022-01-26 09:26:41
 '''
 # -*- coding: utf-8 -*-
 import os
@@ -488,4 +488,46 @@ def err_call_back(err):
         err ([type]): [错误原因]
     """
 
-    print(f'error：{str(err)}')
+    print(f'error: {str(err)}')
+    
+
+def multiprocessing_list_tqdm(file_list: list,
+                              desc: str = '',
+                              position: int = None,
+                              leave: bool = True):
+    """[多进程列表tqdm]
+
+    Args:
+        file_list (list): [计数文件列表]
+        topic (str, optional): [主题]. Defaults to ''.
+        position (int, optional): [位置]. Defaults to None.
+        leave (bool, optional): [是否留屏]. Defaults to True.
+
+    Returns:
+        [type]: [description]
+    """    
+
+    pbar = tqdm(total=len(file_list), position=position, leave=leave, desc=desc)
+
+    return pbar, lambda *args: pbar.update()
+
+
+def multiprocessing_object_tqdm(count: int,
+                                desc: str = '',
+                                position: int = None,
+                                leave: bool = True):
+    """[多进程计数tqdm]
+
+    Args:
+        count (int): [计数总量]
+        topic (str, optional): [主题]. Defaults to ''.
+        position (int, optional): [位置]. Defaults to None.
+        leave (bool, optional): [是否留屏]. Defaults to True.
+
+    Returns:
+        [type]: [pbar, lambda *args: pbar.update()]
+    """
+
+    pbar = tqdm(total=count, position=position, leave=leave, desc=desc)
+
+    return pbar, lambda *args: pbar.update()

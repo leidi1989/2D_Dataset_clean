@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-24 16:50:58
+LastEditTime: 2022-01-26 09:32:05
 '''
 import dataset
 from utils.utils import *
@@ -467,7 +467,7 @@ class Dataset_Base:
 
             # 统计全部labels各类别数量
             pbar, update = multiprocessing_list_tqdm(divide_annotation_list,
-                                                     topic='Count {} class box'.format(
+                                                     desc='Count {} class box'.format(
                                                          divide_distribution_file),
                                                      leave=False)
             process_output = multiprocessing.Manager().dict()
@@ -590,7 +590,7 @@ class Dataset_Base:
             total_image_class_pixal_dict_list = []
             total_annotation_class_count_dict_list = []
             pbar, update = multiprocessing_list_tqdm(divide_annotation_list,
-                                                     topic='Count {} class pixal'.format(
+                                                     desc='Count {} class pixal'.format(
                                                          divide_distribution_file),
                                                      leave=False)
             pool = multiprocessing.Pool(self.workers)
@@ -925,7 +925,7 @@ class Dataset_Base:
         img_filenames = os.listdir(self.source_dataset_images_folder)
         print('Start count images mean and std:')
         pbar, update = multiprocessing_list_tqdm(
-            img_filenames, topic='Count images mean and std')
+            img_filenames, desc='Count images mean and std')
         pool = multiprocessing.Pool(self.workers)
         mean_std_list = []
         for img_filename in img_filenames:

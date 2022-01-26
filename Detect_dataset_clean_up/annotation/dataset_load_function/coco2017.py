@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2022-01-25 16:48:56
+LastEditTime: 2022-01-25 17:53:42
 '''
 import os
 from PIL import Image
@@ -92,7 +92,7 @@ def output_temp_annotation(dataset: dict, image: IMAGE, process_output: dict) ->
 
     if image == None:
         return
-    modify_true_box_list(image, dataset['detect_modify_class_dict'])
+    modify_true_box_list(image, dataset['modify_class_dict'])
     if dataset['class_pixel_distance_dict'] is not None:
         class_box_pixel_limit(dataset, image.true_box_list)
     if 0 == len(image.true_box_list):

@@ -4,12 +4,15 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2022-01-25 17:33:33
+LastEditTime: 2022-01-26 09:27:45
 '''
 import os
 import csv
 import json
 import multiprocessing
+from subprocess import call
+
+from sqlalchemy import desc
 
 from utils.utils import *
 from annotation.dataset_load_function import yolo, pascal_voc, coco2017, kitti, tt100k, kitti, cctsdb, lisa, \
@@ -120,28 +123,34 @@ def COCO2017_LOAD(dataset) -> None:
             class_dict['%s' % n['id']] = n['name']
 
         # 获取data字典中images内的图片信息，file_name、height、width
+        pabr, update = multiprocessing_list_tqdm(data['images'], desc='load image base information')
         total_annotations_dict = multiprocessing.Manager().dict()
         pool = multiprocessing.Pool(dataset['workers'])
-        for image_base_information in tqdm(data['images']):
+        for image_base_information in data['images']:
             pool.apply_async(func=coco2017.load_image_base_information, args=(
                 dataset, image_base_information, total_annotations_dict,),
+                callback=update,
                 error_callback=err_call_back)
         pool.close()
         pool.join()
+        pabr.close()
 
         # 读取目标标注信息
+        pabr, update = multiprocessing_list_tqdm(data['annotations'], desc='load image annotation')
         total_image_box_list = []
         pool = multiprocessing.Pool(dataset['workers'])
-        for one_annotation in tqdm(data['annotations']):
+        for one_annotation in data['annotations']:
             total_image_box_list.append(pool.apply_async(func=coco2017.load_image_annotation, args=(
                 dataset, one_annotation, class_dict, total_annotations_dict,),
+                callback=update,
                 error_callback=err_call_back))
         pool.close()
         pool.join()
+        pabr.close()
 
         total_images_data_dict = {}
-        for image_true_box in total_image_box_list:
-            if image_true_box.get() is None:
+        for image_true_box in tqdm(total_image_box_list, desc='total_image_box_list'):
+            if image_true_box.get() is None or image_true_box.get()[1] is None:
                 continue
             if image_true_box.get()[0] not in total_images_data_dict:
                 total_images_data_dict[image_true_box.get(
@@ -153,6 +162,7 @@ def COCO2017_LOAD(dataset) -> None:
                     image_true_box.get()[1])
 
         # 输出读取的source annotation至temp annotation
+        pabr, update = multiprocessing_list_tqdm(total_images_data_dict, desc='output temp annotation')
         process_temp_file_name_list = multiprocessing.Manager().list()
         process_output = multiprocessing.Manager().dict({"success_count": 0,
                                                          "fail_count": 0,
@@ -160,12 +170,14 @@ def COCO2017_LOAD(dataset) -> None:
                                                          "temp_file_name_list": process_temp_file_name_list
                                                          })
         pool = multiprocessing.Pool(dataset['workers'])
-        for _, image in tqdm(total_images_data_dict.items()):
+        for _, image in total_images_data_dict.items():
             pool.apply_async(func=coco2017.output_temp_annotation, args=(
                 dataset, image, process_output,),
+                callback=update,
                 error_callback=err_call_back)
         pool.close()
         pool.join()
+        pabr.close()
 
         # 更新输出统计
         success_count += process_output['success_count']
