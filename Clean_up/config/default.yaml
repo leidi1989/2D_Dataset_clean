@@ -1,20 +1,23 @@
 # dataset path
-Dataset_input_folder: /home/leidi/Data/dataset/Test/yunce_parking_total_20211213_2_classes_coco_20211231
+Dataset_input_folder: /home/leidi/Data/dataset/Test/hy_segement_dataset_huwei_20210513
 
 # output path
-Dataset_output_folder: /home/leidi/Data/dataset/Test/yunce_parking_total_20211213_2_classes_coco_20211231_20220206
+Dataset_output_folder: /home/leidi/Data/dataset/Test/hy_segement_dataset_huwei_20210513_20220206
 
-# Source dataset style: cityscapes, COCO2017, huaweiyun_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017, yunce_segment_coco, yunce_segment_coco_one_image
-Source_dataset_style: COCO2017
+# Source dataset style: 
+# COCO2017, YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT
+# cityscapes, huaweiyun_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017
+# PASCAL_VOC, KITTI, YOLO, TT100K, LISA, CCTSDB, HUAWEI_SEGMENT, SJT, MYXB, HY_HIGHWAY(小写)
+Source_dataset_style: HUAWEIYUN_SEGMENT
 
-# Target dataset style: cityscapes, COCO2017, cityscapes_val, cvat_image_1_1
+# Target dataset style: cityscapes, COCO2017, cityscapes_val, cvat_image_1_1, pascal_voc, yolo
 Target_dataset_style: COCO2017
 
 # images or labels need to rename prefix
-File_prefix: yunce
+File_prefix: huaweiyun
 
 # name delimiter(cityscapes need: "@")
-File_prefix_delimiter: "@"
+File_prefix_delimiter: "_"
 
 # (train, val, test, redund)
 Target_dataset_divide_proportion: 0.8,0.1,0.1,0
@@ -34,8 +37,8 @@ Task_and_class_config:
   #   Target_each_class_object_pixel_limit_file_path:
   #   Need_convert: False
   Semantic_segmentation:
-    Source_dataset_class_file_path: Clean_up/data/test_detection_1_classes.name
-    Modify_class_file_path: Clean_up/data/test_detection_1_classes_modify.txt
+    Source_dataset_class_file_path: Clean_up/data/segment_classes_huaweiyun_segmentation_183_classes_20211116.names
+    Modify_class_file_path: Clean_up/data/segment_classes_huaweiyun_segmentation_183_classes_to_3_classes.txt
     Target_each_class_object_pixel_limit_file_path:
     Need_convert: False
 
