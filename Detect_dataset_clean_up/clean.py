@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-01-26 10:41:56
+LastEditTime: 2022-01-26 11:28:47
 '''
 from utils.utils import *
 
@@ -39,9 +39,9 @@ def main(dataset_info: dict) -> None:
 
     source(dataset_info)
     temp(dataset_info)
-    # information(dataset_info)
-    # out(dataset_info)
-    # check(dataset_info)
+    information(dataset_info)
+    out(dataset_info)
+    check(dataset_info)
     # framework(dataset_info)
 
     # print('\nStart copy images and annotations:')

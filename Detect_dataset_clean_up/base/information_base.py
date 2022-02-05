@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-10 18:38:55
 LastEditors: Leidi
-LastEditTime: 2021-12-22 16:59:19
+LastEditTime: 2022-01-26 11:27:29
 '''
 from utils.utils import *
 from base.image_base import *
@@ -204,7 +204,8 @@ def get_temp_annotations_classes_count(dataset: dict, temp_annotation_path: str,
             process_total_annotation_detect_class_count_dict[m.clss] += 1
         else:
             process_output.update({m.clss: 1})
-            process_total_annotation_detect_class_count_dict.update({m.clss: 1})
+            process_total_annotation_detect_class_count_dict.update({
+                                                                    m.clss: 1})
 
     return
 
@@ -250,16 +251,20 @@ def sample_statistics(dataset: dict) -> None:
             one_set_class_prop_dict[one_class] = float(0)
 
         # 统计全部labels各类别数量
+        pbar, update = multiprocessing_list_tqdm(
+            divide_annotation_list, desc='load annotation')
         process_output = multiprocessing.Manager().dict()
         pool = multiprocessing.Pool(dataset['workers'])
         process_total_annotation_detect_class_count_dict = multiprocessing.Manager(
         ).dict({x: 0 for x in dataset['class_list_new']})
-        for n in tqdm(divide_annotation_list):
+        for n in divide_annotation_list:
             pool.apply_async(func=get_temp_annotations_classes_count, args=(
                 dataset, n, process_output, process_total_annotation_detect_class_count_dict),
+                callback=update,
                 error_callback=err_call_back)
         pool.close()
         pool.join()
+        pbar.close()
         for key in one_set_class_count_dict.keys():
             if key in process_output:
                 one_set_class_count_dict[key] = process_output[key]
