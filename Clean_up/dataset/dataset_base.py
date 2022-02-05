@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-26 09:32:05
+LastEditTime: 2022-02-06 00:33:22
 '''
 import dataset
 from utils.utils import *
@@ -42,16 +42,14 @@ class Dataset_Base:
         self.dataset_input_folder = check_input_path(
             dataset_config['Dataset_input_folder'])
         self.source_dataset_style = dataset_config['Source_dataset_style']
-        self.source_dataset_image_form = DATASET_FILE_FORM[
-            dataset_config['Source_dataset_style']]['image']
+        self.source_dataset_image_form_list = None
         self.source_dataset_images_folder = check_output_path(
             os.path.join(dataset_config['Dataset_output_folder'], 'source_dataset_images'))
-        self.source_dataset_annotation_form = DATASET_FILE_FORM[
-            dataset_config['Source_dataset_style']]['annotation']
+        self.source_dataset_annotation_form = None
         self.source_dataset_annotations_folder = check_output_path(
             os.path.join(dataset_config['Dataset_output_folder'], 'source_dataset_annotations'))
-        self.source_dataset_image_count = self.get_source_dataset_image_count()
-        self.source_dataset_annotation_count = self.get_source_dataset_annotation_count()
+        self.source_dataset_image_count = None
+        self.source_dataset_annotation_count = None
         self.task_dict = dict()
 
         # File_prefix
@@ -60,12 +58,12 @@ class Dataset_Base:
             dataset_config['File_prefix'], dataset_config['File_prefix_delimiter'])
 
         # temp dataset
-        self.temp_image_form = DATASET_FILE_FORM[dataset_config['Target_dataset_style']]['image']
-        self.temp_annotation_form = TEMP_FORM['annotation']
+        self.temp_image_form = TARGET_DATASET_FILE_FORM[dataset_config['Target_dataset_style']]['image']
+        self.temp_annotation_form = 'json'
         self.temp_images_folder = check_output_path(os.path.join(
             dataset_config['Dataset_output_folder'], 'source_dataset_images'))
         self.temp_annotations_folder = check_output_path(os.path.join(
-            dataset_config['Dataset_output_folder'], TEMP_ARCH['annotation']))
+            dataset_config['Dataset_output_folder'], 'temp_annotations'))
         self.temp_informations_folder = check_output_path(os.path.join(
             dataset_config['Dataset_output_folder'], 'temp_infomations'))
         self.temp_sample_statistics_folder = check_output_path(
@@ -94,9 +92,9 @@ class Dataset_Base:
         self.dataset_output_folder = check_output_path(
             dataset_config['Dataset_output_folder'])
         self.target_dataset_style = dataset_config['Target_dataset_style']
-        self.target_dataset_image_form = DATASET_FILE_FORM[
+        self.target_dataset_image_form = TARGET_DATASET_FILE_FORM[
             dataset_config['Target_dataset_style']]['image']
-        self.target_dataset_annotation_form = DATASET_FILE_FORM[
+        self.target_dataset_annotation_form = TARGET_DATASET_FILE_FORM[
             dataset_config['Target_dataset_style']]['annotation']
         self.target_dataset_annotations_folder = check_output_path(
             os.path.join(dataset_config['Dataset_output_folder'], 'target_dataset_annotations'))
@@ -184,7 +182,8 @@ class Dataset_Base:
         image_count = 0
         for root, _, files in os.walk(self.dataset_input_folder):
             for n in files:
-                if n.endswith(self.source_dataset_image_form):
+                if os.path.splitext(n)[-1].replace('.', '') in \
+                        self.source_dataset_image_form_list:
                     image_count += 1
 
         return image_count

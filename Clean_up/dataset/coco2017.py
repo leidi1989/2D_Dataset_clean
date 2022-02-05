@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-01-26 10:16:44
+LastEditTime: 2022-02-06 00:33:15
 '''
 from lib2to3.pytree import convert
 from subprocess import call
@@ -28,6 +28,10 @@ class COCO2017(Dataset_Base):
 
     def __init__(self, opt) -> None:
         super().__init__(opt)
+        self.source_dataset_image_form_list = ['jpg', 'png']
+        self.source_dataset_annotation_form = 'json'
+        self.source_dataset_image_count = self.get_source_dataset_image_count()
+        self.source_dataset_annotation_count = self.get_source_dataset_annotation_count()
 
     def source_dataset_copy_image_and_annotation(self):
         print('\nStart source dataset copy image and annotation:')
@@ -36,7 +40,8 @@ class COCO2017(Dataset_Base):
         for root, _, files in os.walk(self.dataset_input_folder):
             pool = multiprocessing.Pool(self.workers)
             for n in files:
-                if n.endswith(self.source_dataset_image_form):
+                if os.path.splitext(n)[-1].replace('.', '') in \
+                        self.source_dataset_image_form_list:
                     pool.apply_async(self.source_dataset_copy_image,
                                      args=(root, n,),
                                      callback=update,
