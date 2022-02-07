@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-08 01:50:33
+LastEditTime: 2022-02-08 04:31:45
 '''
 import dataset
 from utils.utils import *
@@ -216,6 +216,8 @@ class Dataset_Base:
 
         print('\nOutput task class name file.')
         for task, task_class_dict in self.task_dict.items():
+            if task_class_dict is None:
+                continue
             with open(os.path.join(self.temp_informations_folder, task + '_classes.names'), 'w') as f:
                 if len(task_class_dict['Target_dataset_class']):
                     f.write('\n'.join(str(n)
@@ -419,6 +421,8 @@ class Dataset_Base:
 
         print('\nStar statistic sample each dataset:')
         for task, task_class_dict in self.task_dict.items():
+            if task_class_dict is None:
+                continue
             if task == 'Detection':
                 self.detection_sample_statistics(task, task_class_dict)
             elif task == 'Semantic_segmentation':
@@ -590,8 +594,6 @@ class Dataset_Base:
                 one_set_class_prop_dict.update({'unlabeled': 0})
 
             # 统计全部labels各类别像素点数量
-
-            # TODO segmentation_sample_statistics多进程改进
             image_class_pixal_dict_list = []
             total_image_class_pixal_dict_list = []
             total_annotation_class_count_dict_list = []
@@ -669,6 +671,7 @@ class Dataset_Base:
                     print(str(key) + ':' + str('%0.2f%%' % value))
 
             # 记录统计标注数量
+            # TODO 修改统计标注
             if divide_distribution_file == 'total_distibution.txt':
                 with open(os.path.join(self.temp_sample_statistics_folder,
                                        total_annotation_count_name), 'w') as dist_txt:
@@ -1399,10 +1402,7 @@ class Dataset_Base:
                                     box_distance=object['box_distance'],
                                     box_occlusion=object['box_occlusion'],
                                     segmentation_area=object['segmentation_area'],
-                                    segmentation_iscrowd=object['segmentation_iscrowd'],
-                                    box_exist_flag=object['box_exist_flag'],
-                                    segmentation_exist_flag=object['segmentation_exist_flag'],
-                                    keypoints_exist_flag=object['keypoints_exist_flag'],
+                                    segmentation_iscrowd=object['segmentation_iscrowd']
                                     )
                 object_list.append(one_object)
             image = IMAGE(image_name, image_name,

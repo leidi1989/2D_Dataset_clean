@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-02-08 04:11:24
+LastEditTime: 2022-02-08 04:21:01
 '''
 import os
 from turtle import Turtle
@@ -209,7 +209,7 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
         """[标注物体类初始化]
 
         Args:
-            object_id (int): [description]
+            object_id (int): [标注目标id]
             object_clss (str): [标注目标类别]
             box_clss (str): [真实框类别]
             segmentation_clss (str): [分割区域类别]
@@ -218,7 +218,7 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
             segmentation (list): [分割多边形点列表]
             keypoints_num (int): [关键点个数]
             keypoints (list): [关键点坐标]
-            task_convert_dict (dict): [description]
+            task_convert_dict (dict): [标注目标任务转换]
             box_color (str, optional): [真实框颜色]. Defaults to ''.
             box_tool (str, optional): [真实框标注工具]. Defaults to ''.
             box_difficult (int, optional): [真实框困难程度]. Defaults to 0.
