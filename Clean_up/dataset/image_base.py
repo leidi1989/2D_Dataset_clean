@@ -4,9 +4,10 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-02-08 03:33:39
+LastEditTime: 2022-02-08 04:07:18
 '''
 import os
+from turtle import Turtle
 from xmlrpc.client import TRANSPORT_ERROR
 import cv2
 import json
@@ -358,34 +359,47 @@ class IMAGE:
                         # 遍历融合类别文件字典，完成label中的类别修改，
                         # 若此bbox类别属于混合标签类别列表，则返回该标签在混合类别列表的索引值，修改类别。
                         if task == 'Detection':
+                            not_in_modify_class_dict = True
                             for key, value in task_class_dict['Modify_class_dict'].items():
                                 if one_object.box_clss in set(value):
                                     one_object.box_clss = key
-                                else:
-                                    one_object.delete_box_information()
+                                    one_object.object_clss = one_object.box_clss
+                                    not_in_modify_class_dict = False
+                            if not_in_modify_class_dict:
+                                one_object.delete_box_information()
                         elif task == 'Semantic_segmentation':
+                            not_in_modify_class_dict = True
                             for key, value in task_class_dict['Modify_class_dict'].items():
                                 if one_object.segmentation_clss in set(value):
                                     one_object.segmentation_clss = key
-                                else:
-                                    one_object.delete_segmentation_information()
+                                    one_object.object_clss = one_object.segmentation_clss
+                                    not_in_modify_class_dict = False
+                            if not_in_modify_class_dict:
+                                one_object.delete_segmentation_information()
                         elif task == 'Instance_segmentation':
+                            not_in_modify_class_dict_box = True
+                            not_in_modify_class_dict_segmentation = True
                             for key, value in task_class_dict['Modify_class_dict'].items():
                                 if one_object.box_clss in set(value):
                                     one_object.box_clss = key
-                                else:
-                                    one_object.delete_box_information()
+                                    one_object.object_clss = one_object.box_clss
+                                    not_in_modify_class_dict_box = False
                                 if one_object.segmentation_clss in set(value):
                                     one_object.segmentation_clss = key
-                                else:
-                                    one_object.delete_segmentation_information()
+                                    one_object.object_clss = one_object.segmentation_clss
+                                    not_in_modify_class_dict_segmentation = False
+                            if not_in_modify_class_dict_box and not_in_modify_class_dict_segmentation:
+                                one_object.delete_box_information()
+                                one_object.delete_segmentation_information()
                         elif task == 'Keypoint':
+                            not_in_modify_class_dict = True
                             for key, value in task_class_dict['Modify_class_dict'].items():
                                 if one_object.keypoints_class in set(value):
                                     one_object.keypoints_class = key
-                                else:
-                                    one_object.delete_keypoints_information()
-                
+                                    not_in_modify_class_dict = False
+                            if not_in_modify_class_dict:
+                                one_object.delete_keypoints_information()
+
         return
 
     def object_pixel_limit(self, input_dataset: object) -> None:
@@ -434,9 +448,14 @@ class IMAGE:
                                      'timeofday': 'daytime'
                                      }
                       }
+        id = 1
         for object in self.object_list:
             # 真实框
-            object = {'id': object.object_id,
+            if object.box_exist_flag == False \
+                and object.segmentation_exist_flag == False \
+                    and object.keypoints_exist_flag == False:
+                continue
+            object = {'id': id,
                       'object_clss': object.object_clss,
                       'box_clss': object.box_clss,
                       'box_color': object.box_color,
@@ -445,18 +464,19 @@ class IMAGE:
                       'box_occlusion': object.box_occlusion,
                       'box_tool': object.box_tool,
                       'box_xywh': object.box_xywh,
-                      'box_exist_flag': str(object.box_exist_flag),
+                      'box_exist_flag': object.box_exist_flag,
                       'keypoints_clss': object.keypoints_clss,
                       'keypoints_num': object.keypoints_num,
                       'keypoints': object.keypoints,
-                      'keypoints_exist_flag': str(object.keypoints_exist_flag),
+                      'keypoints_exist_flag': object.keypoints_exist_flag,
                       'segmentation_clss': object.segmentation_clss,
                       'segmentation': object.segmentation,
                       'segmentation_area': object.segmentation_area,
                       'segmentation_iscrowd': object.segmentation_iscrowd,
-                      'segmentation_exist_flag': str(object.segmentation_exist_flag),
+                      'segmentation_exist_flag': object.segmentation_exist_flag,
                       }
             annotation['frames'][0]['objects'].append(object)
+            id += 1
         # 输出json文件
         json.dump(annotation, open(temp_annotation_output_path, 'w'))
 
