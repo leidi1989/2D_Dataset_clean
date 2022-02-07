@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-07 22:07:46
+LastEditTime: 2022-02-07 22:54:42
 '''
 from lib2to3.pytree import convert
 from subprocess import call
@@ -239,7 +239,7 @@ class HUAWEIYUN_SEGMENT(Dataset_Base):
 
     def load_image_annotation(self, id: int, one_annotation: dict,
                               class_dict: dict, each_annotation_images_data_dict: dict) -> list:
-        """[读取单个标签详细信息，并添加至each_annotation_images_data_dict]
+        """[读取单个标签详细信息, 并添加至each_annotation_images_data_dict]
 
         Args:
             id(int): [标注id]

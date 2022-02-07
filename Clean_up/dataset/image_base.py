@@ -4,26 +4,27 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-01-21 16:33:00
+LastEditTime: 2022-02-08 03:31:37
 '''
 import os
+from xmlrpc.client import TRANSPORT_ERROR
 import cv2
 import json
 import numpy as np
-from sqlalchemy import false
+from sqlalchemy import false, true
 
 
 class BOX:
     """真实框类"""
 
     def __init__(self,
-                 box_clss: str,
-                 box_xywh: list,
+                 box_clss: str = '',
+                 box_xywh: list = None,
                  box_color: str = '',
                  box_tool: str = '',
                  box_difficult: int = 0,
                  box_distance: float = 0,
-                 box_occlusion: float = 0
+                 box_occlusion: float = 0,
                  ) -> None:
         """[真实框类]
 
@@ -38,12 +39,19 @@ class BOX:
         """
 
         self.box_clss = box_clss
-        self.box_xywh = box_xywh
+        if box_xywh == None:
+            self.box_xywh = []
+        else:
+            self.box_xywh = box_xywh
         self.box_color = box_color
         self.box_tool = box_tool
         self.box_difficult = box_difficult
         self.box_distance = box_distance
         self.box_occlusion = box_occlusion
+        if len(self.box_xywh):
+            self.box_exist_flag = True
+        else:
+            self.box_exist_flag = False
 
     def box_get_area(self) -> float:
         """[获取box面积]
@@ -74,8 +82,8 @@ class SEGMENTATION:
     """真分割类"""
 
     def __init__(self,
-                 segmentation_clss: str,
-                 segmentation: list,
+                 segmentation_clss: str = '',
+                 segmentation: list = None,
                  segmentation_area: int = None,
                  segmentation_iscrowd: int = 0,
                  ) -> None:
@@ -89,7 +97,10 @@ class SEGMENTATION:
         """
 
         self.segmentation_clss = segmentation_clss
-        self.segmentation = segmentation
+        if segmentation == None:
+            segmentation = []
+        else:
+            self.segmentation = segmentation
         if segmentation_area == None:
             if len(self.segmentation):
                 self.segmentation_area = int(
@@ -99,6 +110,10 @@ class SEGMENTATION:
         else:
             self.segmentation_area = segmentation_area
         self.segmentation_iscrowd = int(segmentation_iscrowd)
+        if len(segmentation):
+            self.segmentation_exist_flag = True
+        else:
+            self.segmentation_exist_flag = False
 
     def segmentation_get_bbox_area(self) -> int:
         """[获取语义分割外包围框面积]
@@ -139,9 +154,9 @@ class KEYPOINTS:
     """真实关键点类"""
 
     def __init__(self,
-                 keypoints_clss: str,
-                 keypoints_num: int,
-                 keypoints: list
+                 keypoints_clss: str = '',
+                 keypoints_num: int = 0,
+                 keypoints: list = None,
                  ) -> None:
         """[真实关键点类]
 
@@ -153,7 +168,14 @@ class KEYPOINTS:
 
         self.keypoints_clss = keypoints_clss
         self.keypoints_num = keypoints_num
-        self.keypoints = keypoints
+        if keypoints == None:
+            self.keypoints = []
+        else:
+            self.keypoints = keypoints
+        if len(keypoints):
+            self.keypoints_exist_flag = True
+        else:
+            self.keypoints_exist_flag = False
 
 
 class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
@@ -162,17 +184,17 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
     def __init__(self,
                  object_id: int,
                  object_clss: str,
-                 box_clss: str,
-                 segmentation_clss: str,
-                 keypoints_clss: str,
+                 box_clss: str = '',
+                 segmentation_clss: str = '',
+                 keypoints_clss: str = '',
 
-                 box_xywh: list,
-                 segmentation: list,
+                 box_xywh: list = None,
+                 segmentation: list = None,
 
-                 keypoints_num: int,
-                 keypoints: list,
+                 keypoints_num: int = 0,
+                 keypoints: list = None,
 
-                 task_convert_dict: dict,
+                 task_convert_dict: dict = None,
 
                  box_color: str = '',
                  box_tool: str = '',
@@ -183,17 +205,19 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
                  segmentation_area: int = None,
                  segmentation_iscrowd: int = 0,
                  ) -> None:
-        """[summary]
+        """[标注物体类初始化]
 
         Args:
+            object_id (int): [description]
             object_clss (str): [标注目标类别]
             box_clss (str): [真实框类别]
             segmentation_clss (str): [分割区域类别]
             keypoints_clss (str): [关键点类别]
-            xywh (list): [真实框x，y，width，height列表]
+            box_xywh (list): [真实框x, y, width, height列表]
             segmentation (list): [分割多边形点列表]
-            num_keypoints (int): [关键点个数]
+            keypoints_num (int): [关键点个数]
             keypoints (list): [关键点坐标]
+            task_convert_dict (dict): [description]
             box_color (str, optional): [真实框颜色]. Defaults to ''.
             box_tool (str, optional): [真实框标注工具]. Defaults to ''.
             box_difficult (int, optional): [真实框困难程度]. Defaults to 0.
@@ -208,11 +232,15 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
                      box_distance=box_distance, box_occlusion=box_occlusion)
         SEGMENTATION.__init__(self, segmentation_clss, segmentation,
                               segmentation_area=segmentation_area, segmentation_iscrowd=segmentation_iscrowd)
-        KEYPOINTS.__init__(self, keypoints_clss, keypoints_num, keypoints)
+        KEYPOINTS.__init__(self, keypoints_clss, keypoints_num,
+                           keypoints)
         self.object_id = object_id
         self.object_clss = object_clss
         self.object_convert_flag = ''
-        self.task_convert_dict = task_convert_dict
+        if task_convert_dict == None:
+            task_convert_dict = {}
+        else:
+            self.task_convert_dict = task_convert_dict
         if 0 == len(self.box_xywh)\
                 and 0 != len(self.segmentation)  \
         and 'Detection' in self.task_convert_dict \
@@ -228,18 +256,56 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
             self.segmentation_clss = self.box_clss
             self.object_convert_flag = 'box_to_segmentation'
 
+    def delete_box_information(self) -> None:
+        """[清除object中box信息]
+        """
+
+        self.box_clss = ''
+        self.box_xywh = []
+        self.box_color = ''
+        self.box_tool = ''
+        self.box_difficult = ''
+        self.box_distance = ''
+        self.box_occlusion = ''
+        self.box_exist_flag = False
+
+        return
+
+    def delete_segmentation_information(self) -> None:
+        """[清除object中segmentation信息]
+        """
+
+        self.segmentation_clss = ''
+        self.segmentation = []
+        self.segmentation_area = ''
+        self.segmentation_iscrowd = ''
+        self.segmentation_exist_flag = False
+
+        return
+
+    def delete_keypoints_information(self) -> None:
+        """[清除object中keypoint信息]
+        """
+
+        self.keypoints_clss = ''
+        self.keypoints_num = ''
+        self.keypoints = []
+        self.keypoints_exist_flag = False
+
+        return
+
 
 class IMAGE:
     """图片类"""
 
     def __init__(self,
-                 image_name_in: str,
-                 image_name_new_in: str,
-                 image_path_in: str,
-                 height_in: int,
-                 width_in: int,
-                 channels_in: int,
-                 object_list_in: list,
+                 image_name_in: str = '',
+                 image_name_new_in: str = '',
+                 image_path_in: str = '',
+                 height_in: int = 0,
+                 width_in: int = 0,
+                 channels_in: int = 0,
+                 object_list_in: list = None,
                  ) -> None:
         """[图片类]
 
@@ -261,7 +327,14 @@ class IMAGE:
         self.height = height_in                             # 图片高
         self.width = width_in                               # 图片宽
         self.channels = channels_in                         # 图片通道数
-        self.object_list = object_list_in
+        if object_list_in == None:
+            self.object_list = []
+        else:
+            self.object_list = object_list_in
+        if len(self.object_list):
+            self.object_exist_flag = True
+        else:
+            self.object_exist_flag = False
 
     def modify_object_list(self, dataset_instance: object) -> None:
         """[修改真实框类别]
@@ -271,39 +344,48 @@ class IMAGE:
         """
 
         for task, task_class_dict in dataset_instance.task_dict.items():
-            if task_class_dict['Modify_class_dict'] is not None:
+            if task_class_dict is None:
                 for one_object in self.object_list:
-                    # 遍历融合类别文件字典，完成label中的类别修改，
-                    # 若此bbox类别属于混合标签类别列表，则返回该标签在混合类别列表的索引值，修改类别。
                     if task == 'Detection':
-                        for (key, value) in task_class_dict['Modify_class_dict'].items():
-                            if one_object.box_clss in set(value):
-                                one_object.box_clss = key
-                            else:
-                                pass
+                        one_object.delete_box_information()
                     elif task == 'Semantic_segmentation':
-                        for (key, value) in task_class_dict['Modify_class_dict'].items():
-                            if one_object.segmentation_clss in set(value):
-                                one_object.segmentation_clss = key
-                            else:
-                                pass
-                    elif task == 'Instance_segmentation':
-                        for (key, value) in task_class_dict['Modify_class_dict'].items():
-                            if one_object.box_clss in set(value):
-                                one_object.box_clss = key
-                            else:
-                                pass
-                            if one_object.segmentation_clss in set(value):
-                                one_object.segmentation_clss = key
-                            else:
-                                pass
+                        one_object.delete_segmentation_information()
                     elif task == 'Keypoint':
-                        for (key, value) in task_class_dict['Modify_class_dict'].items():
-                            if one_object.keypoints_class in set(value):
-                                one_object.keypoints_class = key
-                            else:
-                                pass
-
+                        one_object.delete_keypoints_information()
+            else:
+                if task_class_dict['Modify_class_dict'] is not None:
+                    for one_object in self.object_list:
+                        # 遍历融合类别文件字典，完成label中的类别修改，
+                        # 若此bbox类别属于混合标签类别列表，则返回该标签在混合类别列表的索引值，修改类别。
+                        if task == 'Detection':
+                            for key, value in task_class_dict['Modify_class_dict'].items():
+                                if one_object.box_clss in set(value):
+                                    one_object.box_clss = key
+                                else:
+                                    one_object.delete_box_information()
+                        elif task == 'Semantic_segmentation':
+                            for key, value in task_class_dict['Modify_class_dict'].items():
+                                if one_object.segmentation_clss in set(value):
+                                    one_object.segmentation_clss = key
+                                else:
+                                    one_object.delete_segmentation_information()
+                        elif task == 'Instance_segmentation':
+                            for key, value in task_class_dict['Modify_class_dict'].items():
+                                if one_object.box_clss in set(value):
+                                    one_object.box_clss = key
+                                else:
+                                    one_object.delete_box_information()
+                                if one_object.segmentation_clss in set(value):
+                                    one_object.segmentation_clss = key
+                                else:
+                                    one_object.delete_segmentation_information()
+                        elif task == 'Keypoint':
+                            for key, value in task_class_dict['Modify_class_dict'].items():
+                                if one_object.keypoints_class in set(value):
+                                    one_object.keypoints_class = key
+                                else:
+                                    one_object.delete_keypoints_information()
+                
         return
 
     def object_pixel_limit(self, input_dataset: object) -> None:
@@ -314,6 +396,8 @@ class IMAGE:
         """
 
         for task, task_class_dict in input_dataset.task_dict.items():
+            if task_class_dict is None:
+                continue
             if task_class_dict['Target_object_pixel_limit_dict'] is not None:
                 for n, object in enumerate(self.object_list):
                     if task == 'Detection' or task == 'Instance_segmentation' or task == 'Keypoint':
@@ -361,13 +445,16 @@ class IMAGE:
                       'box_occlusion': object.box_occlusion,
                       'box_tool': object.box_tool,
                       'box_xywh': object.box_xywh,
+                      'box_exist_flag': object.box_exist_flag,
                       'keypoints_clss': object.keypoints_clss,
                       'keypoints_num': object.keypoints_num,
                       'keypoints': object.keypoints,
+                      'keypoints_exist_flag': object.keypoints_exist_flag,
                       'segmentation_clss': object.segmentation_clss,
                       'segmentation': object.segmentation,
                       'segmentation_area': object.segmentation_area,
-                      'segmentation_iscrowd': object.segmentation_iscrowd
+                      'segmentation_iscrowd': object.segmentation_iscrowd,
+                      'segmentation_exist_flag': object.segmentation_exist_flag,
                       }
             annotation['frames'][0]['objects'].append(object)
         # 输出json文件

@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-07 22:02:14
+LastEditTime: 2022-02-08 01:50:33
 '''
 import dataset
 from utils.utils import *
@@ -50,7 +50,11 @@ class Dataset_Base:
             os.path.join(dataset_config['Dataset_output_folder'], 'source_dataset_annotations'))
         self.source_dataset_image_count = None
         self.source_dataset_annotation_count = None
-        self.task_dict = dict()
+        self.task_dict = {'Detection': None,
+                          'Semantic_segmentation': None,
+                          'Instance_segmentation': None,
+                          'Keypoints': None
+                          }
 
         # File_prefix
         self.file_prefix_delimiter = dataset_config['File_prefix_delimiter']
@@ -146,6 +150,9 @@ class Dataset_Base:
                 source_dataset_class)
             self.temp_merge_class_list['Merge_target_dataset_class_list'].extend(
                 target_dataset_class)
+        if self.task_dict['Instance_segmentation'] != None:
+            self.task_dict['Detection'] = self.task_dict['Instance_segmentation']
+            self.task_dict['Semantic_segmentation'] = self.task_dict['Instance_segmentation']
 
         print('Dataset instance initialize end.')
         return True
@@ -212,7 +219,7 @@ class Dataset_Base:
             with open(os.path.join(self.temp_informations_folder, task + '_classes.names'), 'w') as f:
                 if len(task_class_dict['Target_dataset_class']):
                     f.write('\n'.join(str(n)
-                            for n in task_class_dict['Target_dataset_class']))
+                                      for n in task_class_dict['Target_dataset_class']))
                 f.close()
 
         return
@@ -1392,7 +1399,10 @@ class Dataset_Base:
                                     box_distance=object['box_distance'],
                                     box_occlusion=object['box_occlusion'],
                                     segmentation_area=object['segmentation_area'],
-                                    segmentation_iscrowd=object['segmentation_iscrowd']
+                                    segmentation_iscrowd=object['segmentation_iscrowd'],
+                                    box_exist_flag=object['box_exist_flag'],
+                                    segmentation_exist_flag=object['segmentation_exist_flag'],
+                                    keypoints_exist_flag=object['keypoints_exist_flag'],
                                     )
                 object_list.append(one_object)
             image = IMAGE(image_name, image_name,
