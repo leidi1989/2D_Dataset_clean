@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-02-08 04:07:18
+LastEditTime: 2022-02-08 04:11:24
 '''
 import os
 from turtle import Turtle
@@ -351,7 +351,7 @@ class IMAGE:
                         one_object.delete_box_information()
                     elif task == 'Semantic_segmentation':
                         one_object.delete_segmentation_information()
-                    elif task == 'Keypoint':
+                    elif task == 'Keypoints':
                         one_object.delete_keypoints_information()
             else:
                 if task_class_dict['Modify_class_dict'] is not None:
