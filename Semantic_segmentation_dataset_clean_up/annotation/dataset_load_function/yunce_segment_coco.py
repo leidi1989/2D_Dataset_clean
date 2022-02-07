@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-12-31 17:59:20
+LastEditTime: 2022-02-07 22:11:01
 '''
 import os
 from PIL import Image
@@ -127,7 +127,7 @@ def load_image_annotation(dataset: dict, one_annotation: dict, class_dict: dict,
     if cls == 'static_object.concave.firehydrant_infer':
         cls = 'static_object.concave.fire_hydrant_infer'
     if cls not in dataset['source_class_list']:
-        return
+        return  ann_image_id, None
     true_segmentation_list = []
     segment = []
     c = 0

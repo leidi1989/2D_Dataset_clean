@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-06 02:18:02
+LastEditTime: 2022-02-07 22:07:46
 '''
 from lib2to3.pytree import convert
 from subprocess import call
@@ -161,7 +161,6 @@ class HUAWEIYUN_SEGMENT(Dataset_Base):
 
             total_images_data_dict = {}
             for image_true_annotation in total_image_annotation_list:
-                a = image_true_annotation.get()
                 if image_true_annotation.get()[1] is None:
                     continue
                 if image_true_annotation.get()[0] not in total_images_data_dict:
@@ -268,7 +267,7 @@ class HUAWEIYUN_SEGMENT(Dataset_Base):
         for _, task_class_dict in self.task_dict.items():
             total_class.extend(task_class_dict['Source_dataset_class'])
         if cls not in total_class:
-            return
+            return ann_image_id, None
         if ann_image_id in each_annotation_images_data_dict.keys():
             image = each_annotation_images_data_dict[ann_image_id]
         else:

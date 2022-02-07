@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-06 00:33:22
+LastEditTime: 2022-02-07 22:02:14
 '''
 import dataset
 from utils.utils import *
@@ -271,8 +271,8 @@ class Dataset_Base:
         return temp_file_name_list
 
     def divide_dataset(self) -> None:
-        """[按不同场景划分数据集，并根据不同场景按比例抽取train、val、test、redundancy比例为
-        train_ratio，val_ratio，test_ratio，redund_ratio]
+        """[按不同场景划分数据集, 并根据不同场景按比例抽取train、val、test、redundancy比例为
+        train_ratio, val_ratio, test_ratio, redund_ratio]
 
         Args:
             dataset (dict): [数据集信息字典]
