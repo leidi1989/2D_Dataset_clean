@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-08 03:24:27
+LastEditTime: 2022-02-08 03:35:47
 '''
 from lib2to3.pytree import convert
 from subprocess import call
@@ -189,6 +189,7 @@ class YUNCE_SEGMENT_COCO_ONE_IMAGE(Dataset_Base):
         # 并将初始化后的对象存入total_images_data_list
         object_list = []
         for one_annotation in data['annotations']:
+            id = one_annotation['id']
             box_xywh = []
             segmentation = []
             segmentation_area = None

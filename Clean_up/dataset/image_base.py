@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-02-08 03:31:37
+LastEditTime: 2022-02-08 03:33:39
 '''
 import os
 from xmlrpc.client import TRANSPORT_ERROR
@@ -445,16 +445,16 @@ class IMAGE:
                       'box_occlusion': object.box_occlusion,
                       'box_tool': object.box_tool,
                       'box_xywh': object.box_xywh,
-                      'box_exist_flag': object.box_exist_flag,
+                      'box_exist_flag': str(object.box_exist_flag),
                       'keypoints_clss': object.keypoints_clss,
                       'keypoints_num': object.keypoints_num,
                       'keypoints': object.keypoints,
-                      'keypoints_exist_flag': object.keypoints_exist_flag,
+                      'keypoints_exist_flag': str(object.keypoints_exist_flag),
                       'segmentation_clss': object.segmentation_clss,
                       'segmentation': object.segmentation,
                       'segmentation_area': object.segmentation_area,
                       'segmentation_iscrowd': object.segmentation_iscrowd,
-                      'segmentation_exist_flag': object.segmentation_exist_flag,
+                      'segmentation_exist_flag': str(object.segmentation_exist_flag),
                       }
             annotation['frames'][0]['objects'].append(object)
         # 输出json文件
