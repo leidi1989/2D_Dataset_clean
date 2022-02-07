@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-08 04:31:45
+LastEditTime: 2022-02-08 04:53:37
 '''
 import dataset
 from utils.utils import *
@@ -587,6 +587,7 @@ class Dataset_Base:
                 one_set_class_prop_dict[one_class] = float(0)
                 if divide_distribution_file == 'total_distibution.txt':
                     total_annotation_class_count_dict[one_class] = 0
+                    total_annotation_class_pixal_dict[one_class] = 0
                     total_annotation_class_prop_dict[one_class] = float(0)
             if 'unlabeled' not in one_set_class_pixal_dict:
                 one_set_class_pixal_dict.update({'unlabeled': 0})
@@ -606,7 +607,7 @@ class Dataset_Base:
                 image_class_pixal_dict_list = pool.apply_async(func=self.get_temp_segmentation_class_pixal, args=(
                     temp_annotation_path,
                     divide_distribution_file,
-                    total_annotation_class_count_dict,),
+                    total_annotation_class_pixal_dict,),
                     callback=update,
                     error_callback=err_call_back)
                 total_image_class_pixal_dict_list.extend(
@@ -642,6 +643,12 @@ class Dataset_Base:
 
             # 统计标注数量
             if divide_distribution_file == 'total_distibution.txt':
+                for n in total_annotation_class_count_dict_list:
+                    for key, value in n.items():
+                        if key in total_annotation_class_count_dict:
+                            total_annotation_class_count_dict[key] += value
+                        else:
+                            total_annotation_class_count_dict.update({key: value})
                 total_annotation_count = 0
                 for _, value in total_annotation_class_count_dict.items():  # 计算数据集计数总数
                     total_annotation_count += value
@@ -671,7 +678,6 @@ class Dataset_Base:
                     print(str(key) + ':' + str('%0.2f%%' % value))
 
             # 记录统计标注数量
-            # TODO 修改统计标注
             if divide_distribution_file == 'total_distibution.txt':
                 with open(os.path.join(self.temp_sample_statistics_folder,
                                        total_annotation_count_name), 'w') as dist_txt:
@@ -782,7 +788,7 @@ class Dataset_Base:
     def get_temp_segmentation_class_pixal(self,
                                           temp_annotation_path,
                                           divide_distribution_file,
-                                          total_annotation_class_count_dict):
+                                          total_annotation_class_pixal_dict):
 
         image_class_pixal_dict_list = []
         total_annotation_class_count_dict_list = []
@@ -803,7 +809,7 @@ class Dataset_Base:
             else:
                 image_pixal -= area
                 if divide_distribution_file == 'total_distibution.txt' and \
-                        'unlabeled' in total_annotation_class_count_dict:
+                        'unlabeled' in total_annotation_class_pixal_dict:
                     total_annotation_class_count_dict_list.append(
                         {object.segmentation_clss: 1})
         image_class_pixal_dict_list.append({'unlabeled': image_pixal})
