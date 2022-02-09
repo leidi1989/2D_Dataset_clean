@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-01-24 16:55:49
+LastEditTime: 2022-02-08 05:06:52
 '''
 import time
 import yaml
@@ -20,17 +20,17 @@ def main(dataset_config: dict) -> None:
     Args:
         dataset_info (dict): [数据集信息字典]
     """
-    try:
-        Input_dataset = dataset.__dict__[
-            dataset_config['Source_dataset_style']](dataset_config)
-    except:
-        print('Dataset initialize wrong, abort.')
+    # try:
+    Input_dataset = dataset.__dict__[
+        dataset_config['Source_dataset_style']](dataset_config)
+    # except:
+    #     print('Dataset initialize wrong, abort.')
         
     # Input_dataset.source_dataset_copy_image_and_annotation()
     # Input_dataset.transform_to_temp_dataset()
     # Input_dataset.output_classname_file()
     # Input_dataset.delete_redundant_image()
-    # Input_dataset.get_dataset_information()
+    Input_dataset.get_dataset_information()
 
     dataset.__dict__[dataset_config['Target_dataset_style']
                      ].target_dataset(Input_dataset)
@@ -46,7 +46,7 @@ def main(dataset_config: dict) -> None:
 if __name__ == "__main__":
     time_start = time.time()
     parser = argparse.ArgumentParser(prog='clean.py')
-    parser.add_argument('--config', '--c', dest='config', default=r'/mnt/data_1/hy_program/2D_Dataset_clean/Clean_up/config/default.yaml',
+    parser.add_argument('--config', '--c', dest='config', default=r'Clean_up/config/default.yaml',
                         type=str, help='dataset config file path')
     parser.add_argument('--workers', '--w', dest='workers', default=multiprocessing.cpu_count(),
                         type=int, help='maximum number of dataloader workers(multiprocessing.cpu_count())')

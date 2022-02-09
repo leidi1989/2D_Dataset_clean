@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-01-26 09:32:05
+LastEditTime: 2022-02-08 04:53:37
 '''
 import dataset
 from utils.utils import *
@@ -42,17 +42,19 @@ class Dataset_Base:
         self.dataset_input_folder = check_input_path(
             dataset_config['Dataset_input_folder'])
         self.source_dataset_style = dataset_config['Source_dataset_style']
-        self.source_dataset_image_form = DATASET_FILE_FORM[
-            dataset_config['Source_dataset_style']]['image']
+        self.source_dataset_image_form_list = None
         self.source_dataset_images_folder = check_output_path(
             os.path.join(dataset_config['Dataset_output_folder'], 'source_dataset_images'))
-        self.source_dataset_annotation_form = DATASET_FILE_FORM[
-            dataset_config['Source_dataset_style']]['annotation']
+        self.source_dataset_annotation_form = None
         self.source_dataset_annotations_folder = check_output_path(
             os.path.join(dataset_config['Dataset_output_folder'], 'source_dataset_annotations'))
-        self.source_dataset_image_count = self.get_source_dataset_image_count()
-        self.source_dataset_annotation_count = self.get_source_dataset_annotation_count()
-        self.task_dict = dict()
+        self.source_dataset_image_count = None
+        self.source_dataset_annotation_count = None
+        self.task_dict = {'Detection': None,
+                          'Semantic_segmentation': None,
+                          'Instance_segmentation': None,
+                          'Keypoints': None
+                          }
 
         # File_prefix
         self.file_prefix_delimiter = dataset_config['File_prefix_delimiter']
@@ -60,12 +62,12 @@ class Dataset_Base:
             dataset_config['File_prefix'], dataset_config['File_prefix_delimiter'])
 
         # temp dataset
-        self.temp_image_form = DATASET_FILE_FORM[dataset_config['Target_dataset_style']]['image']
-        self.temp_annotation_form = TEMP_FORM['annotation']
+        self.temp_image_form = TARGET_DATASET_FILE_FORM[dataset_config['Target_dataset_style']]['image']
+        self.temp_annotation_form = 'json'
         self.temp_images_folder = check_output_path(os.path.join(
             dataset_config['Dataset_output_folder'], 'source_dataset_images'))
         self.temp_annotations_folder = check_output_path(os.path.join(
-            dataset_config['Dataset_output_folder'], TEMP_ARCH['annotation']))
+            dataset_config['Dataset_output_folder'], 'temp_annotations'))
         self.temp_informations_folder = check_output_path(os.path.join(
             dataset_config['Dataset_output_folder'], 'temp_infomations'))
         self.temp_sample_statistics_folder = check_output_path(
@@ -94,9 +96,9 @@ class Dataset_Base:
         self.dataset_output_folder = check_output_path(
             dataset_config['Dataset_output_folder'])
         self.target_dataset_style = dataset_config['Target_dataset_style']
-        self.target_dataset_image_form = DATASET_FILE_FORM[
+        self.target_dataset_image_form = TARGET_DATASET_FILE_FORM[
             dataset_config['Target_dataset_style']]['image']
-        self.target_dataset_annotation_form = DATASET_FILE_FORM[
+        self.target_dataset_annotation_form = TARGET_DATASET_FILE_FORM[
             dataset_config['Target_dataset_style']]['annotation']
         self.target_dataset_annotations_folder = check_output_path(
             os.path.join(dataset_config['Dataset_output_folder'], 'target_dataset_annotations'))
@@ -148,6 +150,9 @@ class Dataset_Base:
                 source_dataset_class)
             self.temp_merge_class_list['Merge_target_dataset_class_list'].extend(
                 target_dataset_class)
+        if self.task_dict['Instance_segmentation'] != None:
+            self.task_dict['Detection'] = self.task_dict['Instance_segmentation']
+            self.task_dict['Semantic_segmentation'] = self.task_dict['Instance_segmentation']
 
         print('Dataset instance initialize end.')
         return True
@@ -184,7 +189,8 @@ class Dataset_Base:
         image_count = 0
         for root, _, files in os.walk(self.dataset_input_folder):
             for n in files:
-                if n.endswith(self.source_dataset_image_form):
+                if os.path.splitext(n)[-1].replace('.', '') in \
+                        self.source_dataset_image_form_list:
                     image_count += 1
 
         return image_count
@@ -210,10 +216,12 @@ class Dataset_Base:
 
         print('\nOutput task class name file.')
         for task, task_class_dict in self.task_dict.items():
+            if task_class_dict is None:
+                continue
             with open(os.path.join(self.temp_informations_folder, task + '_classes.names'), 'w') as f:
                 if len(task_class_dict['Target_dataset_class']):
                     f.write('\n'.join(str(n)
-                            for n in task_class_dict['Target_dataset_class']))
+                                      for n in task_class_dict['Target_dataset_class']))
                 f.close()
 
         return
@@ -272,8 +280,8 @@ class Dataset_Base:
         return temp_file_name_list
 
     def divide_dataset(self) -> None:
-        """[按不同场景划分数据集，并根据不同场景按比例抽取train、val、test、redundancy比例为
-        train_ratio，val_ratio，test_ratio，redund_ratio]
+        """[按不同场景划分数据集, 并根据不同场景按比例抽取train、val、test、redundancy比例为
+        train_ratio, val_ratio, test_ratio, redund_ratio]
 
         Args:
             dataset (dict): [数据集信息字典]
@@ -413,6 +421,8 @@ class Dataset_Base:
 
         print('\nStar statistic sample each dataset:')
         for task, task_class_dict in self.task_dict.items():
+            if task_class_dict is None:
+                continue
             if task == 'Detection':
                 self.detection_sample_statistics(task, task_class_dict)
             elif task == 'Semantic_segmentation':
@@ -577,6 +587,7 @@ class Dataset_Base:
                 one_set_class_prop_dict[one_class] = float(0)
                 if divide_distribution_file == 'total_distibution.txt':
                     total_annotation_class_count_dict[one_class] = 0
+                    total_annotation_class_pixal_dict[one_class] = 0
                     total_annotation_class_prop_dict[one_class] = float(0)
             if 'unlabeled' not in one_set_class_pixal_dict:
                 one_set_class_pixal_dict.update({'unlabeled': 0})
@@ -584,8 +595,6 @@ class Dataset_Base:
                 one_set_class_prop_dict.update({'unlabeled': 0})
 
             # 统计全部labels各类别像素点数量
-
-            # TODO segmentation_sample_statistics多进程改进
             image_class_pixal_dict_list = []
             total_image_class_pixal_dict_list = []
             total_annotation_class_count_dict_list = []
@@ -598,7 +607,7 @@ class Dataset_Base:
                 image_class_pixal_dict_list = pool.apply_async(func=self.get_temp_segmentation_class_pixal, args=(
                     temp_annotation_path,
                     divide_distribution_file,
-                    total_annotation_class_count_dict,),
+                    total_annotation_class_pixal_dict,),
                     callback=update,
                     error_callback=err_call_back)
                 total_image_class_pixal_dict_list.extend(
@@ -634,6 +643,12 @@ class Dataset_Base:
 
             # 统计标注数量
             if divide_distribution_file == 'total_distibution.txt':
+                for n in total_annotation_class_count_dict_list:
+                    for key, value in n.items():
+                        if key in total_annotation_class_count_dict:
+                            total_annotation_class_count_dict[key] += value
+                        else:
+                            total_annotation_class_count_dict.update({key: value})
                 total_annotation_count = 0
                 for _, value in total_annotation_class_count_dict.items():  # 计算数据集计数总数
                     total_annotation_count += value
@@ -773,7 +788,7 @@ class Dataset_Base:
     def get_temp_segmentation_class_pixal(self,
                                           temp_annotation_path,
                                           divide_distribution_file,
-                                          total_annotation_class_count_dict):
+                                          total_annotation_class_pixal_dict):
 
         image_class_pixal_dict_list = []
         total_annotation_class_count_dict_list = []
@@ -794,7 +809,7 @@ class Dataset_Base:
             else:
                 image_pixal -= area
                 if divide_distribution_file == 'total_distibution.txt' and \
-                        'unlabeled' in total_annotation_class_count_dict:
+                        'unlabeled' in total_annotation_class_pixal_dict:
                     total_annotation_class_count_dict_list.append(
                         {object.segmentation_clss: 1})
         image_class_pixal_dict_list.append({'unlabeled': image_pixal})

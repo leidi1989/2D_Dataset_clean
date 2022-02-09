@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2021-12-22 13:44:43
+LastEditTime: 2022-02-07 22:13:09
 '''
 import os
 import json
@@ -191,7 +191,7 @@ def coco2017(dataset: dict) -> None:
 
         total_images_data_dict = {}
         for image_true_segment in total_image_segment_list:
-            if image_true_segment.get() is None:
+            if image_true_segment.get()[1] is None:
                 continue
             if image_true_segment.get()[0] not in total_images_data_dict:
                 total_images_data_dict[image_true_segment.get(
@@ -333,7 +333,7 @@ def huaweiyun_segment(dataset: dict) -> None:
 
         total_images_data_dict = {}
         for image_segment in total_image_segment_list:
-            if image_segment.get() is None:
+            if image_segment.get()[1] is None:
                 continue
             if image_segment.get()[0] not in total_images_data_dict:
                 total_images_data_dict[image_segment.get(
@@ -432,7 +432,7 @@ def yunce_segment_coco(dataset: dict) -> None:
 
         total_images_data_dict = {}
         for image_segment in total_image_segment_list:
-            if image_segment.get() is None:
+            if image_segment.get()[1] is None:
                 continue
             if image_segment.get()[0] not in total_images_data_dict:
                 try:
