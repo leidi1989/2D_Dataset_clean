@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-09 18:28:11
+LastEditTime: 2022-02-09 18:30:38
 '''
 import dataset
 from utils.utils import *
@@ -609,10 +609,12 @@ class Dataset_Base:
             for n in tqdm(total_image_count_pixel_dict_list,
                           desc='get multiprocessing result',
                           leave=False):
-                for key, value in n[0].items():
-                    each_class_pixel_count_dataframe[divide_file_name][key] += value
-                for key, value in n[1].items():
-                    object_count_dataframe[divide_file_name][key] += value
+                for l in n[0]:
+                    for key, value in l.items():
+                        each_class_pixel_count_dataframe[divide_file_name][key] += value
+                for m in n[1]:
+                    for key, value in m.items():
+                        object_count_dataframe[divide_file_name][key] += value
 
             # # 计算数据集各类别像素占比
             # one_set_total_count = 0
