@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-09 17:22:02
+LastEditTime: 2022-02-09 17:39:31
 '''
 import dataset
 from utils.utils import *
@@ -701,12 +701,6 @@ class Dataset_Base:
             {task: pixel_count_dataframe})
         self.temp_divide_proportion_dataframe_dict.update(
             {task: pixel_proportion_dataframe})
-
-        pixel_count_dataframe.plot(kind='bar')
-        plt.xticks(rotation=45)
-        pixel_proportion_dataframe.plot()
-        plt.xticks(rotation=45)
-        plt.show()
         
         # 记录类别分布
         pixel_count_dataframe.to_csv((os.path.join(self.temp_sample_statistics_folder,
@@ -714,11 +708,15 @@ class Dataset_Base:
         pixel_proportion_dataframe.to_csv((os.path.join(self.temp_sample_statistics_folder,
                                 'Semantic_segmentation_pixel_proportion.csv')))
         
-        print('count_dataframe\n', count_dataframe)
-        print('pixel_count_dataframe\n', pixel_count_dataframe)
-        print('pixel_proportion_dataframe\n', pixel_proportion_dataframe)
+        pixel_count_dataframe.plot(kind='bar')
+        plt.xticks(rotation=45)
+        plt.savefig((os.path.join(self.temp_sample_statistics_folder,
+                                'Semantic_segmentation_pixel_count.png')))
+        pixel_proportion_dataframe.plot()
+        plt.xticks(rotation=45)
+        plt.savefig((os.path.join(self.temp_sample_statistics_folder,
+                                'Semantic_segmentation_pixel_proportion.png')))
         print(0)
-        
         #     with open(os.path.join(self.temp_sample_statistics_folder,
         #                            'Semantic_segmentation_' + divide_distribution_file), 'w') as dist_txt:
         #         print('\n%s set class pixal count:' %
