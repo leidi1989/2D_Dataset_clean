@@ -1,8 +1,8 @@
 # dataset path
-Dataset_input_folder: /home/leidi/Data/dataset/Test/yunce_wudazhuoer_parking_20211213
+Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/clean/yunce_wudazhuoer_parking_20211213
 
 # output path
-Dataset_output_folder: /home/leidi/Data/dataset/Test/yunce_wudazhuoer_parking_20211213_20220208
+Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/clean/yunce_wudazhuoer_parking_20211213_20220209
 
 # Source dataset style: 
 # COCO2017, YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT

@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-08 04:53:37
+LastEditTime: 2022-02-09 13:45:30
 '''
 import dataset
 from utils.utils import *
@@ -17,6 +17,7 @@ import math
 import shutil
 import random
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
 from PIL import Image
 import multiprocessing
@@ -545,7 +546,8 @@ class Dataset_Base:
                                        str('%0.2f%%' % value) + '\n')
                         print(str(key) + ':' + str('%0.2f%%' % value))
 
-        self.plot_detection_sample_statistics(task, task_class_dict)    # 绘图
+        if task_class_dict is not None:
+            self.plot_detection_sample_statistics(task, task_class_dict)    # 绘图
 
         return
 
@@ -648,7 +650,8 @@ class Dataset_Base:
                         if key in total_annotation_class_count_dict:
                             total_annotation_class_count_dict[key] += value
                         else:
-                            total_annotation_class_count_dict.update({key: value})
+                            total_annotation_class_count_dict.update(
+                                {key: value})
                 total_annotation_count = 0
                 for _, value in total_annotation_class_count_dict.items():  # 计算数据集计数总数
                     total_annotation_count += value
@@ -693,8 +696,9 @@ class Dataset_Base:
                         dist_txt.write(str(key) + ':' +
                                        str('%0.2f%%' % value) + '\n')
                         print(str(key) + ':' + str('%0.2f%%' % value))
-
-        self.plot_segmentation_sample_statistics(task, task_class_dict)    # 绘图
+                        
+        if task_class_dict is not None:
+            self.plot_segmentation_sample_statistics(task, task_class_dict)    # 绘图
 
         # old
         #     for n in tqdm(divide_annotation_list,
@@ -901,7 +905,8 @@ class Dataset_Base:
                                    str('%0.2f%%' % value) + '\n')
                     print(str(key) + ':' + str('%0.2f%%' % value))
 
-        self.plot_segmentation_sample_statistics(task, task_class_dict)    # 绘图
+        if task_class_dict is not None:
+            self.plot_segmentation_sample_statistics(task, task_class_dict)    # 绘图
 
         return
 
@@ -1269,7 +1274,7 @@ class Dataset_Base:
         total_box = 0
         print('Output check images:')
         for image in tqdm(self.target_dataset_check_images_list):
-            if task == 'Instance_segmentation' or 2 <= len(self.task_dict):
+            if task == 'Instance_segmentation' or 2 >= len(self.task_dict):
                 image_path = os.path.join(
                     self.target_dataset_annotation_check_output_folder, image.image_name)
             else:
@@ -1400,7 +1405,8 @@ class Dataset_Base:
                                     object['keypoints_clss'],
                                     object['box_xywh'],
                                     object['segmentation'],
-                                    object['keypoints_num'], object['keypoints'],
+                                    object['keypoints_num'],
+                                    object['keypoints'],
                                     dataset_instance.task_convert,
                                     box_color=object['box_color'],
                                     box_tool=object['box_tool'],
@@ -1478,12 +1484,12 @@ class Dataset_Base:
         shutil.rmtree(self.target_dataset_annotation_check_output_folder)
         check_output_path(self.target_dataset_annotation_check_output_folder)
         for task, task_class_dict in self.task_dict.items():
-            if task == 'Detection':
+            if task == 'Detection' and task_class_dict is not None:
                 self.plot_true_box(task, task_class_dict)
-            elif task == 'Semantic_segmentation':
+            elif task == 'Semantic_segmentation' and task_class_dict is not None:
                 self.plot_true_segmentation(task, task_class_dict)
-            elif task == 'Instance_segmentation' or \
-                    task == 'Multi_task':
+            elif (task == 'Instance_segmentation' or \
+                    task == 'Multi_task') and task_class_dict is not None:
                 self.plot_true_box(task, task_class_dict)
                 self.plot_true_segmentation(task, task_class_dict)
 

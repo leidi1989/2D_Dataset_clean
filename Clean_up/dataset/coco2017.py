@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-08 01:53:37
+LastEditTime: 2022-02-09 11:40:33
 '''
 from lib2to3.pytree import convert
 from subprocess import call
@@ -470,6 +470,8 @@ class COCO2017(Dataset_Base):
             # 读取图片标注基础信息
             print('Start load annotation:')
             for task, task_class_dict in tqdm(dataset_instance.task_dict.items(), desc='Load each task annotation'):
+                if task_class_dict is None:
+                    continue
                 annotations_list = []
                 pbar, update = multiprocessing_list_tqdm(
                     annotation_path_list, desc='Load annotation', leave=False)
