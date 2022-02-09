@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-09 13:45:30
+LastEditTime: 2022-02-09 14:57:40
 '''
 import dataset
 from utils.utils import *
@@ -109,11 +109,11 @@ class Dataset_Base:
             self.temp_informations_folder)
         self.target_dataset_divide_proportion = tuple(float(x)
                                                       for x in (dataset_config['Target_dataset_divide_proportion'].split(',')))
-        self.temp_divide_file_annotation_path = []
+        self.temp_divide_file_annotation_path_dict = {}
         # 声明set类别计数字典列表顺序为ttvt
-        self.temp_divide_count_dict_list_dict = {}
+        self.temp_divide_count_dict = {}
         # 声明set类别计数字典列表顺序为ttvt
-        self.temp_divide_proportion_dict_list_dict = {}
+        self.temp_divide_proportion_dict = {}
         self.temp_merge_class_list = {'Merge_source_dataset_class_list': [],
                                       'Merge_target_dataset_class_list': []}
 
@@ -411,6 +411,7 @@ class Dataset_Base:
 
         # 分割后各数据集annotation文件路径
         for n in self.temp_divide_file_list:
+            divide_file_name = os.path.splitext(n.split(os.sep)[-1])[0]
             with open(n, 'r') as f:
                 annotation_path_list = []
                 for m in f.read().splitlines():
@@ -418,20 +419,19 @@ class Dataset_Base:
                     annotation_path = os.path.join(self.temp_annotations_folder,
                                                    file_name + '.' + self.temp_annotation_form)
                     annotation_path_list.append(annotation_path)
-            self.temp_divide_file_annotation_path.append(annotation_path_list)
+            self.temp_divide_file_annotation_path_dict.update(
+                {divide_file_name: annotation_path_list})
 
         print('\nStar statistic sample each dataset:')
         for task, task_class_dict in self.task_dict.items():
-            if task_class_dict is None:
-                continue
-            if task == 'Detection':
+            if task == 'Detection' and task_class_dict is not None:
                 self.detection_sample_statistics(task, task_class_dict)
-            elif task == 'Semantic_segmentation':
+            elif task == 'Semantic_segmentation' and task_class_dict is not None:
                 self.segmentation_sample_statistics(task, task_class_dict)
-            elif task == 'Instance_segmentation':
+            elif task == 'Instance_segmentation' and task_class_dict is not None:
                 self.detection_sample_statistics(task, task_class_dict)
                 self.segmentation_sample_statistics(task, task_class_dict)
-            elif task == 'Keypoint':
+            elif task == 'Keypoint' and task_class_dict is not None:
                 self.keypoint_sample_statistics(task, task_class_dict)
 
         return
@@ -459,13 +459,16 @@ class Dataset_Base:
             divide_file_annotation_path.append(annotation_path_list)
 
         # 声明set类别计数字典列表顺序为ttvt
-        self.temp_divide_count_dict_list_dict.update({task: []})
+        self.temp_divide_count_dict.update({task: {}})
         # 声明set类别计数字典列表顺序为ttvt
-        self.temp_divide_proportion_dict_list_dict.update({task: []})
+        self.temp_divide_proportion_dict.update({task: {}})
         print('\nStar statistic sample each dataset:')
-        for divide_annotation_list, divide_distribution_file in \
-                tqdm(zip(divide_file_annotation_path, self.temp_set_name_list),
-                     total=len(divide_file_annotation_path), desc='Statistic detection sample'):
+        for divide_file_name, \
+            divide_annotation_list, \
+                divide_distribution_file in tqdm(zip(self.temp_divide_file_annotation_path_dict.keys(),
+                                                     self.temp_divide_file_annotation_path_dict.values(),
+                                                     self.temp_set_name_list),
+                                                 total=len(divide_file_annotation_path), desc='Statistic detection sample'):
             # 声明不同集的类别计数字典
             one_set_class_count_dict = {}
             # 声明不同集的类别占比字典
@@ -497,8 +500,8 @@ class Dataset_Base:
             for key in one_set_class_count_dict.keys():
                 if key in process_output:
                     one_set_class_count_dict[key] = process_output[key]
-            self.temp_divide_count_dict_list_dict[task].append(
-                one_set_class_count_dict)
+            self.temp_divide_count_dict[task].update({divide_file_name:
+                                                      one_set_class_count_dict})
 
             # 声明单数据集计数总数
             one_set_total_count = 0
@@ -510,8 +513,8 @@ class Dataset_Base:
                 else:
                     one_set_class_prop_dict[key] = (
                         float(value) / float(one_set_total_count)) * 100   # 计算个类别在此数据集占比
-            self.temp_divide_proportion_dict_list_dict[task].append(
-                one_set_class_prop_dict)
+            self.temp_divide_proportion_dict[task].update({divide_file_name:
+                                                           one_set_class_prop_dict})
 
             # 记录每个集的类别分布
             with open(os.path.join(self.temp_sample_statistics_folder,
@@ -546,8 +549,8 @@ class Dataset_Base:
                                        str('%0.2f%%' % value) + '\n')
                         print(str(key) + ':' + str('%0.2f%%' % value))
 
-        if task_class_dict is not None:
-            self.plot_detection_sample_statistics(task, task_class_dict)    # 绘图
+        self.plot_detection_sample_statistics(
+            task, task_class_dict)    # 绘图
 
         return
 
@@ -559,18 +562,24 @@ class Dataset_Base:
             task_class_dict (dict): [对应任务类别字典]
         """
 
+        #TODO 创建dataframe 
         print('Start statistic semantic segmentation sample:')
         total_annotation_count_name = 'Semantic_segmentation_total_annotation_count.txt'
         # 声明set类别计数字典列表顺序为ttvt
-        self.temp_divide_count_dict_list_dict.update({task: []})
+        self.temp_divide_count_dict.update({task: {}})
         # 声明set类别计数字典列表顺序为ttvt
-        self.temp_divide_proportion_dict_list_dict.update({task: []})
+        self.temp_divide_proportion_dict.update({task: {}})
 
-        for divide_annotation_list, divide_distribution_file in tqdm(zip(self.temp_divide_file_annotation_path,
-                                                                         self.temp_set_name_list),
-                                                                     total=len(
-                                                                         self.temp_divide_file_annotation_path),
-                                                                     desc='Statistic semantic segmentation sample'):
+
+        
+        for divide_file_name, \
+            divide_annotation_list, \
+                divide_distribution_file in tqdm(zip(self.temp_divide_file_annotation_path_dict.keys(),
+                                                     self.temp_divide_file_annotation_path_dict.values(),
+                                                     self.temp_set_name_list),
+                                                 total=len(
+                self.temp_divide_file_annotation_path_dict),
+                desc='Statistic semantic segmentation sample'):
             # 声明不同集的类别计数字典
             one_set_class_pixal_dict = {}
             # 声明不同集的类别占比字典
@@ -628,8 +637,8 @@ class Dataset_Base:
                         one_set_class_pixal_dict[key] += value
                     else:
                         one_set_class_pixal_dict.update({key: value})
-            self.temp_divide_count_dict_list_dict[task].append(
-                one_set_class_pixal_dict)
+            self.temp_divide_count_dict[task].update({divide_file_name:
+                                                      one_set_class_pixal_dict})
 
             # 计算数据集计数总数
             for _, value in one_set_class_pixal_dict.items():
@@ -640,9 +649,13 @@ class Dataset_Base:
                 else:
                     one_set_class_prop_dict[key] = (
                         float(value) / float(one_set_total_count)) * 100  # 计算个类别在此数据集占比
-            self.temp_divide_proportion_dict_list_dict[task].append(
-                one_set_class_prop_dict)
+            self.temp_divide_proportion_dict[task].update({divide_file_name:
+                                                           one_set_class_prop_dict})
 
+            #TODO 创建dataframe
+            data = [['Alex',10],['Bob',12],['Clarke',13]]
+            df = pd.DataFrame(data,columns=['Name','Age'])
+            
             # 统计标注数量
             if divide_distribution_file == 'total_distibution.txt':
                 for n in total_annotation_class_count_dict_list:
@@ -696,9 +709,9 @@ class Dataset_Base:
                         dist_txt.write(str(key) + ':' +
                                        str('%0.2f%%' % value) + '\n')
                         print(str(key) + ':' + str('%0.2f%%' % value))
-                        
-        if task_class_dict is not None:
-            self.plot_segmentation_sample_statistics(task, task_class_dict)    # 绘图
+
+        self.plot_segmentation_sample_statistics(
+            task, task_class_dict)    # 绘图
 
         # old
         #     for n in tqdm(divide_annotation_list,
@@ -841,9 +854,9 @@ class Dataset_Base:
             divide_file_annotation_path.append(annotation_path_list)
 
         # 声明set类别计数字典列表顺序为ttvt
-        self.temp_divide_count_dict_list_dict.update({task: []})
+        self.temp_divide_count_dict.update({task: []})
         # 声明set类别计数字典列表顺序为ttvt
-        self.temp_divide_proportion_dict_list_dict.update({task: []})
+        self.temp_divide_proportion_dict.update({task: []})
         print('\nStart to statistic sample each dataset:')
         for divide_annotation_list, divide_distribution_file in \
                 tqdm(zip(divide_file_annotation_path, self.temp_set_name_list),
@@ -873,7 +886,7 @@ class Dataset_Base:
             for key in one_set_class_count_dict.keys():
                 if key in process_output:
                     one_set_class_count_dict[key] = process_output[key]
-            self.temp_divide_count_dict_list_dict[task].append(
+            self.temp_divide_count_dict[task].append(
                 one_set_class_count_dict)
 
             # 声明单数据集计数总数
@@ -886,7 +899,7 @@ class Dataset_Base:
                 else:
                     one_set_class_prop_dict[key] = (
                         float(value) / float(one_set_total_count)) * 100   # 计算个类别在此数据集占比
-            self.temp_divide_proportion_dict_list_dict[task].append(
+            self.temp_divide_proportion_dict[task].append(
                 one_set_class_prop_dict)
 
             # 记录每个集的类别分布
@@ -905,8 +918,8 @@ class Dataset_Base:
                                    str('%0.2f%%' % value) + '\n')
                     print(str(key) + ':' + str('%0.2f%%' % value))
 
-        if task_class_dict is not None:
-            self.plot_segmentation_sample_statistics(task, task_class_dict)    # 绘图
+        self.plot_segmentation_sample_statistics(
+            task, task_class_dict)    # 绘图
 
         return
 
@@ -1000,9 +1013,9 @@ class Dataset_Base:
                   'pink', 'mediumpurple', 'slategrey']
         bar_width = 0
         print('Plot bar chart:')
-        for one_set_label_path_list, set_size, clrs in tqdm(zip(self.temp_divide_count_dict_list_dict[task],
+        for one_set_label_path_list, set_size, clrs in tqdm(zip(self.temp_divide_count_dict[task].values(),
                                                                 width_list, colors),
-                                                            total=len(self.temp_divide_count_dict_list_dict[task])):
+                                                            total=len(self.temp_divide_count_dict[task].values())):
             labels = []     # class
             values = []     # class count
             # 遍历字典分别将键名和对应的键值存入绘图标签列表、绘图y轴列表中
@@ -1038,9 +1051,9 @@ class Dataset_Base:
         thread_type_list = ['*', '*--', '.-.', '+-.', '-']
 
         print('Plot linear graph:')
-        for one_set_label_path_list, set_size, clrs, thread_type in tqdm(zip(self.temp_divide_proportion_dict_list_dict[task],
+        for one_set_label_path_list, set_size, clrs, thread_type in tqdm(zip(self.temp_divide_proportion_dict[task].values(),
                                                                              width_list, colors, thread_type_list),
-                                                                         total=len(self.temp_divide_proportion_dict_list_dict[task])):
+                                                                         total=len(self.temp_divide_proportion_dict[task].values())):
             labels = []     # class
             values = []     # class count
             # 遍历字典分别将键名和对应的键值存入绘图标签列表、绘图y轴列表中
@@ -1100,7 +1113,7 @@ class Dataset_Base:
 
         print('Plot bar chart.')
         for one_set_label_path_list, set_size, clrs in \
-            zip(self.temp_divide_count_dict_list_dict[task],
+            zip(self.temp_divide_count_dict[task].values(),
                 width_list, colors):
             labels = []     # class
             values = []     # class count
@@ -1138,7 +1151,7 @@ class Dataset_Base:
 
         print('Plot linear graph.')
         for one_set_label_path_list, set_size, clrs, thread_type \
-            in zip(self.temp_divide_proportion_dict_list_dict[task],
+            in zip(self.temp_divide_proportion_dict[task].values(),
                    width_list, colors, thread_type_list):
             labels = []     # class
             values = []     # class count
@@ -1488,7 +1501,7 @@ class Dataset_Base:
                 self.plot_true_box(task, task_class_dict)
             elif task == 'Semantic_segmentation' and task_class_dict is not None:
                 self.plot_true_segmentation(task, task_class_dict)
-            elif (task == 'Instance_segmentation' or \
+            elif (task == 'Instance_segmentation' or
                     task == 'Multi_task') and task_class_dict is not None:
                 self.plot_true_box(task, task_class_dict)
                 self.plot_true_segmentation(task, task_class_dict)
