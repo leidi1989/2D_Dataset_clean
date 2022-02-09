@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-09 18:30:38
+LastEditTime: 2022-02-09 18:37:05
 '''
 import dataset
 from utils.utils import *
@@ -615,26 +615,6 @@ class Dataset_Base:
                 for m in n[1]:
                     for key, value in m.items():
                         object_count_dataframe[divide_file_name][key] += value
-
-            # # 计算数据集各类别像素占比
-            # one_set_total_count = 0
-            # for _, value in one_set_class_pixel_dict.items():
-            #     one_set_total_count += value
-            # for key, value in one_set_class_pixel_dict.items():
-            #     if 0 == one_set_total_count:
-            #         one_set_class_prop_dict[key] = 0
-            #         pixel_proportion_dataframe[divide_file_name][key] = 0
-            #     else:
-            #         one_set_class_prop_dict[key] = (
-            #             float(value) / float(one_set_total_count)) * 100  # 计算个类别在此数据集占比
-            #         pixel_proportion_dataframe[divide_file_name][key] = (
-            #             float(value) / float(one_set_total_count)) * 100
-
-            # 统计标注数量
-            # if divide_distribution_file == 'total_distibution.txt':
-            # for n in total_annotation_class_count_dict_list:
-            #     for key, value in n.items():
-            #         count_dataframe[divide_file_name][key] += value
 
         print(object_count_dataframe)
         print(each_class_pixel_count_dataframe)
