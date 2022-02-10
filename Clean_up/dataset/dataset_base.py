@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-09 18:37:05
+LastEditTime: 2022-02-10 10:21:36
 '''
 import dataset
 from utils.utils import *
@@ -607,7 +607,7 @@ class Dataset_Base:
 
             # 获取多进程结果
             for n in tqdm(total_image_count_pixel_dict_list,
-                          desc='get multiprocessing result',
+                          desc='Collection multiprocessing result',
                           leave=False):
                 for l in n[0]:
                     for key, value in l.items():
@@ -615,6 +615,19 @@ class Dataset_Base:
                 for m in n[1]:
                     for key, value in m.items():
                         object_count_dataframe[divide_file_name][key] += value
+
+        print(object_count_dataframe)
+        print(each_class_pixel_count_dataframe)
+        print(each_pixel_proportion_dataframe)
+
+        object_count_dataframe['total'] = object_count_dataframe.sum(axis=1)
+        each_class_pixel_count_dataframe['total'] = each_class_pixel_count_dataframe.sum(
+            axis=1)
+
+        for n in each_pixel_proportion_dataframe.keys():
+            total_count = each_class_pixel_count_dataframe[n].sum()
+            each_pixel_proportion_dataframe[n] = each_class_pixel_count_dataframe[n].apply(
+                lambda x: x/total_count)
 
         print(object_count_dataframe)
         print(each_class_pixel_count_dataframe)
