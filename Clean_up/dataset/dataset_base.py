@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-10 10:53:01
+LastEditTime: 2022-02-10 11:14:47
 '''
 import dataset
 from utils.utils import *
@@ -453,11 +453,9 @@ class Dataset_Base:
         for divide_file_name in self.temp_divide_file_annotation_path_dict.keys():
             data.update(
                 {divide_file_name: [0 for _ in task_class_dict['Target_dataset_class']]})
-        object_count_dataframe = pd.DataFrame(
+        each_class_object_count_dataframe = pd.DataFrame(
             data, index=[x for x in task_class_dict['Target_dataset_class']])
-        each_class_pixel_count_dataframe = pd.DataFrame(
-            data, index=[x for x in task_class_dict['Target_dataset_class']])
-        each_pixel_proportion_dataframe = pd.DataFrame(
+        each_class_object_proportion_dataframe = pd.DataFrame(
             data, index=[x for x in task_class_dict['Target_dataset_class']])
 
         for divide_file_name, divide_annotation_list in tqdm(
@@ -475,7 +473,7 @@ class Dataset_Base:
                                                      leave=False)
             pool = multiprocessing.Pool(self.workers)
             for temp_annotation_path in divide_annotation_list:
-                image_object_dict_list = pool.apply_async(func=self.get_temp_annotations_class_object_count, args=(
+                image_object_dict_list = pool.apply_async(func=self.get_temp_annotations_object_count, args=(
                     temp_annotation_path,),
                     callback=update,
                     error_callback=err_call_back)
@@ -490,89 +488,66 @@ class Dataset_Base:
             for n in tqdm(total_image_count_object_dict_list,
                           desc='Collection multiprocessing result',
                           leave=False):
-                for l in n[0]:
-                    for key, value in l.items():
-                        each_class_pixel_count_dataframe[divide_file_name][key] += value
-                for m in n[1]:
+                for m in n:
                     for key, value in m.items():
-                        object_count_dataframe[divide_file_name][key] += value
+                        each_class_object_count_dataframe[divide_file_name][key] += value
 
-        object_count_dataframe['total'] = object_count_dataframe.sum(axis=1)
-        each_class_pixel_count_dataframe['total'] = each_class_pixel_count_dataframe.sum(
+        each_class_object_count_dataframe['total'] = each_class_object_count_dataframe.sum(
             axis=1)
 
         # 类别占比统计
-        for n in each_pixel_proportion_dataframe.keys():
-            total_count = each_class_pixel_count_dataframe[n].sum()
-            each_pixel_proportion_dataframe[n] = each_class_pixel_count_dataframe[n].apply(
+        for n in each_class_object_proportion_dataframe.keys():
+            total_count = each_class_object_count_dataframe[n].sum()
+            each_class_object_proportion_dataframe[n] = each_class_object_count_dataframe[n].apply(
                 lambda x: x/total_count)
-        each_pixel_proportion_dataframe = each_pixel_proportion_dataframe.fillna(
+        each_class_object_proportion_dataframe = each_class_object_proportion_dataframe.fillna(
             int(0))
 
-        object_count_dataframe = object_count_dataframe.sort_index(
+        each_class_object_count_dataframe = each_class_object_count_dataframe.sort_index(
             ascending=False)
-        each_class_pixel_count_dataframe = each_class_pixel_count_dataframe.sort_index(
-            ascending=False)
-        each_pixel_proportion_dataframe = each_pixel_proportion_dataframe.sort_index(
+        each_class_object_proportion_dataframe = each_class_object_proportion_dataframe.sort_index(
             ascending=False)
 
         self.temp_divide_object_count_dataframe_dict.update(
-            {task: object_count_dataframe})
-        self.temp_divide_each_class_pixel_count_dataframe_dict.update(
-            {task: each_class_pixel_count_dataframe})
+            {task: each_class_object_count_dataframe})
         self.temp_divide_each_pixel_proportion_dataframe_dict.update(
-            {task: each_pixel_proportion_dataframe})
+            {task: each_class_object_proportion_dataframe})
 
         # 记录类别分布
-        object_count_dataframe.to_csv((os.path.join(self.temp_sample_statistics_folder,
-                                                    'Semantic_segmentation_object_count.csv')))
-        each_class_pixel_count_dataframe.to_csv((os.path.join(self.temp_sample_statistics_folder,
-                                                              'Semantic_segmentation_pixel_count.csv')))
-        each_pixel_proportion_dataframe.to_csv((os.path.join(self.temp_sample_statistics_folder,
-                                                             'Semantic_segmentation_pixel_proportion.csv')))
+        each_class_object_count_dataframe.to_csv((os.path.join(self.temp_sample_statistics_folder,
+                                                               'Detection_object_count.csv')))
+        each_class_object_proportion_dataframe.to_csv((os.path.join(self.temp_sample_statistics_folder,
+                                                                    'Detection_object_proportion.csv')))
 
-        object_count_dataframe.plot()
+        each_class_object_count_dataframe.plot(kind='bar')
         plt.xticks(rotation=45)
         plt.tight_layout()
         plt.savefig((os.path.join(self.temp_sample_statistics_folder,
-                                  'Semantic_segmentation_object_count.png')))
-        each_class_pixel_count_dataframe.plot(kind='bar')
+                                  'Detection_object_count.png')))
+        each_class_object_proportion_dataframe.plot()
         plt.xticks(rotation=45)
         plt.tight_layout()
         plt.savefig((os.path.join(self.temp_sample_statistics_folder,
-                                  'Semantic_segmentation_pixel_count.png')))
-        each_pixel_proportion_dataframe.plot()
-        plt.xticks(rotation=45)
-        plt.tight_layout()
-        plt.savefig((os.path.join(self.temp_sample_statistics_folder,
-                                  'Semantic_segmentation_pixel_proportion.png')))
+                                  'Detection_object_proportion.png')))
 
         return
 
-    def get_temp_annotations_class_object_count(self,
-                                                temp_annotation_path: str,
-                                                process_output: dict,
-                                                process_total_annotation_detect_class_count_dict: dict,
-                                                task: str, task_class_dict: dict) -> None:
-        """[获取暂存标签信息]
+    def get_temp_annotations_object_count(self, temp_annotation_path: str,) -> list:
+        """[获取暂存标签类别计数字典列表]
 
         Args:
-            dataset (dict): [数据集信息字典]
             temp_annotation_path (str): [暂存标签路径]
-            process_output (dict): [进程输出字典]
+
+        Returns:
+            list: [类别统计字典列表]
         """
 
+        total_annotation_class_count_dict_list = []
         image = self.TEMP_LOAD(self, temp_annotation_path)
         for object in image.object_list:
-            if object.box_clss in process_output:
-                process_output[object.box_clss] += 1
-                process_total_annotation_detect_class_count_dict[object.box_clss] += 1
-            else:
-                process_output.update({object.box_clss: 1})
-                process_total_annotation_detect_class_count_dict.update(
-                    {object.box_clss: 1})
+            total_annotation_class_count_dict_list.append({object.box_clss: 1})
 
-        return
+        return total_annotation_class_count_dict_list
 
     def segmentation_sample_statistics(self, task: str, task_class_dict: dict) -> None:
         """[语义分割样本统计]
@@ -590,11 +565,11 @@ class Dataset_Base:
             temp_task_class_list.append('unlabeled')
         for divide_file_name in self.temp_divide_file_annotation_path_dict.keys():
             data.update({divide_file_name: [0 for _ in temp_task_class_list]})
-        object_count_dataframe = pd.DataFrame(
+        each_class_object_count_dataframe = pd.DataFrame(
             data, index=[x for x in temp_task_class_list])
         each_class_pixel_count_dataframe = pd.DataFrame(
             data, index=[x for x in temp_task_class_list])
-        each_pixel_proportion_dataframe = pd.DataFrame(
+        each_class_pixel_proportion_dataframe = pd.DataFrame(
             data, index=[x for x in temp_task_class_list])
 
         for divide_file_name, divide_annotation_list in tqdm(
@@ -632,43 +607,44 @@ class Dataset_Base:
                         each_class_pixel_count_dataframe[divide_file_name][key] += value
                 for m in n[1]:
                     for key, value in m.items():
-                        object_count_dataframe[divide_file_name][key] += value
+                        each_class_object_count_dataframe[divide_file_name][key] += value
 
-        object_count_dataframe['total'] = object_count_dataframe.sum(axis=1)
+        each_class_object_count_dataframe['total'] = each_class_object_count_dataframe.sum(
+            axis=1)
         each_class_pixel_count_dataframe['total'] = each_class_pixel_count_dataframe.sum(
             axis=1)
 
         # 类别占比统计
-        for n in each_pixel_proportion_dataframe.keys():
+        for n in each_class_pixel_proportion_dataframe.keys():
             total_count = each_class_pixel_count_dataframe[n].sum()
-            each_pixel_proportion_dataframe[n] = each_class_pixel_count_dataframe[n].apply(
+            each_class_pixel_proportion_dataframe[n] = each_class_pixel_count_dataframe[n].apply(
                 lambda x: x/total_count)
-        each_pixel_proportion_dataframe = each_pixel_proportion_dataframe.fillna(
+        each_class_pixel_proportion_dataframe = each_class_pixel_proportion_dataframe.fillna(
             int(0))
 
-        object_count_dataframe = object_count_dataframe.sort_index(
+        each_class_object_count_dataframe = each_class_object_count_dataframe.sort_index(
             ascending=False)
         each_class_pixel_count_dataframe = each_class_pixel_count_dataframe.sort_index(
             ascending=False)
-        each_pixel_proportion_dataframe = each_pixel_proportion_dataframe.sort_index(
+        each_class_pixel_proportion_dataframe = each_class_pixel_proportion_dataframe.sort_index(
             ascending=False)
 
         self.temp_divide_object_count_dataframe_dict.update(
-            {task: object_count_dataframe})
+            {task: each_class_object_count_dataframe})
         self.temp_divide_each_class_pixel_count_dataframe_dict.update(
             {task: each_class_pixel_count_dataframe})
         self.temp_divide_each_pixel_proportion_dataframe_dict.update(
-            {task: each_pixel_proportion_dataframe})
+            {task: each_class_pixel_proportion_dataframe})
 
         # 记录类别分布
-        object_count_dataframe.to_csv((os.path.join(self.temp_sample_statistics_folder,
-                                                    'Semantic_segmentation_object_count.csv')))
+        each_class_object_count_dataframe.to_csv((os.path.join(self.temp_sample_statistics_folder,
+                                                               'Semantic_segmentation_object_count.csv')))
         each_class_pixel_count_dataframe.to_csv((os.path.join(self.temp_sample_statistics_folder,
                                                               'Semantic_segmentation_pixel_count.csv')))
-        each_pixel_proportion_dataframe.to_csv((os.path.join(self.temp_sample_statistics_folder,
-                                                             'Semantic_segmentation_pixel_proportion.csv')))
+        each_class_pixel_proportion_dataframe.to_csv((os.path.join(self.temp_sample_statistics_folder,
+                                                                   'Semantic_segmentation_pixel_proportion.csv')))
 
-        object_count_dataframe.plot()
+        each_class_object_count_dataframe.plot(kind='bar')
         plt.xticks(rotation=45)
         plt.tight_layout()
         plt.savefig((os.path.join(self.temp_sample_statistics_folder,
@@ -678,7 +654,7 @@ class Dataset_Base:
         plt.tight_layout()
         plt.savefig((os.path.join(self.temp_sample_statistics_folder,
                                   'Semantic_segmentation_pixel_count.png')))
-        each_pixel_proportion_dataframe.plot()
+        each_class_pixel_proportion_dataframe.plot()
         plt.xticks(rotation=45)
         plt.tight_layout()
         plt.savefig((os.path.join(self.temp_sample_statistics_folder,
@@ -686,8 +662,7 @@ class Dataset_Base:
 
         return
 
-    def get_temp_segmentation_class_pixal(self,
-                                          temp_annotation_path):
+    def get_temp_segmentation_class_pixal(self, temp_annotation_path: str) -> list:
 
         image_class_pixal_dict_list = []
         total_annotation_class_count_dict_list = []
@@ -713,7 +688,7 @@ class Dataset_Base:
 
         return [image_class_pixal_dict_list, total_annotation_class_count_dict_list]
 
-    def keypoint_sample_statistics(self, task, task_class_dict):
+    def keypoint_sample_statistics(self, task: str, task_class_dict: dict) -> None:
         """[数据集样本统计]
 
         Args:
@@ -721,87 +696,105 @@ class Dataset_Base:
         """
 
         # 分割后各数据集annotation文件路径
-        total_annotation_keypoint_count_name = 'keypoint_total_annotation_count.txt'
-        divide_file_annotation_path = []
-        for n in self.temp_divide_file_list:
-            with open(n, 'r') as f:
-                annotation_path_list = []
-                for m in f.read().splitlines():
-                    file_name = os.path.splitext(m.split(os.sep)[-1])[0]
-                    annotation_path = os.path.join(self.temp_annotations_folder,
-                                                   file_name + '.' + self.temp_annotation_form)
-                    annotation_path_list.append(annotation_path)
-            divide_file_annotation_path.append(annotation_path_list)
+        print('Start statistic detection sample:')
+        # 声明dataframe
+        data = {}
+        for divide_file_name in self.temp_divide_file_annotation_path_dict.keys():
+            data.update(
+                {divide_file_name: [0 for _ in task_class_dict['Target_dataset_class']]})
+        each_class_keypoints_count_dataframe = pd.DataFrame(
+            data, index=[x for x in task_class_dict['Target_dataset_class']])
+        each_class_keypoints_proportion_dataframe = pd.DataFrame(
+            data, index=[x for x in task_class_dict['Target_dataset_class']])
 
-        # 声明set类别计数字典列表顺序为ttvt
-        self.temp_divide_count_dict.update({task: []})
-        # 声明set类别计数字典列表顺序为ttvt
-        self.temp_divide_proportion_dict.update({task: []})
-        print('\nStart to statistic sample each dataset:')
-        for divide_annotation_list, divide_distribution_file in \
-                tqdm(zip(divide_file_annotation_path, self.temp_set_name_list),
-                     total=len(divide_file_annotation_path)):
-            # 声明不同集的类别计数字典
-            one_set_class_count_dict = {}
-            # 声明不同集的类别占比字典
-            one_set_class_prop_dict = {}
-            for one_class in task_class_dict['Target_dataset_class']:
-                # 读取不同类别进计数字典作为键
-                one_set_class_count_dict[one_class] = 0
-                # 读取不同类别进占比字典作为键
-                one_set_class_prop_dict[one_class] = float(0)
+        for divide_file_name, divide_annotation_list in tqdm(
+            self.temp_divide_file_annotation_path_dict.items(),
+            total=len(self.temp_divide_file_annotation_path_dict),
+                desc='Statistic detection sample'):
+            if divide_file_name == 'total':
+                continue
 
-            # 统计全部labels各类别数量
-            process_output = multiprocessing.Manager().dict()
+            # 统计全部labels各类别像素点数量
+            total_image_count_object_dict_list = []
+            pbar, update = multiprocessing_list_tqdm(divide_annotation_list,
+                                                     desc='Count {} set class object'.format(
+                                                         divide_file_name),
+                                                     leave=False)
             pool = multiprocessing.Pool(self.workers)
-            process_total_annotation_detect_class_count_dict = multiprocessing.Manager(
-            ).dict({x: 0 for x in task_class_dict['Target_dataset_class']})
-            for n in tqdm(divide_annotation_list):
-                pool.apply_async(func=self.get_temp_annotations_class_object_count, args=(
-                    n, process_output, process_total_annotation_detect_class_count_dict,
-                    task, task_class_dict,),
+            for temp_annotation_path in divide_annotation_list:
+                image_keypoints_dict_list = pool.apply_async(func=self.get_temp_annotations_keypoints_class_count, args=(
+                    temp_annotation_path,),
+                    callback=update,
                     error_callback=err_call_back)
+                total_image_count_object_dict_list.append(
+                    image_keypoints_dict_list.get())
+
             pool.close()
             pool.join()
-            for key in one_set_class_count_dict.keys():
-                if key in process_output:
-                    one_set_class_count_dict[key] = process_output[key]
-            self.temp_divide_count_dict[task].append(
-                one_set_class_count_dict)
+            pbar.close()
 
-            # 声明单数据集计数总数
-            one_set_total_count = 0
-            for _, value in one_set_class_count_dict.items():    # 计算数据集计数总数
-                one_set_total_count += value
-            for key, value in one_set_class_count_dict.items():
-                if 0 == one_set_total_count:
-                    one_set_class_prop_dict[key] = 0
-                else:
-                    one_set_class_prop_dict[key] = (
-                        float(value) / float(one_set_total_count)) * 100   # 计算个类别在此数据集占比
-            self.temp_divide_proportion_dict[task].append(
-                one_set_class_prop_dict)
+            # 获取多进程结果
+            for n in tqdm(total_image_count_object_dict_list,
+                          desc='Collection multiprocessing result',
+                          leave=False):
+                for m in n:
+                    for key, value in m.items():
+                        each_class_keypoints_count_dataframe[divide_file_name][key] += value
 
-            # 记录每个集的类别分布
-            with open(os.path.join(self.temp_informations_folder,
-                                   divide_distribution_file), 'w') as dist_txt:
-                print('\n%s set class count:' %
-                      divide_distribution_file.split('_')[0])
-                for key, value in one_set_class_count_dict.items():
-                    dist_txt.write(str(key) + ':' + str(value) + '\n')
-                    print(str(key) + ':' + str(value))
-                print('\n%s set porportion:' %
-                      divide_distribution_file.split('_')[0])
-                dist_txt.write('\n')
-                for key, value in one_set_class_prop_dict.items():
-                    dist_txt.write(str(key) + ':' +
-                                   str('%0.2f%%' % value) + '\n')
-                    print(str(key) + ':' + str('%0.2f%%' % value))
+        each_class_keypoints_count_dataframe['total'] = each_class_keypoints_count_dataframe.sum(
+            axis=1)
 
-        self.plot_segmentation_sample_statistics(
-            task, task_class_dict)    # 绘图
+        # 类别占比统计
+        for n in each_class_keypoints_proportion_dataframe.keys():
+            total_count = each_class_keypoints_count_dataframe[n].sum()
+            each_class_keypoints_proportion_dataframe[n] = each_class_keypoints_count_dataframe[n].apply(
+                lambda x: x/total_count)
+        each_class_keypoints_proportion_dataframe = each_class_keypoints_proportion_dataframe.fillna(
+            int(0))
+
+        each_class_keypoints_count_dataframe = each_class_keypoints_count_dataframe.sort_index(
+            ascending=False)
+        each_class_keypoints_proportion_dataframe = each_class_keypoints_proportion_dataframe.sort_index(
+            ascending=False)
+
+        self.temp_divide_object_count_dataframe_dict.update(
+            {task: each_class_keypoints_count_dataframe})
+        self.temp_divide_each_pixel_proportion_dataframe_dict.update(
+            {task: each_class_keypoints_proportion_dataframe})
+
+        # 记录类别分布
+        each_class_keypoints_count_dataframe.to_csv((os.path.join(self.temp_sample_statistics_folder,
+                                                               'Detection_object_count.csv')))
+        each_class_keypoints_proportion_dataframe.to_csv((os.path.join(self.temp_sample_statistics_folder,
+                                                                    'Detection_object_proportion.csv')))
+
+        each_class_keypoints_count_dataframe.plot(kind='bar')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.savefig((os.path.join(self.temp_sample_statistics_folder,
+                                  'Detection_object_count.png')))
+        each_class_keypoints_proportion_dataframe.plot()
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.savefig((os.path.join(self.temp_sample_statistics_folder,
+                                  'Detection_object_proportion.png')))
 
         return
+
+    def get_temp_annotations_keypoints_class_count(self,
+                                                   temp_annotation_path: str) -> None:
+        """[获取暂存标签信息]
+
+        Args:
+            dataset (dict): [数据集信息字典]
+            temp_annotation_path (str): [暂存标签路径]
+            process_output (dict): [进程输出字典]
+        """
+
+        image = self.TEMP_LOAD(self, temp_annotation_path)
+        total_annotation_keypoints_class_count_dict_list = []
+
+        return total_annotation_keypoints_class_count_dict_list
 
     def get_image_mean_std(self, img_filename: str) -> list:
         """[获取图片均值和标准差]
@@ -1315,50 +1308,6 @@ class Dataset_Base:
             f.close()
 
         return image
-
-    def get_temp_annotations_class_object_count(self,
-                                                temp_annotation_path: str,
-                                                process_output: dict,
-                                                process_total_annotation_detect_class_count_dict: dict,
-                                                task: str, task_class_dict: dict) -> None:
-        """[获取暂存标签信息]
-
-        Args:
-            dataset (dict): [数据集信息字典]
-            temp_annotation_path (str): [暂存标签路径]
-            process_output (dict): [进程输出字典]
-        """
-
-        image = self.TEMP_LOAD(self, temp_annotation_path)
-        if task == 'Detection':
-            for object in image.object_list:
-                if object.box_clss in process_output:
-                    process_output[object.box_clss] += 1
-                    process_total_annotation_detect_class_count_dict[object.box_clss] += 1
-                else:
-                    process_output.update({object.box_clss: 1})
-                    process_total_annotation_detect_class_count_dict.update(
-                        {object.box_clss: 1})
-        elif task == 'Semantic_segmentation' or task == 'Instance_segmentation':
-            for object in image.object_list:
-                if object.segmentation_clss in process_output:
-                    process_output[object.segmentation_clss] += 1
-                    process_total_annotation_detect_class_count_dict[object.segmentation_clss] += 1
-                else:
-                    process_output.update({object.segmentation_clss: 1})
-                    process_total_annotation_detect_class_count_dict.update(
-                        {object.segmentation_clss: 1})
-        elif task == 'Keypoint':
-            for object in image.object_list:
-                if object.keypoints_clss in process_output:
-                    process_output[object.keypoints_clss] += 1
-                    process_total_annotation_detect_class_count_dict[object.keypoints_clss] += 1
-                else:
-                    process_output.update({object.keypoints_clss: 1})
-                    process_total_annotation_detect_class_count_dict.update(
-                        {object.keypoints_clss: 1})
-
-        return
 
     def transform_to_target_dataset():
         # print('\nStart transform to target dataset:')
