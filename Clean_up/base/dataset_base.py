@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-10 11:14:47
+LastEditTime: 2022-02-10 11:33:34
 '''
 import dataset
 from utils.utils import *
@@ -793,7 +793,9 @@ class Dataset_Base:
 
         image = self.TEMP_LOAD(self, temp_annotation_path)
         total_annotation_keypoints_class_count_dict_list = []
-
+        for object in image.object_list:
+            total_annotation_keypoints_class_count_dict_list.append({object.keypoints_clss: 1})
+            
         return total_annotation_keypoints_class_count_dict_list
 
     def get_image_mean_std(self, img_filename: str) -> list:

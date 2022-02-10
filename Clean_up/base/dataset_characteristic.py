@@ -4,9 +4,8 @@ Version:
 Author: Leidi
 Date: 2021-08-09 21:55:18
 LastEditors: Leidi
-LastEditTime: 2022-02-06 01:13:29
+LastEditTime: 2022-02-10 11:33:31
 '''
-
 # 输入数据集图片、annotation文件格式
 TARGET_DATASET_FILE_FORM = {
     'apolloscape_lane_segment': {'image': 'jpg',

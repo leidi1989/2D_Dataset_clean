@@ -4,24 +4,19 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-08 01:53:37
+LastEditTime: 2022-02-10 11:34:21
 '''
-from lib2to3.pytree import convert
-from subprocess import call
 import time
 import shutil
 from PIL import Image
 import multiprocessing
 
-from numpy import delete
-from sqlalchemy import desc
-
 import dataset
 from utils.utils import *
-from .image_base import *
-from .dataset_characteristic import *
+from ..base.image_base import *
+from ..base.dataset_characteristic import *
 from utils import image_form_transform
-from dataset.dataset_base import Dataset_Base
+from Clean_up.base.dataset_base import Dataset_Base
 
 
 class COCO2017(Dataset_Base):

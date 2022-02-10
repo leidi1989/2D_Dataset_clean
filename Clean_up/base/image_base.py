@@ -4,15 +4,12 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-02-08 04:21:01
+LastEditTime: 2022-02-10 11:33:10
 '''
 import os
-from turtle import Turtle
-from xmlrpc.client import TRANSPORT_ERROR
 import cv2
 import json
 import numpy as np
-from sqlalchemy import false, true
 
 
 class BOX:
