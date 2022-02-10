@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-10 17:13:30
+LastEditTime: 2022-02-10 18:04:41
 '''
 import dataset
 from utils.utils import *
@@ -256,7 +256,7 @@ class Dataset_Base:
 
         print('\nStart get temp dataset information:')
         self.divide_dataset()
-        if self.target_dataset_style == 'cityscapes_val':
+        if self.target_dataset_style == 'CITYSCAPES_VAL':
             self.image_mean_std()
             return
         self.sample_statistics()

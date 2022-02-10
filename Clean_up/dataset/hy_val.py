@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-10 17:20:22
+LastEditTime: 2022-02-10 18:00:02
 '''
 import time
 import shutil
@@ -50,7 +50,8 @@ class HY_VAL(Dataset_Base):
         for root, _, files in os.walk(self.dataset_input_folder):
             pool = multiprocessing.Pool(self.workers)
             for n in files:
-                if n.endswith(self.source_dataset_annotation_form):
+                if os.path.splitext(n)[-1].replace('.', '') in \
+                        self.source_dataset_image_form_list:
                     pool.apply_async(self.source_dataset_copy_annotation,
                                      args=(root, n,),
                                      callback=update,
@@ -99,7 +100,7 @@ class HY_VAL(Dataset_Base):
         if os.path.splitext(n)[-1].replace('.', '') in \
                 self.source_dataset_image_form_list:
             json_name = os.path.splitext(
-                n)[0], '.' + self.source_dataset_annotation_form
+                n)[0] + '.' + self.source_dataset_annotation_form
             json_output_path = os.path.join(
                 self.source_dataset_annotations_folder, json_name)
             json.dump(fake_js, open(json_output_path, 'w'))
@@ -116,6 +117,12 @@ class HY_VAL(Dataset_Base):
         no_object = 0
         temp_file_name_list = []
 
+        for n in os.listdir(self.source_dataset_annotations_folder):
+            source_dataset_annotation = os.path.join(
+                self.source_dataset_annotations_folder, n)
+            temp_annotation = os.path.join(
+                self.temp_annotations_folder, self.file_prefix + n)
+            shutil.copy(source_dataset_annotation, temp_annotation)
         return
 
     @staticmethod
