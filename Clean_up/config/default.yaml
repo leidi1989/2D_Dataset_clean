@@ -4,11 +4,11 @@ Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/clean/cam_front_center_20
 # output path
 Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/clean/cam_front_center_20210918_20220210
 
-# Source dataset style: 
+# Source dataset style:
 # COCO2017, YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, HY_VAL,
 
-# NO: cityscapes, huaweiyun_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017
-# PASCAL_VOC, KITTI, YOLO, TT100K, LISA, CCTSDB, HUAWEI_SEGMENT, SJT, MYXB, HY_HIGHWAY(小写)
+# NO: cityscapes, bdd100k, apolloscape_lane_segment, cvat_coco2017
+# PASCAL_VOC, KITTI, YOLO, TT100K, LISA, CCTSDB, SJT, MYXB, HY_HIGHWAY(小写)
 Source_dataset_style: HY_VAL
 
 # Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL,
