@@ -10,8 +10,8 @@ Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/clean/yunce_wudazhuoer_p
 # PASCAL_VOC, KITTI, YOLO, TT100K, LISA, CCTSDB, HUAWEI_SEGMENT, SJT, MYXB, HY_HIGHWAY(小写)
 Source_dataset_style: YUNCE_SEGMENT_COCO_ONE_IMAGE
 
-# Target dataset style: cityscapes, COCO2017, cityscapes_val, cvat_image_1_1, pascal_voc, yolo
-Target_dataset_style: COCO2017
+# Target dataset style: CITYSCAPES, COCO2017, cityscapes_val, cvat_image_1_1, pascal_voc, yolo
+Target_dataset_style: CITYSCAPES
 
 # images or labels need to rename prefix
 File_prefix: yunce

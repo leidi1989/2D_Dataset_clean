@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-09 21:55:18
 LastEditors: Leidi
-LastEditTime: 2022-02-10 11:33:31
+LastEditTime: 2022-02-10 14:40:03
 '''
 # 输入数据集图片、annotation文件格式
 TARGET_DATASET_FILE_FORM = {
@@ -23,7 +23,7 @@ TARGET_DATASET_FILE_FORM = {
     'COCO2017': {'image': 'jpg',
                  'annotation': 'json'
                  },
-    'cityscapes': {'image': 'png',
+    'CITYSCAPES': {'image': 'png',
                    'annotation': 'json'
                    },
     'hy_val': {'image': 'png',

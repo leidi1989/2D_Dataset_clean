@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-10 11:33:34
+LastEditTime: 2022-02-10 15:09:12
 '''
 import dataset
 from utils.utils import *
@@ -532,7 +532,7 @@ class Dataset_Base:
 
         return
 
-    def get_temp_annotations_object_count(self, temp_annotation_path: str,) -> list:
+    def get_temp_annotations_object_count(self, temp_annotation_path: str) -> list:
         """[获取暂存标签类别计数字典列表]
 
         Args:
@@ -764,9 +764,9 @@ class Dataset_Base:
 
         # 记录类别分布
         each_class_keypoints_count_dataframe.to_csv((os.path.join(self.temp_sample_statistics_folder,
-                                                               'Detection_object_count.csv')))
+                                                                  'Detection_object_count.csv')))
         each_class_keypoints_proportion_dataframe.to_csv((os.path.join(self.temp_sample_statistics_folder,
-                                                                    'Detection_object_proportion.csv')))
+                                                                       'Detection_object_proportion.csv')))
 
         each_class_keypoints_count_dataframe.plot(kind='bar')
         plt.xticks(rotation=45)
@@ -781,8 +781,7 @@ class Dataset_Base:
 
         return
 
-    def get_temp_annotations_keypoints_class_count(self,
-                                                   temp_annotation_path: str) -> None:
+    def get_temp_annotations_keypoints_class_count(self, temp_annotation_path: str) -> None:
         """[获取暂存标签信息]
 
         Args:
@@ -794,8 +793,9 @@ class Dataset_Base:
         image = self.TEMP_LOAD(self, temp_annotation_path)
         total_annotation_keypoints_class_count_dict_list = []
         for object in image.object_list:
-            total_annotation_keypoints_class_count_dict_list.append({object.keypoints_clss: 1})
-            
+            total_annotation_keypoints_class_count_dict_list.append(
+                {object.keypoints_clss: 1})
+
         return total_annotation_keypoints_class_count_dict_list
 
     def get_image_mean_std(self, img_filename: str) -> list:
@@ -866,11 +866,12 @@ class Dataset_Base:
 
         return
 
-    def plot_detection_sample_statistics(self, task, task_class_dict) -> None:
-        """[绘制样本统计图]
+    def plot_detection_sample_statistics(self, task:str , task_class_dict: dict) -> None:
+        """[绘制detection样本统计图]
 
         Args:
-            dataset ([数据集类]): [数据集类实例]
+            task (str): [任务类型]
+            task_class_dict (dict): [任务类别字典]
         """
 
         x = np.arange(len(task_class_dict['Target_dataset_class']))  # x为类别数量
@@ -960,10 +961,11 @@ class Dataset_Base:
         return
 
     def plot_segmentation_sample_statistics(self, task, task_class_dict) -> None:
-        """[绘制样本统计图]
+        """[绘制segmentation样本统计图]
 
         Args:
-            dataset ([数据集类]): [数据集类实例]
+            task (str): [任务类型]
+            task_class_dict (dict): [任务类别字典]
         """
 
         if 'unlabeled' in task_class_dict['Target_dataset_class']:
@@ -1058,12 +1060,12 @@ class Dataset_Base:
 
         return
 
-    def plot_true_box(self, task, task_class_dict) -> None:
+    def plot_true_box(self, task: str, task_class_dict: dict) -> None:
         """[绘制每张图片的真实框检测图]
 
         Args:
-            dataset ([Dataset]): [Dataset类实例]
-            image (IMAGE): [IMAGE类实例]
+            task (str): [任务类型]
+            task_class_dict (dict): [任务类别字典]
         """
 
         # 类别色彩
@@ -1148,7 +1150,8 @@ class Dataset_Base:
         """[绘制每张图片的真实分割检测图]
 
         Args:
-            dataset (dict): [Dataset类实例]
+            task (str): [任务类型]
+            task_class_dict (dict): [任务类别字典]
         """
 
         colors = [[random.randint(0, 255) for _ in range(3)]
@@ -1237,7 +1240,8 @@ class Dataset_Base:
         """[绘制分割标签图]
 
         Args:
-            dataset (dict): [数据集信息字典]
+            task (str): [任务类型]
+            task_class_dict (dict): [任务类别字典]
             image (IMAGE): [图片类实例]
             segment_annotation_output_path (str): [分割标签图输出路径]
         """
@@ -1317,9 +1321,6 @@ class Dataset_Base:
 
     def target_dataset_annotation_check(self) -> None:
         """[进行标签检测]
-
-        Args:
-            dataset (dict): [数据集信息字典]
         """
 
         print('\nStart check target annotations:')

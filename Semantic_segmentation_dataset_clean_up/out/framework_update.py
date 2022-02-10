@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-11 03:28:09
 LastEditors: Leidi
-LastEditTime: 2021-12-28 15:36:17
+LastEditTime: 2022-02-10 14:51:51
 '''
 import os
 import cv2
@@ -123,7 +123,7 @@ def cityscapes(dataset: dict) -> None:
             check_output_path(os.path.join(
                 dataset_division_folder_path, dataset['dataset_prefix']))
 
-    print('Create annotation file to output folder：')
+    print('Create annotation file to output folder:')
     for n in tqdm(dataset['temp_divide_file_list'][1:4]):
         dataset_name = os.path.splitext(n.split(os.sep)[-1])[0]
         print('Create annotation file to {} folder:'.format(dataset_name))

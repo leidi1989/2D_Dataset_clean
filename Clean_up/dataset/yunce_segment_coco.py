@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-10 11:39:56
+LastEditTime: 2022-02-10 15:04:12
 '''
 import time
 import shutil
@@ -102,7 +102,10 @@ class YUNCE_SEGMENT_COCO(Dataset_Base):
 
         return
 
-    def transform_to_temp_dataset(self):
+    def transform_to_temp_dataset(self) -> None:
+        """[转换标注文件为暂存标注]
+        """
+
         print('\nStart transform to temp dataset:')
         success_count = 0
         fail_count = 0
