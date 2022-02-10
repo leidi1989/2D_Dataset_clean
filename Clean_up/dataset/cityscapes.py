@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-10 15:33:36
+LastEditTime: 2022-02-10 16:33:26
 '''
 import shutil
 import multiprocessing
@@ -117,7 +117,7 @@ class CITYSCAPES(Dataset_Base):
         """[输出target annotation]
 
         Args:
-            dataset_instance (object): [数据集类]
+            dataset_instance (object): [数据集实例]
         """
 
         print('\nStart transform to target dataset:')
@@ -193,41 +193,42 @@ class CITYSCAPES(Dataset_Base):
         """
 
         check_images_list = []
-        dataset['total_file_name_path'] = os.path.join(
-            dataset['temp_informations_folder'], 'total_file_name.txt')
-        dataset['check_file_name_list'] = annotations_path_list(
-            dataset['total_file_name_path'], dataset['target_annotation_check_count'])
+        dataset_instance.target_check_file_name_list = os.listdir(
+            dataset_instance.target_dataset_annotations_folder)  # 读取target_annotations_folder文件夹下的全部文件名
+        dataset_instance.target_dataset_check_file_name_list = annotations_path_list(
+            dataset_instance.total_file_name_path,
+            dataset_instance.target_dataset_annotations_check_count)
         print('Start load target annotations:')
-        for n in tqdm(dataset['check_file_name_list']):
+        for n in tqdm(dataset_instance.target_dataset_check_file_name_list,
+                      desc='Load target dataset annotation'):
             target_annotation_path = os.path.join(
-                dataset['target_annotations_folder'],
-                n + '.' + dataset['target_annotation_form'])
+                dataset_instance.target_dataset_annotations_folder,
+                n + '.' + dataset_instance.target_dataset_annotation_form)
             with open(target_annotation_path, 'r') as f:
                 data = json.loads(f.read())
-                image_name = n + '.' + dataset['target_image_form']
+                image_name = n + '.' + dataset_instance.target_dataset_image_form
                 image_path = os.path.join(
-                    dataset['temp_images_folder'], image_name)
+                    dataset_instance.temp_images_folder, image_name)
                 image_size = cv2.imread(image_path).shape
                 height = image_size[0]
                 width = image_size[1]
                 channels = image_size[2]
-                true_segmentation_list = []
-                for obj in data['objects']:
-                    cls = str(obj['label'])
+                object_list = []
+                for id, object in enumerate(data['objects']):
+                    cls = str(object['label'])
                     cls = cls.replace(' ', '').lower()
-                    if cls not in dataset['class_list_new']:
-                        continue
-                    true_segmentation_list.append(TRUE_SEGMENTATION(
-                        cls, obj['polygon']))  # 将单个真实框加入单张图片真实框列表
+                    segmentation = object['polygon']
+                    object_list.append(
+                        OBJECT(id, cls, cls, cls, cls, segmentation=segmentation))
                 image = IMAGE(image_name, image_name, image_path, int(
-                    height), int(width), int(channels), [], true_segmentation_list)
+                    height), int(width), int(channels), object_list)
                 check_images_list.append(image)
 
         return check_images_list
 
     @staticmethod
     def target_dataset_folder(dataset_instance: object) -> None:
-        """[生成COCO 2017组织格式的数据集]
+        """[生成CITYSCAPES组织格式的数据集]
 
         Args:
             dataset_instance (object): [数据集实例]
@@ -300,21 +301,23 @@ class CITYSCAPES(Dataset_Base):
         #                     'road': 1,
         #                     'lane': 2,
         #                     }
+
         class_names_dict = {}
-        for x, cls in enumerate(dataset['class_list_new']):
+        for x, cls in enumerate(dataset_instance.task_dict['Semantic_segmentation']
+                                ['Target_dataset_class']):
             class_names_dict.update({cls: x})
 
         # 获取全量数据编号字典
         file_name_dict = {}
         print('Collect file name dict.')
-        with open(dataset['temp_divide_file_list'][0], 'r') as f:
+        with open(dataset_instance.temp_divide_file_list[0], 'r') as f:
             for x, n in enumerate(f.read().splitlines()):
                 file_name = os.path.splitext(n.split(os.sep)[-1])[0]
                 file_name_dict[file_name] = x
             f.close()
 
         output_root = check_output_path(os.path.join(
-            dataset['target_path'], 'cityscapes', 'data'))   # 输出数据集文件夹
+            dataset_instance.dataset_output_folder, 'cityscapes', 'data'))   # 输出数据集文件夹
         cityscapes_folder_list = ['gtFine', 'leftImg8bit']
         data_divion_name = ['train', 'test', 'val']
         output_folder_path_list = []
@@ -322,35 +325,42 @@ class CITYSCAPES(Dataset_Base):
         print('Clean dataset folder!')
         shutil.rmtree(output_root)
         print('Create new folder:')
-        for n in tqdm(cityscapes_folder_list):
+        for n in cityscapes_folder_list:
             output_folder_path = check_output_path(
                 os.path.join(output_root, n))
             output_folder_path_list.append(output_folder_path)
-            for m in tqdm(data_divion_name):
+            for m in data_divion_name:
                 dataset_division_folder_path = os.path.join(
                     output_folder_path, m)
                 check_output_path(dataset_division_folder_path)
                 check_output_path(os.path.join(
-                    dataset_division_folder_path, dataset['dataset_prefix']))
+                    dataset_division_folder_path,
+                    dataset_instance.file_prefix.replace(
+                        dataset_instance.file_prefix_delimiter, '')))
 
-        print('Create annotation file to output folder:')
-        for n in tqdm(dataset['temp_divide_file_list'][1:4]):
+        for n in tqdm(dataset_instance.temp_divide_file_list[1:4],
+                      desc='Create annotation file to output folder'):
             dataset_name = os.path.splitext(n.split(os.sep)[-1])[0]
-            print('Create annotation file to {} folder:'.format(dataset_name))
             with open(n, 'r') as f:
-                pool = multiprocessing.Pool(dataset['workers'])
-                for x in tqdm(f.read().splitlines()):
-                    pool.apply_async(func=F.__dict__[dataset['target_dataset_style']].create_annotation_file,
-                                     args=(dataset, file_name_dict, output_folder_path_list,
+                data_list = f.read().splitlines()
+                pbar, update = multiprocessing_list_tqdm(data_list,
+                                                         desc='Create annotation file to {} folder:'.format(dataset_name),
+                                                         leave=False)
+                pool = multiprocessing.Pool(dataset_instance.workers)
+                for x in data_list:
+                    pool.apply_async(func=dataset.__dict__[dataset_instance.target_dataset_style].create_annotation_file,
+                                     args=(dataset_instance, file_name_dict, output_folder_path_list,
                                            dataset_name, class_names_dict, x),
+                                     callback=update,
                                      error_callback=err_call_back)
                 pool.close()
                 pool.join()
+                pbar.close()
 
         return
 
     @staticmethod
-    def create_annotation_file(self, dataset: dict, file_name_dict: dict, output_folder_path_list: list,
+    def create_annotation_file(dataset_instance: dict, file_name_dict: dict, output_folder_path_list: list,
                                dataset_name: str, class_names_dict: dict, x: str, ) -> None:
         """[创建cityscapes格式数据集]
 
@@ -364,36 +374,42 @@ class CITYSCAPES(Dataset_Base):
         """
 
         file = os.path.splitext(x.split(os.sep)[-1])[0]
-        file_out = dataset['dataset_prefix'] + '_000000_' + \
+        file_out = dataset_instance.file_prefix.replace(
+            dataset_instance.file_prefix_delimiter, '') + '_000000_' + \
             str(format(file_name_dict[file], '06d'))
         # 调整image
         image_out = file_out + '_leftImg8bit' + \
-            '.' + dataset['target_image_form']
+            '.' + dataset_instance.target_dataset_image_form
         image_path = os.path.join(
-            dataset['temp_images_folder'], file + '.' + dataset['target_image_form'])
+            dataset_instance.temp_images_folder, file + '.' + dataset_instance.target_dataset_image_form)
         image_output_path = os.path.join(
-            output_folder_path_list[1], dataset_name, dataset['dataset_prefix'], image_out)
+            output_folder_path_list[1], dataset_name, dataset_instance.file_prefix.replace(
+                dataset_instance.file_prefix_delimiter, ''), image_out)
         # 调整annotation
         annotation_out = file_out + '_gtFine_polygons' + \
-            '.' + dataset['target_annotation_form']
+            '.' + dataset_instance.target_dataset_annotation_form
+        temp_annotation_path = os.path.join(
+            dataset_instance.temp_annotations_folder, file + '.' + dataset_instance.temp_annotation_form)
         annotation_path = os.path.join(
-            dataset['target_annotations_folder'], file + '.' + dataset['target_annotation_form'])
+            dataset_instance.target_dataset_annotations_folder, file + '.' + dataset_instance.target_dataset_annotation_form)
         annotation_output_path = os.path.join(
-            output_folder_path_list[0], dataset_name, dataset['dataset_prefix'], annotation_out)
+            output_folder_path_list[0], dataset_name, dataset_instance.file_prefix.replace(
+                dataset_instance.file_prefix_delimiter, ''), annotation_out)
         # 调整annotation为_gtFine_labelIds.png
-        image = TEMP_LOAD(dataset, annotation_path)
+        image = dataset_instance.TEMP_LOAD(dataset_instance, temp_annotation_path)
         labelIds_out = file_out + '_gtFine_labelIds.png'
         labelIds_output_path = os.path.join(
-            output_folder_path_list[0], dataset_name, dataset['dataset_prefix'], labelIds_out)
+            output_folder_path_list[0], dataset_name, dataset_instance.file_prefix.replace(
+                dataset_instance.file_prefix_delimiter, ''), labelIds_out)
         # 输出
         shutil.copy(image_path, image_output_path)
         shutil.copy(annotation_path, annotation_output_path)
 
         zeros = np.zeros((image.height, image.width), dtype=np.uint8)
-        if len(image.true_segmentation_list):
-            for seg in image.true_segmentation_list:
-                class_color = class_names_dict[seg.clss]
-                points = np.array(seg.segmentation)
+        if len(image.object_list):
+            for object in image.object_list:
+                class_color = class_names_dict[object.segmentation_clss]
+                points = np.array(object.segmentation)
                 zeros_mask = cv2.fillPoly(
                     zeros, pts=[points], color=class_color)
             cv2.imwrite(labelIds_output_path, zeros_mask)

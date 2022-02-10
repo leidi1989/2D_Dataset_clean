@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-02-10 11:33:10
+LastEditTime: 2022-02-10 16:05:24
 '''
 import os
 import cv2
@@ -170,7 +170,7 @@ class KEYPOINTS:
             self.keypoints = []
         else:
             self.keypoints = keypoints
-        if len(keypoints):
+        if keypoints is not None and len(keypoints):
             self.keypoints_exist_flag = True
         else:
             self.keypoints_exist_flag = False
@@ -236,7 +236,7 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
         self.object_clss = object_clss
         self.object_convert_flag = ''
         if task_convert_dict == None:
-            task_convert_dict = {}
+            self.task_convert_dict = {}
         else:
             self.task_convert_dict = task_convert_dict
         if 0 == len(self.box_xywh)\
@@ -338,7 +338,7 @@ class IMAGE:
         """[修改真实框类别]
 
         Args:
-            dataset_instance (object): [输入数据集实例]
+            dataset_instance (object): [数据集实例]
         """
 
         for task, task_class_dict in dataset_instance.task_dict.items():

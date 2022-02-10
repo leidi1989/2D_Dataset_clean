@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-10 15:26:22
+LastEditTime: 2022-02-10 16:28:50
 '''
 import dataset
 from utils.utils import *
@@ -1278,7 +1278,7 @@ class Dataset_Base:
                 os.sep)[-1].replace('.json', '.' + dataset_instance.temp_image_form)
             image_path = os.path.join(
                 dataset_instance.temp_images_folder, image_name)
-            if os.path.splitext(image_path)[-1] == 'png':
+            if os.path.splitext(image_path)[-1] == '.png':
                 img = Image.open(image_path)
                 height, width = img.height, img.width
                 channels = 3
