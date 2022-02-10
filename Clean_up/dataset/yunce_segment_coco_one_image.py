@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-10 11:34:42
+LastEditTime: 2022-02-10 11:38:25
 '''
 import time
 import shutil
@@ -13,10 +13,10 @@ import multiprocessing
 
 import dataset
 from utils.utils import *
-from ..base.image_base import *
-from ..base.dataset_characteristic import *
+from base.image_base import *
+from base.dataset_characteristic import *
 from utils import image_form_transform
-from Clean_up.base.dataset_base import Dataset_Base
+from base.dataset_base import Dataset_Base
 
 
 class YUNCE_SEGMENT_COCO_ONE_IMAGE(Dataset_Base):

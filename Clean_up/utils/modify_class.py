@@ -7,7 +7,7 @@ LastEditors: Leidi
 LastEditTime: 2022-01-20 10:04:25
 '''
 # -*- coding: utf-8 -*-
-from Clean_up.dataset.image_base import IMAGE
+from Clean_up.base.image_base import IMAGE
 from tqdm import tqdm
 
 

@@ -31,11 +31,11 @@ Target_dataset_check_annotations_output_as_mask: True
 # Task and class config
 Task_and_class_config:
   # Detection, Semantic_segmentation, Instance_segmentation, Keypoints
-  Detection:
-    Source_dataset_class_file_path: Clean_up/data/segment_classes_yunce_segmentation_184_classes_no_infer_20211130.names
-    Modify_class_file_path: Clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_road_lane_parkingline_parking_20211116.txt
-    Target_each_class_object_pixel_limit_file_path:
-    Need_convert: False
+  # Detection:
+  #   Source_dataset_class_file_path: Clean_up/data/segment_classes_yunce_segmentation_184_classes_no_infer_20211130.names
+  #   Modify_class_file_path: Clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_road_lane_parkingline_parking_20211116.txt
+  #   Target_each_class_object_pixel_limit_file_path:
+  #   Need_convert: False
   Semantic_segmentation:
     Source_dataset_class_file_path: Clean_up/data/segment_classes_yunce_segmentation_184_classes_no_infer_20211130.names
     Modify_class_file_path: Clean_up/data/segment_classes_yunce_segmentation_184_classes_include_infer_to_road_lane_parkingline_parking_20211116.txt

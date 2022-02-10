@@ -13,10 +13,10 @@ import multiprocessing
 
 import dataset
 from utils.utils import *
-from ..base.image_base import *
-from ..base.dataset_characteristic import *
+from base.image_base import *
+from base.dataset_characteristic import *
 from utils import image_form_transform
-from Clean_up.base.dataset_base import Dataset_Base
+from base.dataset_base import Dataset_Base
 
 
 class COCO2017(Dataset_Base):
