@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-10 17:15:07
+LastEditTime: 2022-02-10 17:20:22
 '''
 import time
 import shutil
@@ -96,11 +96,12 @@ class HY_VAL(Dataset_Base):
         """
 
         fake_js = {}
-        if n.endswith('.' + dataset['source_image_form']):
-            json_name = n.replace(
-                '.' + dataset['source_image_form'], '.' + dataset['source_annotation_form'])
+        if os.path.splitext(n)[-1].replace('.', '') in \
+                self.source_dataset_image_form_list:
+            json_name = os.path.splitext(
+                n)[0], '.' + self.source_dataset_annotation_form
             json_output_path = os.path.join(
-                dataset['source_annotations_folder'], json_name)
+                self.source_dataset_annotations_folder, json_name)
             json.dump(fake_js, open(json_output_path, 'w'))
 
         return
@@ -139,5 +140,5 @@ class HY_VAL(Dataset_Base):
         """
 
         print('\nStart build target dataset folder:')
-        
+
         return
