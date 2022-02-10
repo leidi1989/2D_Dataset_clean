@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-10 16:28:50
+LastEditTime: 2022-02-10 17:13:30
 '''
 import dataset
 from utils.utils import *
@@ -1328,6 +1328,9 @@ class Dataset_Base:
             self.target_dataset_style].annotation_check(self)
         shutil.rmtree(self.target_dataset_annotation_check_output_folder)
         check_output_path(self.target_dataset_annotation_check_output_folder)
+        if 0 == len(self.target_dataset_check_images_list):
+            print('No target dataset check images list.')
+            return
         for task, task_class_dict in self.task_dict.items():
             if task == 'Detection' and task_class_dict is not None:
                 self.plot_true_box(task, task_class_dict)

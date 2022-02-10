@@ -1,21 +1,23 @@
 # dataset path
-Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/clean/yunce_wudazhuoer_parking_20211213
+Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/clean/cam_front_center_20210918
 
 # output path
-Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/clean/yunce_wudazhuoer_parking_20211213_20220209
+Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/clean/cam_front_center_20210918_20220210
 
 # Source dataset style: 
 # COCO2017, YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, HY_VAL,
+
 # NO: cityscapes, huaweiyun_segment, bdd100k, apolloscape_lane_segment, hy_val, cvat_coco2017
 # PASCAL_VOC, KITTI, YOLO, TT100K, LISA, CCTSDB, HUAWEI_SEGMENT, SJT, MYXB, HY_HIGHWAY(小写)
-Source_dataset_style: YUNCE_SEGMENT_COCO_ONE_IMAGE
+Source_dataset_style: HY_VAL
 
-# Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, 
+# Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL,
+
 # NO: cvat_image_1_1, pascal_voc, yolo
-Target_dataset_style: CITYSCAPES
+Target_dataset_style: CITYSCAPES_VAL
 
 # images or labels need to rename prefix
-File_prefix: yunce
+File_prefix: test
 
 # name delimiter(cityscapes need: "@")
 File_prefix_delimiter: "@"

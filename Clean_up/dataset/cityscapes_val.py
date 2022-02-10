@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-10 16:55:46
+LastEditTime: 2022-02-10 17:16:09
 '''
 import shutil
 import multiprocessing
@@ -177,39 +177,7 @@ class CITYSCAPES(Dataset_Base):
             list: [数据集图片类检测列表]
         """
 
-        check_images_list = []
-        dataset_instance.target_check_file_name_list = os.listdir(
-            dataset_instance.target_dataset_annotations_folder)  # 读取target_annotations_folder文件夹下的全部文件名
-        dataset_instance.target_dataset_check_file_name_list = annotations_path_list(
-            dataset_instance.total_file_name_path,
-            dataset_instance.target_dataset_annotations_check_count)
-        print('Start load target annotations:')
-        for n in tqdm(dataset_instance.target_dataset_check_file_name_list,
-                      desc='Load target dataset annotation'):
-            target_annotation_path = os.path.join(
-                dataset_instance.target_dataset_annotations_folder,
-                n + '.' + dataset_instance.target_dataset_annotation_form)
-            with open(target_annotation_path, 'r') as f:
-                data = json.loads(f.read())
-                image_name = n + '.' + dataset_instance.target_dataset_image_form
-                image_path = os.path.join(
-                    dataset_instance.temp_images_folder, image_name)
-                image_size = cv2.imread(image_path).shape
-                height = image_size[0]
-                width = image_size[1]
-                channels = image_size[2]
-                object_list = []
-                for id, object in enumerate(data['objects']):
-                    cls = str(object['label'])
-                    cls = cls.replace(' ', '').lower()
-                    segmentation = object['polygon']
-                    object_list.append(
-                        OBJECT(id, cls, cls, cls, cls, segmentation=segmentation))
-                image = IMAGE(image_name, image_name, image_path, int(
-                    height), int(width), int(channels), object_list)
-                check_images_list.append(image)
-
-        return check_images_list
+        return []
 
     @staticmethod
     def target_dataset_folder(dataset_instance: object) -> None:
