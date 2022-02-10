@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-08 01:53:37
+LastEditTime: 2022-02-10 17:02:39
 '''
 from lib2to3.pytree import convert
 from subprocess import call
@@ -24,11 +24,11 @@ from utils import image_form_transform
 from base.dataset_base import Dataset_Base
 
 
-class COCO2017(Dataset_Base):
+class HY_VAL(Dataset_Base):
 
     def __init__(self, opt) -> None:
         super().__init__(opt)
-        self.source_dataset_image_form_list = ['jpg']
+        self.source_dataset_image_form_list = ['jpg', 'png']
         self.source_dataset_annotation_form = 'json'
         self.source_dataset_image_count = self.get_source_dataset_image_count()
         self.source_dataset_annotation_count = self.get_source_dataset_annotation_count()
@@ -100,10 +100,13 @@ class COCO2017(Dataset_Base):
             n (str): [文件名]
         """
 
-        annotation = os.path.join(root, n)
-        temp_annotation = os.path.join(
-            self.source_dataset_annotations_folder, n)
-        shutil.copy(annotation, temp_annotation)
+        fake_js = {}
+        if n.endswith('.' + dataset['source_image_form']):
+            json_name = n.replace(
+                '.' + dataset['source_image_form'], '.' + dataset['source_annotation_form'])
+            json_output_path = os.path.join(
+                dataset['source_annotations_folder'], json_name)
+            json.dump(fake_js, open(json_output_path, 'w'))
 
         return
 
