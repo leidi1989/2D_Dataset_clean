@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-10 15:09:12
+LastEditTime: 2022-02-10 15:26:22
 '''
 import dataset
 from utils.utils import *
@@ -24,8 +24,8 @@ import multiprocessing
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.rc("font", family='AR PL UMing CN')
-# plt.switch_backend('agg')
-matplotlib.use('TkAgg')
+plt.switch_backend('agg')
+# matplotlib.use('TkAgg')
 
 
 class Dataset_Base:

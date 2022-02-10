@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-10 15:02:53
+LastEditTime: 2022-02-10 15:32:10
 '''
 import time
 import shutil
@@ -359,10 +359,10 @@ class COCO2017(Dataset_Base):
 
     @staticmethod
     def target_dataset(dataset_instance: object):
-        """[输出temp dataset annotation]
+        """[输出target annotation]
 
         Args:
-            dataset (Dataset): [dataset]
+            dataset (object): [数据集类]
         """
 
         print('\nStart transform to target dataset:')

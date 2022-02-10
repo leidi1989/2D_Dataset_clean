@@ -4,17 +4,10 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-10 15:04:28
+LastEditTime: 2022-02-10 15:33:36
 '''
-from lib2to3.pytree import convert
-from subprocess import call
-import time
 import shutil
-from PIL import Image
 import multiprocessing
-
-from numpy import delete
-from sqlalchemy import desc
 
 import dataset
 from utils.utils import *
@@ -120,40 +113,37 @@ class CITYSCAPES(Dataset_Base):
         return
 
     @staticmethod
-    def target_dataset(dataset_instance: object):
-        """[输出temp dataset annotation]
+    def target_dataset(dataset_instance: object) -> None:
+        """[输出target annotation]
 
         Args:
-            dataset (Dataset): [dataset]
+            dataset_instance (object): [数据集类]
         """
 
         print('\nStart transform to target dataset:')
+        total_annotation_path_list = []
         for dataset_temp_annotation_path_list in tqdm(dataset_instance.temp_divide_file_list[1:-1],
-                                                      desc='Transform to target dataset'):
-            annotation_path_list = []
+                                                      desc='Get total annotation path list'):
             with open(dataset_temp_annotation_path_list, 'r') as f:
                 for n in f.readlines():
-                    annotation_path_list.append(n.replace('\n', '')
-                                                .replace(dataset_instance.source_dataset_images_folder,
-                                                         dataset_instance.temp_annotations_folder)
-                                                .replace(dataset_instance.target_dataset_image_form,
-                                                         dataset_instance.temp_annotation_form))
-            # 读取标签图片基础信息
-            print('Start load image information:')
-            image_information_list = []
-            pbar, update = multiprocessing_list_tqdm(
-                annotation_path_list, desc='Load image information')
-            pool = multiprocessing.Pool(dataset_instance.workers)
-            for temp_annotation_path in annotation_path_list:
-                image_information_list.append(
-                    pool.apply_async(func=dataset.__dict__[dataset_instance.target_dataset_style].annotation_output,
-                                     args=(dataset_instance,
-                                           temp_annotation_path,),
-                                     callback=update,
-                                     error_callback=err_call_back))
-            pool.close()
-            pool.join()
-            pbar.close()
+                    total_annotation_path_list.append(n.replace('\n', '')
+                                                      .replace(dataset_instance.source_dataset_images_folder,
+                                                               dataset_instance.temp_annotations_folder)
+                                                      .replace(dataset_instance.target_dataset_image_form,
+                                                               dataset_instance.temp_annotation_form))
+
+        pbar, update = multiprocessing_list_tqdm(
+            total_annotation_path_list, desc='Output target dataset annotation')
+        pool = multiprocessing.Pool(dataset_instance.workers)
+        for temp_annotation_path in total_annotation_path_list:
+            pool.apply_async(func=dataset.__dict__[dataset_instance.target_dataset_style].annotation_output,
+                             args=(dataset_instance,
+                                   temp_annotation_path,),
+                             callback=update,
+                             error_callback=err_call_back)
+        pool.close()
+        pool.join()
+        pbar.close()
 
         return
 
@@ -175,15 +165,16 @@ class CITYSCAPES(Dataset_Base):
             return
         # 图片基础信息
         annotation_output_path = os.path.join(
-            dataset['target_annotations_folder'], image.file_name + '.' + dataset['target_annotation_form'])
+            dataset_instance.target_dataset_annotations_folder,
+            image.file_name + '.' + dataset_instance.target_dataset_annotation_form)
         annotation = {'imgHeight': image.height,
                       'imgWidth': image.width,
                       'objects': []
                       }
         segmentation = {}
-        for true_segmentation in image.true_segmentation_list:
-            segmentation = {'label': true_segmentation.clss,
-                            'polygon': true_segmentation.segmentation
+        for object in image.object_list:
+            segmentation = {'label': object.segmentation_clss,
+                            'polygon': object.segmentation
                             }
             annotation['objects'].append(segmentation)
         json.dump(annotation, open(annotation_output_path, 'w'))
