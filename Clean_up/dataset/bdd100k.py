@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-13 21:07:21
+LastEditTime: 2022-02-13 21:51:36
 '''
 from lib2to3.pytree import convert
 from subprocess import call
@@ -22,6 +22,7 @@ from base.image_base import *
 from base.dataset_characteristic import *
 from utils import image_form_transform
 from base.dataset_base import Dataset_Base
+from utils.convertion_function import temp_box_to_coco_box
 
 
 class BDD100K(Dataset_Base):
@@ -107,27 +108,36 @@ class BDD100K(Dataset_Base):
 
         return
 
-    def transform_to_temp_dataset(self):
+    def transform_to_temp_dataset(self) -> None:
+        """[转换标注文件为暂存标注]
+        """
+
         print('\nStart transform to temp dataset:')
         success_count = 0
         fail_count = 0
         no_object = 0
         temp_file_name_list = []
+        total_source_dataset_annotations_list = os.listdir(
+            self.source_dataset_annotations_folder)
 
+        pbar, update = multiprocessing_list_tqdm(os.listdir(total_source_dataset_annotations_list),
+                                                 desc='Total annotations')
         process_temp_file_name_list = multiprocessing.Manager().list()
         process_output = multiprocessing.Manager().dict({'success_count': 0,
                                                          'fail_count': 0,
                                                          'no_object': 0,
                                                          'temp_file_name_list': process_temp_file_name_list
                                                          })
-        pool = multiprocessing.Pool(dataset['workers'])
-        for source_annotation_name in tqdm(os.listdir(dataset['source_annotations_folder'])):
+        pool = multiprocessing.Pool(self.workers)
+        for source_annotation_name in os.listdir(total_source_dataset_annotations_list):
             pool.apply_async(func=self.load_annotation,
                              args=(source_annotation_name,
                                    process_output,),
+                             callback=update,
                              error_callback=err_call_back)
         pool.close()
         pool.join()
+        pbar.close()
 
         success_count = process_output['success_count']
         fail_count = process_output['fail_count']
@@ -144,18 +154,13 @@ class BDD100K(Dataset_Base):
             no_object))
         print('Convert success:           \t {} '.format(
             success_count))
-        dataset['temp_file_name_list'] = [x for x in temp_file_name_list]
-        # 输出分割类别至temp informations folder
-        with open(os.path.join(dataset['temp_informations_folder'], 'segment_classes.names'), 'w') as f:
-            if len(dataset['class_list_new']):
-                f.write('\n'.join(str(n)
-                                  for n in dataset['class_list_new']))
-            f.close()
+        self.temp_annotation_name_list = temp_file_name_list
+        print('Source dataset annotation transform to temp dataset end.')
 
         return
 
     def load_annotation(self, source_annotation_name: str, process_output: dict) -> None:
-        """[读取标签获取图片基础信息，并添加至each_annotation_images_data_dict]
+        """[读取标签获取图片基础信息, 并添加至each_annotation_images_data_dict]
 
         Args:
             dataset (dict): [数据集信息字典]
@@ -186,22 +191,21 @@ class BDD100K(Dataset_Base):
         one_line_expand_offset = 5
 
         source_annotation_path = os.path.join(
-            dataset['source_annotations_folder'], source_annotation_name)
+            self.source_dataset_annotations_folder, source_annotation_name)
         with open(source_annotation_path, 'r') as f:
             data = json.loads(f.read())
-        true_box_list = []
-        true_segment_list = []
+        object_list = []
         # 获取data字典中images内的图片信息，file_name、height、width
-        image_name = source_annotation_name.split(
-            '.')[0] + '.' + dataset['temp_image_form']
-        image_name_new = dataset['file_prefix'] + image_name
+        image_name = os.path.splitext(source_annotation_name)[
+            0] + '.' + self.temp_image_form
+        image_name_new = self.file_prefix + image_name
 
         # TODO debug
         # if image_name_new != 'bdd100k@00db9030-5102ed41.png':
         #     return
 
         image_path = os.path.join(
-            dataset['temp_images_folder'], image_name_new)
+            self.temp_images_folder, image_name_new)
         img = cv2.imread(image_path)
         height, width, channels = img.shape
 
@@ -209,6 +213,8 @@ class BDD100K(Dataset_Base):
         object_box_list = []
         object_segment_area_list = []
         object_segment_lane_list = []
+        object_count = 0
+
         for object in data['frames'][0]['objects']:
             if 'box2d' in object:
                 object_box_list.append(object)
@@ -223,21 +229,23 @@ class BDD100K(Dataset_Base):
                     object_segment_lane_list.append(object)
 
         # true box
-        for object in object_box_list:
+        for n, object in enumerate(object_box_list):
             clss = object['category']
             clss = clss.replace(' ', '').lower()
-            one_true_box = TRUE_BOX(clss,
-                                    object['box2d']['x1'],
-                                    object['box2d']['y1'],
-                                    object['box2d']['x2'],
-                                    object['box2d']['y2'],
-                                    color=object['attributes']['trafficLightColor'],
-                                    occlusion=object['attributes']['occluded']
-                                    )
-            true_box_list.append(one_true_box)
+            box_xywh = temp_box_to_coco_box(object['box2d']['x1'],
+                                            object['box2d']['y1'],
+                                            object['box2d']['x2'],
+                                            object['box2d']['y2'])
+            object_list.append(OBJECT(n,
+                                      clss,
+                                      box_clss=clss,
+                                      box_xywh=box_xywh,
+                                      box_color=object['attributes']['trafficLightColor'],
+                                      box_occlusion=object['attributes']['occluded']))
+        object_count += len(object_box_list)
 
         # object segment area
-        for object in object_segment_area_list:
+        for n, object in enumerate(object_segment_area_list):
             clss = object['category']
             clss = clss.replace(' ', '').lower()
             segmentation_point_list = []
@@ -278,10 +286,11 @@ class BDD100K(Dataset_Base):
             segmentation_point_list[:, 1] = np.minimum(
                 segmentation_point_list[:, 1], 720)
             segmentation_point_list = segmentation_point_list.tolist()
-            one_true_segment = TRUE_SEGMENTATION(clss,
-                                                 segmentation_point_list
-                                                 )
-            true_segment_list.append(one_true_segment)
+            object_list.append(OBJECT(n+object_count,
+                                      clss,
+                                      segmentation_clss=clss,
+                                      segmentation=segmentation_point_list))
+        object_count += len(object_segment_area_list)
 
         # 车道线提取，lane单双线标注分类
         object_segment_one_line_lane_list = []
@@ -355,7 +364,7 @@ class BDD100K(Dataset_Base):
                             temp_line = line
 
         # object segment double line lane
-        for m, n in object_segment_double_line_lane_pair_list:
+        for c, m, n in enumerate(object_segment_double_line_lane_pair_list):
             clss = m['category']
             clss = clss.replace(' ', '').lower()
             # line 1
@@ -385,13 +394,14 @@ class BDD100K(Dataset_Base):
             line_point_list_1[:, 0] = np.minimum(line_point_list_1[:, 0], 1280)
             line_point_list_1[:, 1] = np.minimum(line_point_list_1[:, 1], 720)
             line_point_list_1 = line_point_list_1.tolist()
-            one_true_segment = TRUE_SEGMENTATION(clss,
-                                                 line_point_list_1
-                                                 )
-            true_segment_list.append(one_true_segment)
+            object_list.append(OBJECT(c+object_count,
+                                      clss,
+                                      segmentation_clss=clss,
+                                      segmentation=line_point_list_1))
+        object_count += len(object_segment_double_line_lane_pair_list)
 
         # object segment one line lane
-        for object in object_segment_one_line_lane_list:
+        for n, object in enumerate(object_segment_one_line_lane_list):
             clss = object['category']
             clss = clss.replace(' ', '').lower()
             segmentation_point_list = [x[0:-1] for x in object['poly2d']]
@@ -414,10 +424,10 @@ class BDD100K(Dataset_Base):
                 line_point_list_loop[:, 1] = np.minimum(
                     line_point_list_loop[:, 1], 720)
                 line_point_list_loop = line_point_list_loop.tolist()
-                one_true_segment = TRUE_SEGMENTATION(clss,
-                                                     line_point_list_loop
-                                                     )
-                true_segment_list.append(one_true_segment)
+                object_list.append(OBJECT(n+object_count,
+                                          clss,
+                                          segmentation_clss=clss,
+                                          segmentation=line_point_list_loop))
             # 贝塞尔曲线
             else:
                 # 单线左侧边缘
@@ -453,40 +463,37 @@ class BDD100K(Dataset_Base):
                 line_point_list_loop[:, 1] = np.minimum(
                     line_point_list_loop[:, 1], 720)
                 line_point_list_loop = line_point_list_loop.tolist()
-
-                one_true_segment = TRUE_SEGMENTATION(clss,
-                                                     line_point_list_loop
-                                                     )
-                true_segment_list.append(one_true_segment)
+                object_list.append(OBJECT(n+object_count,
+                                          clss,
+                                          segmentation_clss=clss,
+                                          segmentation=line_point_list_loop))
+        object_count += len(object_segment_one_line_lane_list)
 
         # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，
         # 并将初始化后的对象存入total_images_data_list
-        image = IMAGE(image_name, image_name_new, image_path, height,
-                      width, channels, true_box_list, true_segment_list)
+        image = IMAGE(image_name, image_name_new, image_path,
+                      height, width, channels, object_list)
         # 读取目标标注信息，输出读取的source annotation至temp annotation
         if image == None:
             return
         temp_annotation_output_path = os.path.join(
-            dataset['temp_annotations_folder'],
-            image.file_name_new + '.' + dataset['temp_annotation_form'])
-        modify_true_segmentation_list(
-            image, dataset['modify_class_dict'])
-        if dataset['class_pixel_distance_dict'] is not None:
-            class_segmentation_pixel_limit(
-                dataset, image.true_segmentation_list)
-        if 0 == len(image.true_segmentation_list) and 0 == len(image.true_box_list):
-            print('{} has not true segmentation and box, delete!'.format(
+            self.temp_annotations_folder,
+            image.file_name_new + '.' + self.temp_annotation_form)
+        image.modify_object_list(self)
+        image.object_pixel_limit(self)
+        if 0 == len(image.object_list):
+            print('{} no object, has been delete.'.format(
                 image.image_name_new))
             os.remove(image.image_path)
-            process_output['no_segmentation'] += 1
+            process_output['no_object'] += 1
             process_output['fail_count'] += 1
             return
-        if TEMP_OUTPUT(temp_annotation_output_path, image):
+        if image.output_temp_annotation(temp_annotation_output_path):
             process_output['temp_file_name_list'].append(image.file_name_new)
             process_output['success_count'] += 1
         else:
+            print('errow output temp annotation: {}'.format(image.file_name_new))
             process_output['fail_count'] += 1
-            return
 
         return
 
@@ -524,45 +531,5 @@ class BDD100K(Dataset_Base):
         """
 
         print('\nStart build target dataset folder:')
-        # 调整image
-        output_root = check_output_path(
-            os.path.join(dataset_instance.dataset_output_folder, 'coco2017'))
-        shutil.rmtree(output_root)
-        output_root = check_output_path(
-            os.path.join(dataset_instance.dataset_output_folder, 'coco2017'))
-        annotations_output_folder = check_output_path(
-            os.path.join(output_root, 'annotations'))
-        # 调整ImageSets
-        print('Start copy images:')
-        for temp_divide_file in dataset_instance.temp_divide_file_list[1:4]:
-            image_list = []
-            coco_images_folder = os.path.splitext(
-                temp_divide_file.split(os.sep)[-1])[0]
-            image_output_folder = check_output_path(
-                os.path.join(output_root, coco_images_folder + '2017'))
-            with open(temp_divide_file, 'r') as f:
-                for n in f.readlines():
-                    image_list.append(n.replace('\n', ''))
-            pbar, update = multiprocessing_list_tqdm(
-                image_list, desc='Copy images', leave=False)
-            pool = multiprocessing.Pool(dataset_instance.workers)
-            for image_input_path in image_list:
-                image_output_path = image_input_path.replace(
-                    dataset_instance.temp_images_folder, image_output_folder)
-                pool.apply_async(func=shutil.copy,
-                                 args=(image_input_path, image_output_path,),
-                                 callback=update,
-                                 error_callback=err_call_back)
-            pool.close()
-            pool.join()
-            pbar.close()
 
-        print('Start copy annotations:')
-        for root, dirs, files in os.walk(dataset_instance.target_dataset_annotations_folder):
-            for n in tqdm(files, desc='Copy annotations'):
-                annotations_input_path = os.path.join(root, n)
-                annotations_output_path = annotations_input_path.replace(
-                    dataset_instance.target_dataset_annotations_folder,
-                    annotations_output_folder)
-                shutil.copy(annotations_input_path, annotations_output_path)
         return

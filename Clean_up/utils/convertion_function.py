@@ -4,11 +4,11 @@ Version:
 Author: Leidi
 Date: 2021-08-06 09:06:35
 LastEditors: Leidi
-LastEditTime: 2022-02-10 11:35:12
+LastEditTime: 2022-02-13 21:53:25
 '''
 # -*- coding: utf-8 -*-
 import numpy as np
-from Clean_up.base.image_base import *
+from base.image_base import *
 
 
 def yolo(size: list, box: list) -> tuple:
