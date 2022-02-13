@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:07:13
 LastEditors: Leidi
-LastEditTime: 2022-02-10 18:05:38
+LastEditTime: 2022-02-13 20:57:41
 '''
 
 from .coco2017 import COCO2017
@@ -14,3 +14,4 @@ from .huaweiyun_segment import HUAWEIYUN_SEGMENT
 from .cityscapes import CITYSCAPES
 from .cityscapes_val import CITYSCAPES_VAL
 from .hy_val import HY_VAL
+from .bdd100k import BDD100K

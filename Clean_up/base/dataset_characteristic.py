@@ -4,14 +4,14 @@ Version:
 Author: Leidi
 Date: 2021-08-09 21:55:18
 LastEditors: Leidi
-LastEditTime: 2022-02-10 17:00:30
+LastEditTime: 2022-02-13 20:57:03
 '''
 # 输入数据集图片、annotation文件格式
 TARGET_DATASET_FILE_FORM = {
     'apolloscape_lane_segment': {'image': 'jpg',
                                  'annotation': 'png'
                                  },
-    'bdd100k': {'image': 'jpg',
+    'BDD100K': {'image': 'jpg',
                 'annotation': 'json'
                 },
     'cvat_image_1_1': {'image': 'jpg',
