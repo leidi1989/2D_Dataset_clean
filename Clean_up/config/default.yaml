@@ -1,8 +1,8 @@
 # dataset path
-Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/clean/cam_front_center_20210918
+Dataset_input_folder: /home/leidi/Data/dataset/Test/cam_front_center_20210918
 
 # output path
-Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/clean/cam_front_center_20210918_20220210
+Dataset_output_folder: /home/leidi/Data/dataset/Test/cam_front_center_20210918_20220213
 
 # Source dataset style:
 # COCO2017, YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, HY_VAL,

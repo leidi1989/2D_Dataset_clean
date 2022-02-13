@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-10 18:04:41
+LastEditTime: 2022-02-13 13:57:29
 '''
 import dataset
 from utils.utils import *
@@ -327,7 +327,7 @@ class Dataset_Base:
                     [image_name])                                                   # 同时将图片名称存入对应场景分类键下
         # 计算不同场景按数据集划分比例选取样本数量
         # 遍历场景图片计数字典，获取键（不同场景）和键值（图片数、图片名称）
-        if self.target_dataset_style == 'cityscapes_val':
+        if self.target_dataset_style == 'CITYSCAPES_VAL':
             self.target_dataset_divide_proportion = (0, 1, 0, 0)
         for key, val in scene_count_dict.items():
             # 打包配对不同set对应不同的比例
