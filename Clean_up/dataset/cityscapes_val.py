@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-10 18:28:39
+LastEditTime: 2022-02-13 14:01:48
 '''
 import shutil
 import multiprocessing
@@ -239,7 +239,7 @@ class CITYSCAPES_VAL(Dataset_Base):
                     dataset_instance.file_prefix_delimiter, ''), image_out)
             # 调整annotation
             annotation_out = file_out + '_gtFine_polygons' + \
-                '.' + dataset_instance.target_dataset_image_form
+                '.' + 'json'
             annotation_path = os.path.join(
                 dataset_instance.target_dataset_annotations_folder,
                 file + '.' + dataset_instance.target_dataset_annotation_form)
