@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-02-13 22:05:09
+LastEditTime: 2022-02-13 22:07:18
 '''
 import os
 import cv2
@@ -108,7 +108,7 @@ class SEGMENTATION:
         else:
             self.segmentation_area = segmentation_area
         self.segmentation_iscrowd = int(segmentation_iscrowd)
-        if len(segmentation):
+        if len(self.segmentation):
             self.segmentation_exist_flag = True
         else:
             self.segmentation_exist_flag = False

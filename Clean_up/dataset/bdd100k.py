@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-13 21:57:31
+LastEditTime: 2022-02-14 00:17:40
 '''
 from lib2to3.pytree import convert
 from subprocess import call
@@ -245,6 +245,7 @@ class BDD100K(Dataset_Base):
         object_count += len(object_box_list)
 
         # object segment area
+        # TODO bug
         for n, object in enumerate(object_segment_area_list):
             clss = object['category']
             clss = clss.replace(' ', '').lower()
@@ -285,7 +286,10 @@ class BDD100K(Dataset_Base):
                 segmentation_point_list[:, 0], 1280)
             segmentation_point_list[:, 1] = np.minimum(
                 segmentation_point_list[:, 1], 720)
-            segmentation_point_list = segmentation_point_list.tolist()
+            segmentation_point_list_temp = []
+            for n in segmentation_point_list:
+                segmentation_point_list_temp.append(n.astype(np.int).tolist())
+            segmentation_point_list = segmentation_point_list_temp
             object_list.append(OBJECT(n+object_count,
                                       clss,
                                       segmentation_clss=clss,
@@ -393,7 +397,10 @@ class BDD100K(Dataset_Base):
             line_point_list_1 = np.maximum(line_point_list_1, 0)
             line_point_list_1[:, 0] = np.minimum(line_point_list_1[:, 0], 1280)
             line_point_list_1[:, 1] = np.minimum(line_point_list_1[:, 1], 720)
-            line_point_list_1 = line_point_list_1.tolist()
+            line_point_list_1_temp = []
+            for n in line_point_list_1:
+                line_point_list_1_temp.append(n.astype(np.int).tolist())
+            line_point_list_1 = line_point_list_1_temp
             object_list.append(OBJECT(c+object_count,
                                       clss,
                                       segmentation_clss=clss,
@@ -423,7 +430,10 @@ class BDD100K(Dataset_Base):
                     line_point_list_loop[:, 0], 1280)
                 line_point_list_loop[:, 1] = np.minimum(
                     line_point_list_loop[:, 1], 720)
-                line_point_list_loop = line_point_list_loop.tolist()
+                line_point_list_loop_temp = []
+                for n in line_point_list_loop:
+                    line_point_list_loop_temp.append(n.astype(np.int).tolist())
+                line_point_list_loop = line_point_list_loop_temp
                 object_list.append(OBJECT(n+object_count,
                                           clss,
                                           segmentation_clss=clss,
@@ -462,7 +472,10 @@ class BDD100K(Dataset_Base):
                     line_point_list_loop[:, 0], 1280)
                 line_point_list_loop[:, 1] = np.minimum(
                     line_point_list_loop[:, 1], 720)
-                line_point_list_loop = line_point_list_loop.tolist()
+                line_point_list_loop_temp = []
+                for n in line_point_list_loop:
+                    line_point_list_loop_temp.append(n.astype(np.int).tolist())
+                line_point_list_loop = line_point_list_loop_temp
                 object_list.append(OBJECT(n+object_count,
                                           clss,
                                           segmentation_clss=clss,
