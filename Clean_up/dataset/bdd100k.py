@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-13 21:51:36
+LastEditTime: 2022-02-13 21:57:31
 '''
 from lib2to3.pytree import convert
 from subprocess import call
@@ -120,7 +120,7 @@ class BDD100K(Dataset_Base):
         total_source_dataset_annotations_list = os.listdir(
             self.source_dataset_annotations_folder)
 
-        pbar, update = multiprocessing_list_tqdm(os.listdir(total_source_dataset_annotations_list),
+        pbar, update = multiprocessing_list_tqdm(total_source_dataset_annotations_list,
                                                  desc='Total annotations')
         process_temp_file_name_list = multiprocessing.Manager().list()
         process_output = multiprocessing.Manager().dict({'success_count': 0,
@@ -129,7 +129,7 @@ class BDD100K(Dataset_Base):
                                                          'temp_file_name_list': process_temp_file_name_list
                                                          })
         pool = multiprocessing.Pool(self.workers)
-        for source_annotation_name in os.listdir(total_source_dataset_annotations_list):
+        for source_annotation_name in total_source_dataset_annotations_list:
             pool.apply_async(func=self.load_annotation,
                              args=(source_annotation_name,
                                    process_output,),
@@ -232,10 +232,10 @@ class BDD100K(Dataset_Base):
         for n, object in enumerate(object_box_list):
             clss = object['category']
             clss = clss.replace(' ', '').lower()
-            box_xywh = temp_box_to_coco_box(object['box2d']['x1'],
-                                            object['box2d']['y1'],
-                                            object['box2d']['x2'],
-                                            object['box2d']['y2'])
+            box_xywh = temp_box_to_coco_box([object['box2d']['x1'],
+                                             object['box2d']['y1'],
+                                             object['box2d']['x2'],
+                                             object['box2d']['y2']])
             object_list.append(OBJECT(n,
                                       clss,
                                       box_clss=clss,

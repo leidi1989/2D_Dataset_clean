@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-02-10 16:05:24
+LastEditTime: 2022-02-13 22:05:09
 '''
 import os
 import cv2
@@ -96,7 +96,7 @@ class SEGMENTATION:
 
         self.segmentation_clss = segmentation_clss
         if segmentation == None:
-            segmentation = []
+            self.segmentation = []
         else:
             self.segmentation = segmentation
         if segmentation_area == None:
