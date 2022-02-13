@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-13 14:01:48
+LastEditTime: 2022-02-13 14:04:52
 '''
 import shutil
 import multiprocessing
@@ -26,7 +26,7 @@ class CITYSCAPES_VAL(Dataset_Base):
         self.source_dataset_image_count = self.get_source_dataset_image_count()
         self.source_dataset_annotation_count = self.get_source_dataset_annotation_count()
 
-    def source_dataset_copy_image_and_annotation(self):
+    def source_dataset_copy_image_and_annotation(self) -> None:
         print('\nStart source dataset copy image and annotation:')
         pbar, update = multiprocessing_object_tqdm(
             self.source_dataset_image_count, 'Copy images')
@@ -122,14 +122,14 @@ class CITYSCAPES_VAL(Dataset_Base):
 
         print('\nStart transform to target dataset:')
         total_annotation_path_list = []
-        
+
         with open(dataset_instance.temp_divide_file_list[0], 'r') as f:
             for n in f.readlines():
                 total_annotation_path_list.append(n.replace('\n', '')
-                                                    .replace(dataset_instance.source_dataset_images_folder,
-                                                            dataset_instance.temp_annotations_folder)
-                                                    .replace(dataset_instance.target_dataset_image_form,
-                                                            dataset_instance.temp_annotation_form))
+                                                  .replace(dataset_instance.source_dataset_images_folder,
+                                                           dataset_instance.temp_annotations_folder)
+                                                  .replace(dataset_instance.target_dataset_image_form,
+                                                           dataset_instance.temp_annotation_form))
 
         pbar, update = multiprocessing_list_tqdm(
             total_annotation_path_list, desc='Output target dataset annotation')
@@ -151,11 +151,8 @@ class CITYSCAPES_VAL(Dataset_Base):
         """[读取暂存annotation]
 
         Args:
-            dataset_instance (): [数据集信息字典]
+            dataset_instance (object): [数据集信息字典]
             temp_annotation_path (str): [annotation路径]
-
-        Returns:
-            IMAGE: [输出IMAGE类变量]
         """
 
         file = os.path.splitext(temp_annotation_path.split(os.sep)[-1])[0]
