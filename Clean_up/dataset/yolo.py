@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-14 18:09:19
+LastEditTime: 2022-02-14 18:27:21
 '''
 import shutil
 from PIL import Image
@@ -350,7 +350,7 @@ class YOLO(Dataset_Base):
 
     @staticmethod
     def annotation_check(dataset_instance: object) -> list:
-        """[读取COCO2017数据集图片类检测列表]
+        """[读取YOLO数据集图片类检测列表]
 
         Args:
             dataset_instance (object): [数据集实例]
@@ -402,14 +402,13 @@ class YOLO(Dataset_Base):
 
     @staticmethod
     def target_dataset_folder(dataset_instance: object) -> None:
-        """[生成COCO 2017组织格式的数据集]
+        """[生成YOLO组织格式的数据集]
 
         Args:
             dataset_instance (object): [数据集实例]
         """
 
         print('\nStart build target dataset folder:')
-        # 调整image
         output_root = check_output_path(
             os.path.join(dataset_instance.dataset_output_folder, 'coco2017'))
         shutil.rmtree(output_root)
@@ -417,7 +416,6 @@ class YOLO(Dataset_Base):
             os.path.join(dataset_instance.dataset_output_folder, 'coco2017'))
         annotations_output_folder = check_output_path(
             os.path.join(output_root, 'annotations'))
-        # 调整ImageSets
         print('Start copy images:')
         for temp_divide_file in dataset_instance.temp_divide_file_list[1:4]:
             image_list = []
