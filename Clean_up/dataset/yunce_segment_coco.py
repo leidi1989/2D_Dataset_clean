@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 02:30:55
+LastEditTime: 2022-02-15 03:21:01
 '''
 import time
 import shutil
@@ -27,80 +27,6 @@ class YUNCE_SEGMENT_COCO(Dataset_Base):
         self.source_dataset_annotation_form = 'json'
         self.source_dataset_image_count = self.get_source_dataset_image_count()
         self.source_dataset_annotation_count = self.get_source_dataset_annotation_count()
-
-    def source_dataset_copy_image_and_annotation(self):
-        print('\nStart source dataset copy image and annotation:')
-        pbar, update = multiprocessing_object_tqdm(
-            self.source_dataset_image_count, 'Copy images')
-        for root, _, files in os.walk(self.dataset_input_folder):
-            pool = multiprocessing.Pool(self.workers)
-            for n in files:
-                if os.path.splitext(n)[-1].replace('.', '') in \
-                        self.source_dataset_image_form_list:
-                    pool.apply_async(self.source_dataset_copy_image,
-                                     args=(root, n,),
-                                     callback=update,
-                                     error_callback=err_call_back)
-            pool.close()
-            pool.join()
-        pbar.close()
-
-        pbar, update = multiprocessing_object_tqdm(
-            self.source_dataset_annotation_count, 'Copy annotations')
-        for root, _, files in os.walk(self.dataset_input_folder):
-            pool = multiprocessing.Pool(self.workers)
-            for n in files:
-                if n.endswith(self.source_dataset_annotation_form):
-                    pool.apply_async(self.source_dataset_copy_annotation,
-                                     args=(root, n,),
-                                     callback=update,
-                                     error_callback=err_call_back)
-            pool.close()
-            pool.join()
-        pbar.close()
-
-        print('Copy images and annotations end.')
-
-        return
-
-    def source_dataset_copy_image(self, root: str, n: str) -> None:
-        """[复制源数据集图片至暂存数据集并修改图片类别、添加文件名前缀]
-
-        Args:
-            dataset (dict): [数据集信息字典]
-            root (str): [文件所在目录]
-            n (str): [文件名]
-        """
-
-        image = os.path.join(root, n)
-        temp_image = os.path.join(
-            self.source_dataset_images_folder, self.file_prefix + n)
-        image_suffix = os.path.splitext(n)[-1].replace('.', '')
-        if image_suffix != self.target_dataset_image_form:
-            image_transform_type = image_suffix + \
-                '_' + self.target_dataset_image_form
-            image_form_transform.__dict__[
-                image_transform_type](image, temp_image)
-            return
-        else:
-            shutil.copy(image, temp_image)
-            return
-
-    def source_dataset_copy_annotation(self, root: str, n: str) -> None:
-        """[复制源数据集标签文件至目标数据集中的source_annotations中]
-
-        Args:
-            dataset (dict): [数据集信息字典]
-            root (str): [文件所在目录]
-            n (str): [文件名]
-        """
-
-        annotation = os.path.join(root, n)
-        temp_annotation = os.path.join(
-            self.source_dataset_annotations_folder, n)
-        shutil.copy(annotation, temp_annotation)
-
-        return
 
     def transform_to_temp_dataset(self) -> None:
         """[转换标注文件为暂存标注]
@@ -358,7 +284,7 @@ class YUNCE_SEGMENT_COCO(Dataset_Base):
         return
 
     @staticmethod
-    def target_dataset(dataset_instance: Dataset_Base):
+    def target_dataset(dataset_instance: object):
         """[输出target annotation]
 
         Args:
@@ -499,7 +425,7 @@ class YUNCE_SEGMENT_COCO(Dataset_Base):
         return
 
     @staticmethod
-    def get_image_information(dataset_instance: Dataset_Base, coco: dict, n: int, temp_annotation_path: str) -> None:
+    def get_image_information(dataset_instance: object, coco: dict, n: int, temp_annotation_path: str) -> None:
         """[读取暂存annotation]
 
         Args:
@@ -528,7 +454,7 @@ class YUNCE_SEGMENT_COCO(Dataset_Base):
         return image_information
 
     @staticmethod
-    def get_annotation(dataset_instance: Dataset_Base,
+    def get_annotation(dataset_instance: object,
                        n: int,
                        temp_annotation_path: str,
                        task: str,
@@ -617,8 +543,8 @@ class YUNCE_SEGMENT_COCO(Dataset_Base):
         return one_image_annotations_list
 
     @staticmethod
-    def annotation_check(dataset_instance: Dataset_Base) -> list:
-        """[读取COCO2017数据集图片类检测列表]
+    def annotation_check(dataset_instance: object) -> list:
+        """[读取YUNCE_SEGMENT_COCO数据集图片类检测列表]
 
         Args:
             dataset_instance (object): [数据集实例]
@@ -628,8 +554,6 @@ class YUNCE_SEGMENT_COCO(Dataset_Base):
         """
 
         check_images_list = []
-        dataset_instance.total_file_name_path = total_file(
-            dataset_instance.temp_informations_folder)
         dataset_instance.target_check_file_name_list = os.listdir(
             dataset_instance.target_dataset_annotations_folder)  # 读取target_annotations_folder文件夹下的全部文件名
         images_data_list = []
@@ -749,8 +673,8 @@ class YUNCE_SEGMENT_COCO(Dataset_Base):
         return check_images_list
 
     @staticmethod
-    def target_dataset_folder(dataset_instance: Dataset_Base) -> None:
-        """[生成COCO 2017组织格式的数据集]
+    def target_dataset_folder(dataset_instance: object) -> None:
+        """[生成YUNCE_SEGMENT_COCO组织格式的数据集]
 
         Args:
             dataset_instance (object): [数据集实例]
@@ -759,10 +683,10 @@ class YUNCE_SEGMENT_COCO(Dataset_Base):
         print('\nStart build target dataset folder:')
         # 调整image
         output_root = check_output_path(
-            os.path.join(dataset_instance.dataset_output_folder, 'coco2017'))
+            os.path.join(dataset_instance.dataset_output_folder, 'YUNCE'))
         shutil.rmtree(output_root)
         output_root = check_output_path(
-            os.path.join(dataset_instance.dataset_output_folder, 'coco2017'))
+            os.path.join(dataset_instance.dataset_output_folder, 'YUNCE'))
         annotations_output_folder = check_output_path(
             os.path.join(output_root, 'annotations'))
         # 调整ImageSets
