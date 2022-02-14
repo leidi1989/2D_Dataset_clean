@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-14 10:21:20
+LastEditTime: 2022-02-14 10:37:00
 '''
 import time
 import shutil
@@ -232,178 +232,130 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         """
 
         print('\nStart transform to target dataset:')
-        for dataset_temp_annotation_path_list in tqdm(dataset_instance.temp_divide_file_list[1:-1],
-                                                      desc='Transform to target dataset'):
-            # 声明coco字典及基础信息
-            coco = {'info': {'description': 'COCO 2017 Dataset',
-                             'url': 'http://cocodataset.org',
-                             'version': '1.0',
-                             'year': 2017,
-                             'contributor': 'leidi',
-                             'date_created': time.strftime('%Y/%m/%d %H:%M:%S', time.localtime())
-                             },
-                    'licenses': [
-                {
-                    'url': 'http://creativecommons.org/licenses/by-nc-sa/2.0/',
-                    'id': 1,
-                    'name': 'Attribution-NonCommercial-ShareAlike License'
-                },
-                {
-                    'url': 'http://creativecommons.org/licenses/by-nc/2.0/',
-                    'id': 2,
-                    'name': 'Attribution-NonCommercial License'
-                },
-                {
-                    'url': 'http://creativecommons.org/licenses/by-nc-nd/2.0/',
-                    'id': 3,
-                    'name': 'Attribution-NonCommercial-NoDerivs License'
-                },
-                {
-                    'url': 'http://creativecommons.org/licenses/by/2.0/',
-                    'id': 4,
-                    'name': 'Attribution License'
-                },
-                {
-                    'url': 'http://creativecommons.org/licenses/by-sa/2.0/',
-                    'id': 5,
-                    'name': 'Attribution-ShareAlike License'
-                },
-                {
-                    'url': 'http://creativecommons.org/licenses/by-nd/2.0/',
-                    'id': 6,
-                    'name': 'Attribution-NoDerivs License'
-                },
-                {
-                    'url': 'http://flickr.com/commons/usage/',
-                    'id': 7,
-                    'name': 'No known copyright restrictions'
-                },
-                {
-                    'url': 'http://www.usa.gov/copyright.shtml',
-                    'id': 8,
-                    'name': 'United States Government Work'
-                }
-            ],
-                'images': [],
-                'annotations': [],
-                'categories': []
-            }
+        encode = []
+        for n in range(len(dataset['class_list_new'])):
+            encode.append(random.randint(0, 255))
+        # 转换不重复随机颜色编码为16进制颜色
+        color_list = []
+        for n in encode:
+            color_list.append(RGB_to_Hex(str(n)+','+str(n)+','+str(n)))
 
-            # 将class_list_new转换为coco格式字典
-            for n, cls in enumerate(dataset_instance
-                                    .temp_merge_class_list['Merge_target_dataset_class_list']):
-                category_item = {'supercategory': 'none',
-                                 'id': n,
-                                 'name': cls}
-                coco['categories'].append(category_item)
+        # 生成空基本信息xml文件
+        annotations = dataset.__dict__[
+            dataset_instance.target_dataset_style].annotation_creat_root(dataset, color_list)
+        # 获取全部图片标签信息列表
+        total_image_xml = []
+        pbar, update = multiprocessing_list_tqdm(dataset_instance.temp_annotation_path_list,
+                                                 desc='transform to target dataset')
+        pool = multiprocessing.Pool(dataset_instance.workers)
+        for temp_annotation_path in dataset_instance.temp_annotation_path_list:
+            total_image_xml.append(pool.apply_async(func=dataset.__dict__[dataset_instance.target_dataset_style].annotation_get_temp,
+                                                    args=(dataset_instance,
+                                                          temp_annotation_path,),
+                                                    callback=update,
+                                                    error_callback=err_call_back))
+        pool.close()
+        pool.join()
+        pbar.close()
 
-            annotation_output_path = os.path.join(
-                dataset_instance.target_dataset_annotations_folder, 'instances_' + os.path.splitext(
-                    dataset_temp_annotation_path_list.split(os.sep)[-1])[0]
-                + str(2017) + '.' + dataset_instance.target_dataset_annotation_form)
-            annotation_path_list = []
-            with open(dataset_temp_annotation_path_list, 'r') as f:
-                for n in f.readlines():
-                    annotation_path_list.append(n.replace('\n', '')
-                                                .replace(dataset_instance.source_dataset_images_folder,
-                                                         dataset_instance.temp_annotations_folder)
-                                                .replace(dataset_instance.target_dataset_image_form,
-                                                         dataset_instance.temp_annotation_form))
+        # 将image标签信息添加至annotations中
+        for n, image in enumerate(total_image_xml):
+            annotation = image.get()
+            annotation.attrib['id'] = str(n)
+            annotations.append(annotation)
 
-            # 读取标签图片基础信息
-            print('Start load image information:')
-            image_information_list = []
-            pbar, update = multiprocessing_list_tqdm(
-                annotation_path_list, desc='Load image information')
-            pool = multiprocessing.Pool(dataset_instance.workers)
-            for n, temp_annotation_path in enumerate(annotation_path_list):
-                image_information_list.append(
-                    pool.apply_async(func=dataset.__dict__[dataset_instance.target_dataset_style].get_image_information,
-                                     args=(dataset_instance, coco,
-                                           n, temp_annotation_path,),
-                                     callback=update,
-                                     error_callback=err_call_back))
-            pool.close()
-            pool.join()
-            pbar.close()
+        tree = ET.ElementTree(annotations)
 
-            for n in image_information_list:
-                coco['images'].append(n.get())
-            del image_information_list
-
-            # 读取图片标注基础信息
-            print('Start load annotation:')
-            for task, task_class_dict in tqdm(dataset_instance.task_dict.items(), desc='Load each task annotation'):
-                annotations_list = []
-                pbar, update = multiprocessing_list_tqdm(
-                    annotation_path_list, desc='Load annotation', leave=False)
-                pool = multiprocessing.Pool(dataset_instance.workers)
-                for n, temp_annotation_path in tqdm(enumerate(annotation_path_list)):
-                    annotations_list.append(
-                        pool.apply_async(func=dataset.__dict__[dataset_instance.target_dataset_style].get_annotation,
-                                         args=(dataset_instance, n,
-                                               temp_annotation_path,
-                                               task,
-                                               task_class_dict,),
-                                         callback=update,
-                                         error_callback=err_call_back))
-                pool.close()
-                pool.join()
-                pbar.close()
-
-                annotation_id = 0
-                for n in tqdm(annotations_list):
-                    for m in n.get():
-                        m['id'] = annotation_id
-                        coco['annotations'].append(m)
-                        annotation_id += 1
-                del annotations_list
-
-            print('Output image annotation to json.')
-            json.dump(coco, open(annotation_output_path, 'w'))
+        annotation_output_path = os.path.join(
+            dataset_instance.target_dataset_annotations_folder,
+            'annotatons.' + dataset_instance.target_dataset_annotation_form)
+        tree.write(annotation_output_path,
+                   encoding='utf-8', xml_declaration=True)
 
         return
 
     @staticmethod
-    def get_image_information(dataset_instance: object, coco: dict, n: int, temp_annotation_path: str) -> None:
-        """[读取暂存annotation]
-
-        Args:
-            dataset_instance (): [数据集信息字典]
-            temp_annotation_path (str): [annotation路径]
-
-        Returns:
-            IMAGE: [输出IMAGE类变量]
-        """
-
-        image = dataset_instance.TEMP_LOAD(
-            dataset_instance, temp_annotation_path)
-        if image == None:
-            return
-        # 图片基础信息
-        image_information = {'license': random.randint(0, len(coco['licenses'])),
-                             'file_name': image.image_name_new,
-                             'coco_url': 'None',
-                             'height': image.height,
-                             'width': image.width,
-                             'date_captured': time.strftime('%Y/%m/%d %H:%M:%S', time.localtime()),
-                             'flickr_url': 'None',
-                             'id': n
-                             }
-
-        return image_information
-
-    @staticmethod
-    def get_annotation(dataset_instance: object,
-                       n: int,
-                       temp_annotation_path: str,
-                       task: str,
-                       task_class_dict: dict) -> None:
-        """[获取暂存标注信息]
+    def annotation_creat_root(dataset_instance: dict, color_list: list) -> None:
+        """[创建xml根节点]
 
         Args:
             dataset (dict): [数据集信息字典]
-            n (int): [图片id]
+            color_list (list): [色彩列表]
+
+        Returns:
+            [type]: [xml根节点]
+        """
+
+        class_id = 0
+        annotations = ET.Element('annotations')
+        version = ET.SubElement(annotations, 'version')
+        version.text = '1.1'
+        meta = ET.SubElement(annotations, 'meta')
+        task = ET.SubElement(meta, 'task')
+        # ET.SubElement(task, 'id')
+        # ET.SubElement(task, 'name')
+        # ET.SubElement(task, 'size')
+        # mode = ET.SubElement(task, 'mode')
+        # mode.text = 'annotation'
+        # overlap = ET.SubElement(task, 'overlap')
+        # ET.SubElement(task, 'bugtracker')
+        # ET.SubElement(task, 'created')
+        # ET.SubElement(task, 'updated')
+        # subset = ET.SubElement(task, 'subset')
+        # subset.text = 'default'
+        # start_frame = ET.SubElement(task, 'start_frame')
+        # start_frame.text='0'
+        # ET.SubElement(task, 'stop_frame')
+        # ET.SubElement(task, 'frame_filter')
+        # segments = ET.SubElement(task, 'segments')
+        # segment = ET.SubElement(segments, 'segment')
+        # ET.SubElement(segments, 'id')
+        # start = ET.SubElement(segments, 'start')
+        # start.text='0'
+        # ET.SubElement(segments, 'stop')
+        # ET.SubElement(segments, 'url')
+        # owner = ET.SubElement(task, 'owner')
+        # ET.SubElement(owner, 'username')
+        # ET.SubElement(owner, 'email')
+        # ET.SubElement(task, 'assignee')
+        labels = ET.SubElement(task, 'labels')
+
+        class_dict_list_output_path = os.path.join(
+            dataset_instance.target_dataset_annotations_folder, 'class_dict_list.txt')
+        with open(class_dict_list_output_path, 'w') as f:
+            for n, c in zip(dataset['class_list_new'], color_list):
+                label = ET.SubElement(labels, 'label')
+                name = ET.SubElement(label, 'name')
+                name.text = n
+                color = ET.SubElement(label, 'color')
+                color.text = c
+                attributes = ET.SubElement(label, 'attributes')
+                attribute = ET.SubElement(attributes, 'attribute')
+                name = ET.SubElement(attribute, 'name')
+                name.text = '1'
+                mutable = ET.SubElement(attribute, 'mutable')
+                mutable.text = 'False'
+                input_type = ET.SubElement(attribute, 'input_type')
+                input_type.text = 'text'
+                default_value = ET.SubElement(attribute, 'default_value')
+                default_value.text = None
+                values = ET.SubElement(attribute, 'values')
+                values.text = None
+                # 输出标签色彩txt
+                s = '  {\n    "name": "'+n+'",\n    "color": "' + \
+                    str(c)+'",\n    "attributes": []\n  },\n'
+                f.write(s)
+                class_id += 1
+
+            # ET.SubElement(task, 'dumped')
+        return annotations
+
+    @staticmethod
+    def annotation_get_temp(dataset_instance: dict, temp_annotation_path: str) -> None:
+        """[获取temp标签信息]
+
+        Args:
+            dataset (dict): [数据集信息字典]
             temp_annotation_path (str): [暂存标签路径]
         """
 
@@ -411,76 +363,19 @@ class CVAT_IMAGE_1_1(Dataset_Base):
             dataset_instance, temp_annotation_path)
         if image == None:
             return
-        # 获取图片标注信息
-        one_image_annotations_list = []
-        for object in image.object_list:
-            # class
-            if task == 'Detection':
-                clss = object.box_clss
-                if clss not in task_class_dict['Target_dataset_class']:
-                    continue
-                category_id = dataset_instance.temp_merge_class_list['Merge_target_dataset_class_list'].index(
-                    clss)
-                one_image_annotations_list.append({'bbox': object.box_xywh,
-                                                   'area': object.box_get_area(),
-                                                   'iscrowd': object.segmentation_iscrowd,
-                                                   'keypoints': object.keypoints,
-                                                   'num_keypoints': object.keypoints_num,
-                                                   'image_id': n,
-                                                   'category_id': category_id,
-                                                   'id': 0})
-            elif task == 'Semantic_segmentation':
-                segmentation = np.asarray(
-                    object.segmentation).flatten().tolist()
-                clss = object.segmentation_clss
-                if clss not in task_class_dict['Target_dataset_class']:
-                    continue
-                category_id = dataset_instance.temp_merge_class_list['Merge_target_dataset_class_list'].index(
-                    clss)
-                one_image_annotations_list.append({'segmentation': [segmentation],
-                                                   'area': object.segmentation_area,
-                                                   'iscrowd': object.segmentation_iscrowd,
-                                                   'keypoints': object.keypoints,
-                                                   'num_keypoints': object.keypoints_num,
-                                                   'image_id': n,
-                                                   'category_id': category_id,
-                                                   'id': 0})
-            elif task == 'Instance_segmentation':
-                segmentation = np.asarray(
-                    object.segmentation).flatten().tolist()
-                clss = object.segmentation_clss
-                if clss not in task_class_dict['Target_dataset_class']:
-                    continue
-                category_id = dataset_instance.temp_merge_class_list['Merge_target_dataset_class_list'].index(
-                    clss)
-                one_image_annotations_list.append({'bbox': object.box_xywh,
-                                                   'segmentation': [segmentation],
-                                                   'area': object.segmentation_area,
-                                                   'iscrowd': object.segmentation_iscrowd,
-                                                   'keypoints': object.keypoints,
-                                                   'num_keypoints': object.keypoints_num,
-                                                   'image_id': n,
-                                                   'category_id': category_id,
-                                                   'id': 0})
-            elif task == 'Keypoint':
-                segmentation = np.asarray(
-                    object.segmentation).flatten().tolist()
-                clss = object.keypoints_clss
-                if clss not in task_class_dict['Target_dataset_class']:
-                    continue
-                one_image_annotations_list.append({'bbox': object.box_xywh,
-                                                   'segmentation': [segmentation],
-                                                   'area': object.segmentation_area,
-                                                   'iscrowd': object.segmentation_iscrowd,
-                                                   'keypoints': object.keypoints,
-                                                   'num_keypoints': object.keypoints_num,
-                                                   'image_id': n,
-                                                   'category_id': dataset_instance
-                                                   .temp_merge_class_list['Merge_target_dataset_class_list']
-                                                   .index(clss),
-                                                   'id': 0})
+        image_xml = ET.Element('image', {
+            'id': '', 'name': image.image_name_new, 'width': str(image.width), 'height': str(image.height)})
+        for n in image.true_segmentation_list:
+            point_list = []
+            for x in n.segmentation:
+                point_list.append(str(x[0])+','+str(x[1]))
+            if 2 == len(point_list):
+                continue
+            polygon = ET.SubElement(image_xml, 'polygon', {
+                                    'label': n.clss, 'occluded': '0', 'source': 'manual', 'points': ';'.join(point_list)})
+            attribute = ET.SubElement(polygon, 'attribute', {'name': '1'})
 
-        return one_image_annotations_list
+        return image_xml
 
     @staticmethod
     def annotation_check(dataset_instance: object) -> list:
