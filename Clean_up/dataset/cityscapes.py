@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-10 16:33:26
+LastEditTime: 2022-02-15 02:30:08
 '''
 import shutil
 import multiprocessing
@@ -193,6 +193,8 @@ class CITYSCAPES(Dataset_Base):
         """
 
         check_images_list = []
+        dataset_instance.total_file_name_path = total_file(
+            dataset_instance.temp_informations_folder)
         dataset_instance.target_check_file_name_list = os.listdir(
             dataset_instance.target_dataset_annotations_folder)  # 读取target_annotations_folder文件夹下的全部文件名
         dataset_instance.target_dataset_check_file_name_list = annotations_path_list(

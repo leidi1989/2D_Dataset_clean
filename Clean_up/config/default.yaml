@@ -1,15 +1,15 @@
 # dataset path
-Dataset_input_folder: /home/leidi/Data/dataset_test/bdd100k_images_annotations_test
+Dataset_input_folder: /home/leidi/Data/dataset_test/YOLO
 
 # output path
-Dataset_output_folder: /home/leidi/Data/dataset_test/bdd100k_images_annotations_test_yolo_20220214
+Dataset_output_folder: /home/leidi/Data/dataset_test/YOLO_20220214
 
 # Source dataset style:
 # COCO2017, YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, HY_VAL, BDD100K
 
 # NO: cityscapes, apolloscape_lane_segment, cvat_coco2017
 # PASCAL_VOC, KITTI, YOLO, TT100K, LISA, CCTSDB, SJT, MYXB, HY_HIGHWAY(小写)
-Source_dataset_style: BDD100K
+Source_dataset_style: YOLO
 
 # Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1, YOLO
 
@@ -17,7 +17,7 @@ Source_dataset_style: BDD100K
 Target_dataset_style: YOLO
 
 # images or labels need to rename prefix
-File_prefix: test
+File_prefix: ''
 
 # name delimiter(cityscapes need: "@")
 File_prefix_delimiter: "@"
@@ -35,10 +35,15 @@ Target_dataset_check_annotations_output_as_mask: True
 Task_and_class_config:
   # Detection, Semantic_segmentation, Instance_segmentation, Keypoints
   Detection:
-    Source_dataset_class_file_path: Clean_up/data/detect_classes_bdd100k_10_classes.names
+    Source_dataset_class_file_path: Clean_up/data/yolo_test.names
     Modify_class_file_path: Clean_up/data/detect_classes_bdd100k_10_classes_to_hy_7_classes.txt
     Target_each_class_object_pixel_limit_file_path:
     Need_convert: False
+  # Detection:
+  #   Source_dataset_class_file_path: Clean_up/data/detect_classes_bdd100k_10_classes.names
+  #   Modify_class_file_path: Clean_up/data/detect_classes_bdd100k_10_classes_to_hy_7_classes.txt
+  #   Target_each_class_object_pixel_limit_file_path:
+  #   Need_convert: False
   # Semantic_segmentation:
   #   Source_dataset_class_file_path: Clean_up/data/segment_classes_bdd100k_11_classes.names
   #   Modify_class_file_path: Clean_up/data/segment_classes_bdd100k_11_classes_to_3_classes_road_lane.txt
