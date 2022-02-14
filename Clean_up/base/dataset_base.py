@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-15 01:31:24
+LastEditTime: 2022-02-15 02:32:44
 '''
 import dataset
 from utils.utils import *
@@ -234,7 +234,7 @@ class Dataset_Base:
         """[删除无标注图片]
         """
 
-        print('Star delete redundant image:')
+        print('\nStar delete redundant image:')
         delete_count = 0
         for n in os.listdir(self.temp_images_folder):
             image_name = os.path.splitext(n)[0]
@@ -821,7 +821,7 @@ class Dataset_Base:
         """
 
         img_filenames = os.listdir(self.source_dataset_images_folder)
-        print('Start count images mean and std:')
+        print('\nStart count images mean and std:')
         pbar, update = multiprocessing_list_tqdm(
             img_filenames, desc='Count images mean and std')
         pool = multiprocessing.Pool(self.workers)
