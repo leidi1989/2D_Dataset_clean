@@ -4,9 +4,8 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-14 10:37:00
+LastEditTime: 2022-02-14 11:19:42
 '''
-import time
 import shutil
 from PIL import Image
 import multiprocessing
@@ -24,7 +23,7 @@ class CVAT_IMAGE_1_1(Dataset_Base):
 
     def __init__(self, opt) -> None:
         super().__init__(opt)
-        self.source_dataset_image_form_list = ['jpg']
+        self.source_dataset_image_form_list = ['jpg', 'png']
         self.source_dataset_annotation_form = 'xml'
         self.source_dataset_image_count = self.get_source_dataset_image_count()
         self.source_dataset_annotation_count = self.get_source_dataset_annotation_count()
@@ -68,7 +67,6 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         """[复制源数据集图片至暂存数据集并修改图片类别、添加文件名前缀]
 
         Args:
-            dataset (dict): [数据集信息字典]
             root (str): [文件所在目录]
             n (str): [文件名]
         """
@@ -224,11 +222,11 @@ class CVAT_IMAGE_1_1(Dataset_Base):
             return
 
     @staticmethod
-    def target_dataset(dataset_instance: object):
-        """[输出temp dataset annotation]
+    def target_dataset(dataset_instance: object) -> None:
+        """输出target annotation
 
         Args:
-            dataset (Dataset): [dataset]
+            dataset_instance (object): 数据集信息字典
         """
 
         print('\nStart transform to target dataset:')
@@ -242,7 +240,7 @@ class CVAT_IMAGE_1_1(Dataset_Base):
 
         # 生成空基本信息xml文件
         annotations = dataset.__dict__[
-            dataset_instance.target_dataset_style].annotation_creat_root(dataset, color_list)
+            dataset_instance.target_dataset_style].annotation_creat_root(dataset_instance, color_list)
         # 获取全部图片标签信息列表
         total_image_xml = []
         pbar, update = multiprocessing_list_tqdm(dataset_instance.temp_annotation_path_list,
@@ -379,7 +377,7 @@ class CVAT_IMAGE_1_1(Dataset_Base):
 
     @staticmethod
     def annotation_check(dataset_instance: object) -> list:
-        """[读取COCO2017数据集图片类检测列表]
+        """[读取CVAT_IMAGE_1_1数据集图片类检测列表]
 
         Args:
             dataset_instance (object): [数据集实例]
@@ -391,170 +389,57 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         check_images_list = []
         dataset_instance.target_check_file_name_list = os.listdir(
             dataset_instance.target_dataset_annotations_folder)  # 读取target_annotations_folder文件夹下的全部文件名
-        images_data_list = []
-        images_data_dict = {}
-        for target_annotation in dataset_instance.target_check_file_name_list:
-            if target_annotation != 'instances_train2017.json':
+
+        print('Start load target annotations:')
+        for n in tqdm(dataset_instance.target_dataset_check_file_name_list,
+                      desc='Load target dataset annotation'):
+            source_annotations_path = os.path.join(
+                dataset_instance.source_dataset_annotations_folder, n)
+        tree = ET.parse(source_annotations_path)
+        root = tree.getroot()
+        for annotation in root:
+            if annotation.tag != 'image':
                 continue
-            target_annotation_path = os.path.join(
-                dataset_instance.target_dataset_annotations_folder, target_annotation)
-            print('Loading instances_train2017.json:')
-            with open(target_annotation_path, 'r') as f:
-                data = json.loads(f.read())
-            name_dict = {}
-            for one_name in data['categories']:
-                name_dict['%s' % one_name['id']] = one_name['name']
-
-            print('Start count images:')
-            total_image_count = 0
-            for d in tqdm(data['images']):
-                total_image_count += 1
-            check_images_count = min(
-                dataset_instance.target_dataset_annotations_check_count, total_image_count)
-            check_image_id_list = [random.randint(
-                0, total_image_count)for i in range(check_images_count)]
-
-            print('Start load each annotation data file:')
-            for n in check_image_id_list:
-                d = data['images'][n]
-                img_id = d['id']
-                img_name = d['file_name']
-                img_name_new = img_name
-                img_path = os.path.join(
-                    dataset_instance.temp_images_folder, img_name_new)
-                img = Image.open(img_path)
-                height, width = img.height, img.width
-                channels = 3
-                # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，
-                # 并将初始化后的对象存入total_images_data_list
-                image = IMAGE(img_name, img_name_new,
-                              img_path, height, width, channels, [])
-                images_data_dict.update({img_id: image})
-
-            for one_annotation in tqdm(data['annotations']):
-                if one_annotation['image_id'] in images_data_dict:
-                    ann_image_id = one_annotation['image_id']   # 获取此bbox图片id
-                    box_xywh = []
-                    segmentation = []
-                    segmentation_area = None
-                    segmentation_iscrowd = 0
-                    keypoints_num = 0
-                    keypoints = []
-                    cls = name_dict[str(one_annotation['category_id'])]
-                    cls = cls.replace(' ', '').lower()
-                    image = images_data_dict[ann_image_id]
-
-                    # 获取真实框信息
-                    if 'bbox' in one_annotation and len(one_annotation['bbox']):
-                        box = [one_annotation['bbox'][0],
-                               one_annotation['bbox'][1],
-                               one_annotation['bbox'][0] +
-                               one_annotation['bbox'][2],
-                               one_annotation['bbox'][1] + one_annotation['bbox'][3]]
-                        xmin = max(min(int(box[0]), int(box[2]),
-                                       int(image.width)), 0.)
-                        ymin = max(min(int(box[1]), int(box[3]),
-                                       int(image.height)), 0.)
-                        xmax = min(max(int(box[2]), int(box[0]), 0.),
-                                   int(image.width))
-                        ymax = min(max(int(box[3]), int(box[1]), 0.),
-                                   int(image.height))
-                        box_xywh = [xmin, ymin, xmax-xmin, ymax-ymin]
-
-                    # 获取真实语义分割信息
-                    if 'segmentation' in one_annotation and len(one_annotation['segmentation']):
-                        for one_seg in one_annotation['segmentation']:
-                            segment = []
-                            point = []
-                            for i, x in enumerate(one_seg):
-                                if 0 == i % 2:
-                                    point.append(x)
-                                else:
-                                    point.append(x)
-                                    point = list(map(int, point))
-                                    segment.append(point)
-                                    if 2 != len(point):
-                                        print('Segmentation label wrong: ',
-                                              images_data_dict[ann_image_id].image_name_new)
-                                        continue
-                                    point = []
-                            segmentation = segment
-                            segmentation_area = one_annotation['area']
-                            if '1' == one_annotation['iscrowd']:
-                                segmentation_iscrowd = 1
-
-                    # 关键点信息
-                    if 'keypoints' in one_annotation and len(one_annotation['keypoints']) \
-                            and 'num_keypoints' in one_annotation:
-                        keypoints_num = one_annotation['num_keypoints']
-                        keypoints = one_annotation['keypoints']
-
-                    one_object = OBJECT(id, cls, cls, cls, cls,
-                                        box_xywh, segmentation, keypoints_num, keypoints,
-                                        dataset_instance.task_convert,
-                                        segmentation_area=segmentation_area,
-                                        segmentation_iscrowd=segmentation_iscrowd
-                                        )
-                    images_data_dict[ann_image_id].object_list.append(
-                        one_object)
-
-        for _, n in images_data_dict.items():
-            images_data_list.append(n)
-        random.shuffle(images_data_list)
-        check_images_count = min(
-            dataset_instance.target_dataset_annotations_check_count, len(images_data_list))
-        check_images_list = images_data_list[0:check_images_count]
+            image_name = str(annotation.attrib['name']).replace(
+                '.' + dataset_instance.source_dataset_image_form, '.' + dataset_instance.target_dataset_image_form)
+            image_name_new = dataset_instance.file_prefix + image_name
+            image_path = os.path.join(
+                dataset_instance.temp_images_folder, image_name_new)
+            img = cv2.imread(image_path)
+            if img is None:
+                print('Can not load: {}'.format(image_name_new))
+                return
+            width = int(annotation.attrib['width'])
+            height = int(annotation.attrib['height'])
+            channels = img.shape[-1]
+            object_list = []
+            for n, obj in enumerate(annotation):
+                cls = str(obj.attrib['label'])
+                cls = cls.replace(' ', '').lower()
+                segment = []
+                for seg in obj.attrib['points'].split(';'):
+                    x, y = seg.split(',')
+                    x = float(x)
+                    y = float(y)
+                    segment.append(list(map(int, [x, y])))
+                object_list.append(OBJECT(n,
+                                          cls,
+                                          segmentation_clss=cls,
+                                          segmentation=segment))
+            image = IMAGE(image_name, image_name, image_path, int(
+                height), int(width), int(channels), object_list)
+            check_images_list.append(image)
 
         return check_images_list
 
     @staticmethod
     def target_dataset_folder(dataset_instance: object) -> None:
-        """[生成COCO 2017组织格式的数据集]
+        """[生成CVAT_IMAGE_1_1组织格式的数据集]
 
         Args:
             dataset_instance (object): [数据集实例]
         """
 
         print('\nStart build target dataset folder:')
-        # 调整image
-        output_root = check_output_path(
-            os.path.join(dataset_instance.dataset_output_folder, 'coco2017'))
-        shutil.rmtree(output_root)
-        output_root = check_output_path(
-            os.path.join(dataset_instance.dataset_output_folder, 'coco2017'))
-        annotations_output_folder = check_output_path(
-            os.path.join(output_root, 'annotations'))
-        # 调整ImageSets
-        print('Start copy images:')
-        for temp_divide_file in dataset_instance.temp_divide_file_list[1:4]:
-            image_list = []
-            coco_images_folder = os.path.splitext(
-                temp_divide_file.split(os.sep)[-1])[0]
-            image_output_folder = check_output_path(
-                os.path.join(output_root, coco_images_folder + '2017'))
-            with open(temp_divide_file, 'r') as f:
-                for n in f.readlines():
-                    image_list.append(n.replace('\n', ''))
-            pbar, update = multiprocessing_list_tqdm(
-                image_list, desc='Copy images', leave=False)
-            pool = multiprocessing.Pool(dataset_instance.workers)
-            for image_input_path in image_list:
-                image_output_path = image_input_path.replace(
-                    dataset_instance.temp_images_folder, image_output_folder)
-                pool.apply_async(func=shutil.copy,
-                                 args=(image_input_path, image_output_path,),
-                                 callback=update,
-                                 error_callback=err_call_back)
-            pool.close()
-            pool.join()
-            pbar.close()
 
-        print('Start copy annotations:')
-        for root, dirs, files in os.walk(dataset_instance.target_dataset_annotations_folder):
-            for n in tqdm(files, desc='Copy annotations'):
-                annotations_input_path = os.path.join(root, n)
-                annotations_output_path = annotations_input_path.replace(
-                    dataset_instance.target_dataset_annotations_folder,
-                    annotations_output_folder)
-                shutil.copy(annotations_input_path, annotations_output_path)
         return

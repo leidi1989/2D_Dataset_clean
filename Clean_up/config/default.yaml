@@ -2,7 +2,7 @@
 Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/bdd100k_images_annotations_test
 
 # output path
-Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/bdd100k_images_annotations_test_20220214
+Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/bdd100k_images_annotations_test_cvat_20220214
 
 # Source dataset style:
 # COCO2017, YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, HY_VAL, BDD100K
@@ -14,7 +14,7 @@ Source_dataset_style: BDD100K
 # Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1
 
 # NO: pascal_voc, yolo
-Target_dataset_style: CITYSCAPES
+Target_dataset_style: CVAT_IMAGE_1_1
 
 # images or labels need to rename prefix
 File_prefix: test
