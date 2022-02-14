@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:07:13
 LastEditors: Leidi
-LastEditTime: 2022-02-14 11:16:35
+LastEditTime: 2022-02-14 17:51:44
 '''
 
 from .coco2017 import COCO2017
@@ -17,3 +17,4 @@ from .hy_val import HY_VAL
 from .bdd100k import BDD100K
 from .cvat_image_1_1 import CVAT_IMAGE_1_1
 from .cvat_coco2017 import CVAT_COCO2017
+from .yolo import YOLO

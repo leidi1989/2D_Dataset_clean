@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-14 17:44:40
+LastEditTime: 2022-02-14 17:53:41
 '''
 import shutil
 from PIL import Image
@@ -123,7 +123,7 @@ class CVAT_IMAGE_1_1(Dataset_Base):
                                                          })
         pool = multiprocessing.Pool(self.workers)
         for source_annotation_name in total_source_dataset_annotations_list:
-            pool.apply_async(func=self.load_annotation,
+            pool.apply_async(func=self.load_image_annotation,
                              args=(source_annotation_name,
                                    process_output,),
                              callback=update,
@@ -152,7 +152,7 @@ class CVAT_IMAGE_1_1(Dataset_Base):
 
         return
 
-    def load_annotation(self, source_annotation_name: str, process_output: dict) -> None:
+    def load_image_annotation(self, source_annotation_name: str, process_output: dict) -> None:
         """将源标注转换为暂存标注
 
         Args:

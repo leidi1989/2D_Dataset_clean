@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-09 21:55:18
 LastEditors: Leidi
-LastEditTime: 2022-02-14 10:59:29
+LastEditTime: 2022-02-14 17:51:15
 '''
 # 输入数据集图片、annotation文件格式
 TARGET_DATASET_FILE_FORM = {
@@ -47,7 +47,7 @@ TARGET_DATASET_FILE_FORM = {
     'tt100k': {'image': 'jpg',
                'annotation': 'json'
                },
-    'yolo': {'image': 'jpg',
+    'YOLO': {'image': 'jpg',
              'annotation': 'txt'
              },
     'yunce_segment_coco': {'image': 'jpg',
