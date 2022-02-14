@@ -4,17 +4,10 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-14 00:17:40
+LastEditTime: 2022-02-14 09:51:41
 '''
-from lib2to3.pytree import convert
-from subprocess import call
-import time
 import shutil
-from PIL import Image
 import multiprocessing
-
-from numpy import delete
-from sqlalchemy import desc
 
 import dataset
 from utils.utils import *
@@ -142,12 +135,12 @@ class BDD100K(Dataset_Base):
         success_count = process_output['success_count']
         fail_count = process_output['fail_count']
         no_object = process_output['no_object']
-        temp_file_name_list = process_output['temp_file_name_list']
+        temp_file_name_list += process_output['temp_file_name_list']
 
         # 输出读取统计结果
         print('\nSource dataset convert to temp dataset file count: ')
         print('Total annotations:         \t {} '.format(
-            len(os.listdir(dataset['source_annotations_folder']))))
+            len(total_source_dataset_annotations_list)))
         print('Convert fail:              \t {} '.format(
             fail_count))
         print('No object delete images: \t {} '.format(
@@ -368,7 +361,9 @@ class BDD100K(Dataset_Base):
                             temp_line = line
 
         # object segment double line lane
-        for c, m, n in enumerate(object_segment_double_line_lane_pair_list):
+        for p, q in enumerate(object_segment_double_line_lane_pair_list):
+            m = q[0]
+            n = q[1]
             clss = m['category']
             clss = clss.replace(' ', '').lower()
             # line 1
@@ -401,7 +396,7 @@ class BDD100K(Dataset_Base):
             for n in line_point_list_1:
                 line_point_list_1_temp.append(n.astype(np.int).tolist())
             line_point_list_1 = line_point_list_1_temp
-            object_list.append(OBJECT(c+object_count,
+            object_list.append(OBJECT(p+object_count,
                                       clss,
                                       segmentation_clss=clss,
                                       segmentation=line_point_list_1))
