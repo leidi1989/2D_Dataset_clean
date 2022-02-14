@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-14 11:19:42
+LastEditTime: 2022-02-14 14:32:38
 '''
 import shutil
 from PIL import Image
@@ -230,23 +230,30 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         """
 
         print('\nStart transform to target dataset:')
-        encode = []
-        for n in range(len(dataset['class_list_new'])):
-            encode.append(random.randint(0, 255))
+        class_color_encode_dict = {}
+        total_class_list = []
+        for task_class_dict in dataset_instance.task_dict.values():
+            if task_class_dict is not None:
+                for n in task_class_dict['Target_dataset_class']:
+                    class_color_encode_dict.update({n: 0})
+        for n, key in zip(random.sample([x for x in range(255)], len(class_color_encode_dict)), class_color_encode_dict.keys()):
+            class_color_encode_dict[key] = RGB_to_Hex(
+                str(n)+','+str(n)+','+str(n))
         # 转换不重复随机颜色编码为16进制颜色
-        color_list = []
-        for n in encode:
-            color_list.append(RGB_to_Hex(str(n)+','+str(n)+','+str(n)))
+        # color_list = []
+        # for n in class_color_encode_dict.values():
+        #     color_list.append(RGB_to_Hex(str(n)+','+str(n)+','+str(n)))
 
         # 生成空基本信息xml文件
         annotations = dataset.__dict__[
-            dataset_instance.target_dataset_style].annotation_creat_root(dataset_instance, color_list)
+            dataset_instance.target_dataset_style].annotation_creat_root(dataset_instance,
+                                                                         class_color_encode_dict)
         # 获取全部图片标签信息列表
         total_image_xml = []
-        pbar, update = multiprocessing_list_tqdm(dataset_instance.temp_annotation_path_list,
+        pbar, update = multiprocessing_list_tqdm(dataset_instance.temp_annotations_path_list,
                                                  desc='transform to target dataset')
         pool = multiprocessing.Pool(dataset_instance.workers)
-        for temp_annotation_path in dataset_instance.temp_annotation_path_list:
+        for temp_annotation_path in dataset_instance.temp_annotations_path_list:
             total_image_xml.append(pool.apply_async(func=dataset.__dict__[dataset_instance.target_dataset_style].annotation_get_temp,
                                                     args=(dataset_instance,
                                                           temp_annotation_path,),
@@ -273,15 +280,15 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         return
 
     @staticmethod
-    def annotation_creat_root(dataset_instance: dict, color_list: list) -> None:
-        """[创建xml根节点]
+    def annotation_creat_root(dataset_instance: dict, class_color_encode_dict: dict) -> object:
+        """创建xml根节点
 
         Args:
-            dataset (dict): [数据集信息字典]
-            color_list (list): [色彩列表]
+            dataset_instance (dict): 数据集信息字典
+            class_color_encode_dict (dict): 色彩字典
 
         Returns:
-            [type]: [xml根节点]
+            object: ET.Element格式标注信息
         """
 
         class_id = 0
@@ -321,7 +328,7 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         class_dict_list_output_path = os.path.join(
             dataset_instance.target_dataset_annotations_folder, 'class_dict_list.txt')
         with open(class_dict_list_output_path, 'w') as f:
-            for n, c in zip(dataset['class_list_new'], color_list):
+            for n, c in class_color_encode_dict.items():
                 label = ET.SubElement(labels, 'label')
                 name = ET.SubElement(label, 'name')
                 name.text = n
@@ -363,14 +370,14 @@ class CVAT_IMAGE_1_1(Dataset_Base):
             return
         image_xml = ET.Element('image', {
             'id': '', 'name': image.image_name_new, 'width': str(image.width), 'height': str(image.height)})
-        for n in image.true_segmentation_list:
+        for n in image.object_list:
             point_list = []
             for x in n.segmentation:
                 point_list.append(str(x[0])+','+str(x[1]))
             if 2 == len(point_list):
                 continue
             polygon = ET.SubElement(image_xml, 'polygon', {
-                                    'label': n.clss, 'occluded': '0', 'source': 'manual', 'points': ';'.join(point_list)})
+                                    'label': n.segmentation_clss, 'occluded': '0', 'source': 'manual', 'points': ';'.join(point_list)})
             attribute = ET.SubElement(polygon, 'attribute', {'name': '1'})
 
         return image_xml
@@ -391,7 +398,7 @@ class CVAT_IMAGE_1_1(Dataset_Base):
             dataset_instance.target_dataset_annotations_folder)  # 读取target_annotations_folder文件夹下的全部文件名
 
         print('Start load target annotations:')
-        for n in tqdm(dataset_instance.target_dataset_check_file_name_list,
+        for n in tqdm(dataset_instance.target_check_file_name_list,
                       desc='Load target dataset annotation'):
             source_annotations_path = os.path.join(
                 dataset_instance.source_dataset_annotations_folder, n)
