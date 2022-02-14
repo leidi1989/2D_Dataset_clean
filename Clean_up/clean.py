@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-02-14 16:41:48
+LastEditTime: 2022-02-14 16:58:34
 '''
 import time
 import yaml
@@ -32,10 +32,10 @@ def main(dataset_config: dict) -> None:
     # Input_dataset.delete_redundant_image()
     # Input_dataset.get_dataset_information()
 
-    # dataset.__dict__[dataset_config['Target_dataset_style']
-    #                  ].target_dataset(Input_dataset)
+    dataset.__dict__[dataset_config['Target_dataset_style']
+                     ].target_dataset(Input_dataset)
 
-    # Input_dataset.target_dataset_annotation_check()
+    Input_dataset.target_dataset_annotation_check()
 
     dataset.__dict__[dataset_config['Target_dataset_style']
                      ].target_dataset_folder(Input_dataset)

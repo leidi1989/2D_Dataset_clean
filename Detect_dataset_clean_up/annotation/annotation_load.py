@@ -4,15 +4,12 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:43:21
 LastEditors: Leidi
-LastEditTime: 2022-01-26 09:57:10
+LastEditTime: 2022-02-14 16:52:31
 '''
 import os
 import csv
 import json
 import multiprocessing
-from subprocess import call
-
-from sqlalchemy import desc
 
 from utils.utils import *
 from annotation.dataset_load_function import yolo, pascal_voc, coco2017, kitti, tt100k, kitti, cctsdb, lisa, \

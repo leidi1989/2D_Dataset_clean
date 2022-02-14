@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-14 16:43:14
+LastEditTime: 2022-02-14 17:44:40
 '''
 import shutil
 from PIL import Image
@@ -231,7 +231,6 @@ class CVAT_IMAGE_1_1(Dataset_Base):
 
         print('\nStart transform to target dataset:')
         class_color_encode_dict = {}
-        total_class_list = []
         for task_class_dict in dataset_instance.task_dict.values():
             if task_class_dict is not None:
                 for n in task_class_dict['Target_dataset_class']:
@@ -239,10 +238,6 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         for n, key in zip(random.sample([x for x in range(255)], len(class_color_encode_dict)), class_color_encode_dict.keys()):
             class_color_encode_dict[key] = RGB_to_Hex(
                 str(n)+','+str(n)+','+str(n))
-        # 转换不重复随机颜色编码为16进制颜色
-        # color_list = []
-        # for n in class_color_encode_dict.values():
-        #     color_list.append(RGB_to_Hex(str(n)+','+str(n)+','+str(n)))
 
         # 生成空基本信息xml文件
         annotations = dataset.__dict__[
@@ -371,22 +366,40 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         image_xml = ET.Element('image', {
             'id': '', 'name': image.image_name_new, 'width': str(image.width), 'height': str(image.height)})
         for n in image.object_list:
-            if n.segmentation_exist_flag:
+            if n.box_exist_flag:
+                box = ET.SubElement(image_xml, 'box', {
+                    'label': n.box_clss, 'occluded': '0', 'source': 'manual',
+                    'xtl': str(n.box_xywh[0]), 'ytl': str(n.box_xywh[1]),
+                    'xbr': str(n.box_xywh[0]+n.box_xywh[2]), 'ybr': str(n.box_xywh[1]+n.box_xywh[3]),
+                    'z_order': "0",
+                    'group_id': str(n.object_id)})
+                attribute = ET.SubElement(
+                    box, 'attribute', {'name': '1'})
+                attribute.text = n.box_clss+str(n.object_id)
+            elif n.segmentation_exist_flag:
                 point_list = []
                 for x in n.segmentation:
                     point_list.append(str(x[0])+','+str(x[1]))
                 if 2 == len(point_list):
                     continue
                 polygon = ET.SubElement(image_xml, 'polygon', {
-                                        'label': n.segmentation_clss, 'occluded': '0', 'source': 'manual', 'points': ';'.join(point_list)})
-                attribute = ET.SubElement(polygon, 'attribute', {'name': '1'})
-            if n.box_exist_flag:
-                polygon = ET.SubElement(image_xml, 'box', {
-                                        'label': n.box_clss, 'occluded': '0', 'source': 'manual',
-                                        'xtl': str(n.box_xywh[0]), 'ytl': str(n.box_xywh[1]),
-                                        'xbr': str(n.box_xywh[0]+n.box_xywh[2]), 'ybr': str(n.box_xywh[1]+n.box_xywh[3]),
-                                        'z_order': "0"})
-                attribute = ET.SubElement(polygon, 'attribute', {'name': '1'})
+                                        'label': n.segmentation_clss, 'occluded': '0', 'source': 'manual',
+                                        'points': ';'.join(point_list),
+                                        'z_order': "0",
+                                        'group_id': str(n.object_id)})
+                attribute = ET.SubElement(polygon, 'attribute', {
+                                          'name': '1'})
+                attribute.text = n.segmentation_clss+str(n.object_id)
+            elif n.keypoints_exist_flag:
+                for m, xy in n.keypoints:
+                    points = ET.SubElement(image_xml, 'points', {
+                        'label': n.keypoints_clss, 'occluded': '0', 'source': 'manual',
+                        'points': str(xy[0])+','+str(xy[1]),
+                        'z_order': "0",
+                        'group_id': str(n.object_id)})
+                    attribute = ET.SubElement(points, 'attribute', {
+                                              'name': '1'})
+                    attribute.text = str(n.object_id)+'-'+m
 
         return image_xml
 
@@ -480,7 +493,7 @@ class CVAT_IMAGE_1_1(Dataset_Base):
             os.path.join(dataset_instance.dataset_output_folder, 'cvat_image_1_1'))
         annotations_output_folder = check_output_path(
             os.path.join(output_root, 'annotations'))
-        
+
         print('Start copy images:')
         image_list = []
         image_output_folder = check_output_path(
@@ -495,9 +508,9 @@ class CVAT_IMAGE_1_1(Dataset_Base):
             image_output_path = image_input_path.replace(
                 dataset_instance.temp_images_folder, image_output_folder)
             pool.apply_async(func=shutil.copy,
-                                args=(image_input_path, image_output_path,),
-                                callback=update,
-                                error_callback=err_call_back)
+                             args=(image_input_path, image_output_path,),
+                             callback=update,
+                             error_callback=err_call_back)
         pool.close()
         pool.join()
         pbar.close()
@@ -511,4 +524,3 @@ class CVAT_IMAGE_1_1(Dataset_Base):
                     annotations_output_folder)
                 shutil.copy(annotations_input_path, annotations_output_path)
         return
-
