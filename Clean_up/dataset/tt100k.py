@@ -4,9 +4,8 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 03:02:45
+LastEditTime: 2022-02-15 03:39:24
 '''
-import shutil
 from PIL import Image
 import multiprocessing
 
@@ -24,7 +23,6 @@ class TT100K(Dataset_Base):
         self.source_dataset_annotation_form = 'json'
         self.source_dataset_image_count = self.get_source_dataset_image_count()
         self.source_dataset_annotation_count = self.get_source_dataset_annotation_count()
-
 
     def transform_to_temp_dataset(self) -> None:
         """[转换标注文件为暂存标注]
@@ -143,11 +141,11 @@ class TT100K(Dataset_Base):
         return
 
     @staticmethod
-    def target_dataset(dataset_instance: Dataset_Base):
+    def target_dataset(dataset_instance: Dataset_Base) -> None:
         """[输出target annotation]
 
         Args:
-            dataset (object): [数据集类]
+            dataset (Dataset_Base): [数据集类]
         """
 
         print('\nStart transform to target dataset:')
@@ -159,7 +157,7 @@ class TT100K(Dataset_Base):
         """读取暂存annotation
 
         Args:
-            dataset_instance (object): 数据集实例
+            dataset_instance (Dataset_Base): 数据集实例
             temp_annotation_path (str): 暂存annotation路径
         """
 
@@ -167,10 +165,10 @@ class TT100K(Dataset_Base):
 
     @staticmethod
     def annotation_check(dataset_instance: Dataset_Base) -> list:
-        """[读取YOLO数据集图片类检测列表]
+        """[读取TT100K数据集图片类检测列表]
 
         Args:
-            dataset_instance (object): [数据集实例]
+            dataset_instance (Dataset_Base): [数据集实例]
 
         Returns:
             list: [数据集图片类检测列表]
@@ -182,10 +180,10 @@ class TT100K(Dataset_Base):
 
     @staticmethod
     def target_dataset_folder(dataset_instance: Dataset_Base) -> None:
-        """[生成YOLO组织格式的数据集]
+        """[生成TT100K组织格式的数据集]
 
         Args:
-            dataset_instance (object): [数据集实例]
+            dataset_instance (Dataset_Base): [数据集实例]
         """
 
         print('\nStart build target dataset folder:')

@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 03:11:53
+LastEditTime: 2022-02-15 03:37:38
 '''
 import time
 import shutil
@@ -15,7 +15,6 @@ import dataset
 from utils.utils import *
 from base.image_base import *
 from base.dataset_characteristic import *
-from utils import image_form_transform
 from base.dataset_base import Dataset_Base
 
 
@@ -28,7 +27,10 @@ class HUAWEIYUN_SEGMENT(Dataset_Base):
         self.source_dataset_image_count = self.get_source_dataset_image_count()
         self.source_dataset_annotation_count = self.get_source_dataset_annotation_count()
 
-    def transform_to_temp_dataset(self):
+    def transform_to_temp_dataset(self) -> None:
+        """[转换标注文件为暂存标注]
+        """
+        
         print('\nStart transform to temp dataset:')
         success_count = 0
         fail_count = 0
@@ -133,14 +135,13 @@ class HUAWEIYUN_SEGMENT(Dataset_Base):
         return
 
     def load_image_base_information(self, image_base_information: dict, total_annotations_dict: dict) -> None:
-        """[读取标签获取图片基础信息，并添加至each_annotation_images_data_dict]
+        """[读取标签获取图片基础信息]
 
         Args:
-            dataset (dict): [数据集信息字典]
-            one_image_base_information (dict): [单个数据字典信息]
-            each_annotation_images_data_dict进程间通信字典 (dict): [each_annotation_images_data_dict进程间通信字典]
+            image_base_information (dict): [数据信息字典]
+            total_annotations_dict (dict): [进程间通信字典]
         """
-
+        
         image_id = image_base_information['id']
         image_name = os.path.splitext(image_base_information['file_name'])[
             0] + '.' + self.temp_image_form
@@ -163,11 +164,10 @@ class HUAWEIYUN_SEGMENT(Dataset_Base):
         """[读取单个标签详细信息, 并添加至each_annotation_images_data_dict]
 
         Args:
-            id(int): [标注id]
-            dataset (dict): [数据集信息字典]
+            id (int): [标注id]
             one_annotation (dict): [单个数据字典信息]
             class_dict (dict): [类别字典]
-            process_output (dict): [each_annotation_images_data_dict进程间通信字典]
+            each_annotation_images_data_dict (dict): [进程间通信字典]
 
         Returns:
             list: [ann_image_id, true_box_list, true_segmentation_list]
@@ -251,7 +251,6 @@ class HUAWEIYUN_SEGMENT(Dataset_Base):
         """[输出单个标签详细信息至temp annotation]
 
         Args:
-            dataset (dict): [数据集信息字典]
             image (IMAGE): [IMAGE类实例]
             process_output (dict): [进程间计数通信字典]
         """
@@ -285,7 +284,7 @@ class HUAWEIYUN_SEGMENT(Dataset_Base):
         """[输出temp dataset annotation]
 
         Args:
-            dataset (Dataset): [dataset]
+            dataset (Dataset_Base): [数据集实例]
         """
 
         print('\nStart transform to target dataset:')
@@ -422,15 +421,17 @@ class HUAWEIYUN_SEGMENT(Dataset_Base):
         return
 
     @staticmethod
-    def get_image_information(dataset_instance: Dataset_Base, coco: dict, n: int, temp_annotation_path: str) -> None:
-        """[读取暂存annotation]
+    def get_image_information(dataset_instance: Dataset_Base, coco: dict, n: int, temp_annotation_path: str) -> dict:
+        """[读取暂存annotation图片基础信息]
 
         Args:
-            dataset_instance (): [数据集信息字典]
+            dataset_instance (Dataset_Base): [数据集实例]
+            coco (dict): [coco格式数据基础信息]
+            n (int): [图片id]
             temp_annotation_path (str): [annotation路径]
 
         Returns:
-            IMAGE: [输出IMAGE类变量]
+            dict: [图片基础信息]
         """
 
         image = dataset_instance.TEMP_LOAD(
@@ -455,15 +456,20 @@ class HUAWEIYUN_SEGMENT(Dataset_Base):
                        n: int,
                        temp_annotation_path: str,
                        task: str,
-                       task_class_dict: dict) -> None:
+                       task_class_dict: dict) -> list:
         """[获取暂存标注信息]
 
         Args:
-            dataset (dict): [数据集信息字典]
+            dataset_instance (Dataset_Base): [数据集实例]
             n (int): [图片id]
             temp_annotation_path (str): [暂存标签路径]
-        """
+            task (str): [任务类型]
+            task_class_dict (dict): [任务类别字典]
 
+        Returns:
+            list: [图片标签信息列表]
+        """
+        
         image = dataset_instance.TEMP_LOAD(
             dataset_instance, temp_annotation_path)
         if image == None:
@@ -541,10 +547,10 @@ class HUAWEIYUN_SEGMENT(Dataset_Base):
 
     @staticmethod
     def annotation_check(dataset_instance: Dataset_Base) -> list:
-        """[读取COCO2017数据集图片类检测列表]
+        """[读取HUAWEIYUN_SEGMENT数据集图片类检测列表]
 
         Args:
-            dataset_instance (object): [数据集实例]
+            dataset_instance (Dataset_Base): [数据集实例]
 
         Returns:
             list: [数据集图片类检测列表]
@@ -673,7 +679,7 @@ class HUAWEIYUN_SEGMENT(Dataset_Base):
 
     @staticmethod
     def target_dataset_folder(dataset_instance: Dataset_Base) -> None:
-        """[生成COCO 2017组织格式的数据集]
+        """[生成HUAWEIYUN_SEGMENT组织格式的数据集]
 
         Args:
             dataset_instance (object): [数据集实例]

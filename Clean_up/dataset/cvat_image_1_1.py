@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 02:30:32
+LastEditTime: 2022-02-15 03:38:57
 '''
 import shutil
 import multiprocessing
@@ -14,7 +14,6 @@ import dataset
 from utils.utils import *
 from base.image_base import *
 from base.dataset_characteristic import *
-from utils import image_form_transform
 from base.dataset_base import Dataset_Base
 
 
@@ -152,7 +151,7 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         """输出target annotation
 
         Args:
-            dataset_instance (object): 数据集信息字典
+            dataset_instance (Dataset_Base): 数据集实例
         """
 
         print('\nStart transform to target dataset:')
@@ -277,12 +276,15 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         return annotations
 
     @staticmethod
-    def annotation_get_temp(dataset_instance: Dataset_Base, temp_annotation_path: str) -> None:
+    def annotation_get_temp(dataset_instance: Dataset_Base, temp_annotation_path: str) -> object:
         """[获取temp标签信息]
 
         Args:
-            dataset (dict): [数据集信息字典]
+            dataset_instance (Dataset_Base): [数据集实例]
             temp_annotation_path (str): [暂存标签路径]
+
+        Returns:
+            object: [ET.Element格式标注信息]
         """
 
         image = dataset_instance.TEMP_LOAD(
@@ -334,7 +336,7 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         """[读取CVAT_IMAGE_1_1数据集图片类检测列表]
 
         Args:
-            dataset_instance (object): [数据集实例]
+            dataset_instance (Dataset_Base): [数据集实例]
 
         Returns:
             list: [数据集图片类检测列表]
@@ -410,7 +412,7 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         """[生成CVAT_IMAGE_1_1组织格式的数据集]
 
         Args:
-            dataset_instance (object): [数据集实例]
+            dataset_instance (Dataset_Base): [数据集实例]
         """
 
         print('\nStart build target dataset folder:')
@@ -451,4 +453,5 @@ class CVAT_IMAGE_1_1(Dataset_Base):
                     dataset_instance.target_dataset_annotations_folder,
                     annotations_output_folder)
                 shutil.copy(annotations_input_path, annotations_output_path)
+
         return

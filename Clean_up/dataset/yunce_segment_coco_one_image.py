@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 02:30:50
+LastEditTime: 2022-02-15 03:41:35
 '''
 import time
 import shutil
@@ -154,11 +154,11 @@ class YUNCE_SEGMENT_COCO_ONE_IMAGE(Dataset_Base):
         return
 
     @staticmethod
-    def target_dataset(dataset_instance: Dataset_Base):
+    def target_dataset(dataset_instance: Dataset_Base) -> None:
         """[输出target annotation]
 
         Args:
-            dataset (object): [数据集类]
+            dataset (Dataset_Base): [数据集类]
         """
 
         print('\nStart transform to target dataset:')
@@ -295,17 +295,19 @@ class YUNCE_SEGMENT_COCO_ONE_IMAGE(Dataset_Base):
         return
 
     @staticmethod
-    def get_image_information(dataset_instance: Dataset_Base, coco: dict, n: int, temp_annotation_path: str) -> None:
-        """[读取暂存annotation]
+    def get_image_information(dataset_instance: Dataset_Base, coco: dict, n: int, temp_annotation_path: str) -> dict:
+        """[读取暂存annotation图片基础信息]
 
         Args:
-            dataset_instance (): [数据集信息字典]
+            dataset_instance (Dataset_Base): [数据集实例]
+            coco (dict): [coco格式数据基础信息]
+            n (int): [图片id]
             temp_annotation_path (str): [annotation路径]
 
         Returns:
-            IMAGE: [输出IMAGE类变量]
+            dict: [图片基础信息]
         """
-
+        
         image = dataset_instance.TEMP_LOAD(
             dataset_instance, temp_annotation_path)
         if image == None:
@@ -328,13 +330,18 @@ class YUNCE_SEGMENT_COCO_ONE_IMAGE(Dataset_Base):
                        n: int,
                        temp_annotation_path: str,
                        task: str,
-                       task_class_dict: dict) -> None:
+                       task_class_dict: dict) -> list:
         """[获取暂存标注信息]
 
         Args:
-            dataset (dict): [数据集信息字典]
+            dataset_instance (Dataset_Base): [数据集实例]
             n (int): [图片id]
             temp_annotation_path (str): [暂存标签路径]
+            task (str): [任务类型]
+            task_class_dict (dict): [任务类别字典]
+
+        Returns:
+            list: [图片标签信息列表]
         """
 
         image = dataset_instance.TEMP_LOAD(

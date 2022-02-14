@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 03:08:31
+LastEditTime: 2022-02-15 03:28:59
 '''
 import time
 import shutil
@@ -26,7 +26,6 @@ class COCO2017(Dataset_Base):
         self.source_dataset_annotation_form = 'json'
         self.source_dataset_image_count = self.get_source_dataset_image_count()
         self.source_dataset_annotation_count = self.get_source_dataset_annotation_count()
-
 
     def transform_to_temp_dataset(self) -> None:
         """[转换标注文件为暂存标注]
@@ -281,7 +280,7 @@ class COCO2017(Dataset_Base):
         return
 
     @staticmethod
-    def target_dataset(dataset_instance: Dataset_Base):
+    def target_dataset(dataset_instance: Dataset_Base) -> None:
         """[输出target annotation]
 
         Args:
@@ -471,7 +470,7 @@ class COCO2017(Dataset_Base):
 
         Returns:
             list: 图片标注信息字典列表
-        """                       
+        """
 
         image = dataset_instance.TEMP_LOAD(
             dataset_instance, temp_annotation_path)

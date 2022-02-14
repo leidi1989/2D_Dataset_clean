@@ -4,8 +4,9 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 03:02:02
+LastEditTime: 2022-02-15 03:29:29
 '''
+from types import NoneType
 from utils.utils import *
 from base.image_base import *
 from base.dataset_characteristic import *
@@ -373,7 +374,7 @@ class BDD100K(Dataset_Base):
         return
 
     @staticmethod
-    def target_dataset(dataset_instance: Dataset_Base):
+    def target_dataset(dataset_instance: Dataset_Base) -> None:
         """[输出target annotation]
 
         Args:
@@ -395,7 +396,9 @@ class BDD100K(Dataset_Base):
             list: [数据集图片类检测列表]
         """
 
-        return
+        check_images_list = []
+
+        return check_images_list
 
     @staticmethod
     def target_dataset_folder(dataset_instance: Dataset_Base) -> None:

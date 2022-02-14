@@ -4,17 +4,15 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 03:04:52
+LastEditTime: 2022-02-15 03:40:01
 '''
 import shutil
-from PIL import Image
 import multiprocessing
 
 import dataset
 from utils.utils import *
 from base.image_base import *
 from base.dataset_characteristic import *
-from utils import image_form_transform
 from base.dataset_base import Dataset_Base
 from utils.convertion_function import yolo, revers_yolo
 
@@ -100,11 +98,11 @@ class YOLO(Dataset_Base):
         return
 
     @staticmethod
-    def target_dataset(dataset_instance: Dataset_Base):
+    def target_dataset(dataset_instance: Dataset_Base) -> None:
         """[输出target annotation]
 
         Args:
-            dataset (object): [数据集类]
+            dataset (Dataset_Base): [数据集实例]
         """
 
         print('\nStart transform to target dataset:')
@@ -139,7 +137,7 @@ class YOLO(Dataset_Base):
         """读取暂存annotation
 
         Args:
-            dataset_instance (object): 数据集实例
+            dataset_instance (Dataset_Base): 数据集实例
             temp_annotation_path (str): 暂存annotation路径
         """
 
@@ -177,7 +175,7 @@ class YOLO(Dataset_Base):
         """[读取YOLO数据集图片类检测列表]
 
         Args:
-            dataset_instance (object): [数据集实例]
+            dataset_instance (Dataset_Base): [数据集实例]
 
         Returns:
             list: [数据集图片类检测列表]
@@ -232,7 +230,7 @@ class YOLO(Dataset_Base):
         """[生成YOLO组织格式的数据集]
 
         Args:
-            dataset_instance (object): [数据集实例]
+            dataset_instance (Dataset_Base): [数据集实例]
         """
 
         print('\nStart build target dataset folder:')
@@ -273,4 +271,5 @@ class YOLO(Dataset_Base):
                     dataset_instance.target_dataset_annotations_folder,
                     annotations_output_folder)
                 shutil.copy(annotations_input_path, annotations_output_path)
+
         return
