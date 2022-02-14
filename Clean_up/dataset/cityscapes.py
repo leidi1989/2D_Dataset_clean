@@ -113,7 +113,7 @@ class CITYSCAPES(Dataset_Base):
         return
 
     @staticmethod
-    def target_dataset(dataset_instance: object) -> None:
+    def target_dataset(dataset_instance: Dataset_Base) -> None:
         """[输出target annotation]
 
         Args:
@@ -148,7 +148,7 @@ class CITYSCAPES(Dataset_Base):
         return
 
     @staticmethod
-    def annotation_output(dataset_instance: object, temp_annotation_path: str) -> None:
+    def annotation_output(dataset_instance: Dataset_Base, temp_annotation_path: str) -> None:
         """[读取暂存annotation]
 
         Args:
@@ -182,7 +182,7 @@ class CITYSCAPES(Dataset_Base):
         return
 
     @staticmethod
-    def annotation_check(dataset_instance: object) -> list:
+    def annotation_check(dataset_instance: Dataset_Base) -> list:
         """[读取CITYSCAPES数据集图片类检测列表]
 
         Args:
@@ -227,7 +227,7 @@ class CITYSCAPES(Dataset_Base):
         return check_images_list
 
     @staticmethod
-    def target_dataset_folder(dataset_instance: object) -> None:
+    def target_dataset_folder(dataset_instance: Dataset_Base) -> None:
         """[生成CITYSCAPES组织格式的数据集]
 
         Args:
@@ -360,7 +360,7 @@ class CITYSCAPES(Dataset_Base):
         return
 
     @staticmethod
-    def create_annotation_file(dataset_instance: dict, file_name_dict: dict, output_folder_path_list: list,
+    def create_annotation_file(dataset_instance: Dataset_Base, file_name_dict: dict, output_folder_path_list: list,
                                dataset_name: str, class_names_dict: dict, x: str, ) -> None:
         """[创建cityscapes格式数据集]
 

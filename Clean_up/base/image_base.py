@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-02-14 15:15:06
+LastEditTime: 2022-02-15 01:29:36
 '''
 import os
 import cv2
@@ -334,7 +334,7 @@ class IMAGE:
         else:
             self.object_exist_flag = False
 
-    def modify_object_list(self, dataset_instance: object) -> None:
+    def modify_object_list(self, dataset_instance) -> None:
         """[修改真实框类别]
 
         Args:

@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-14 18:27:21
+LastEditTime: 2022-02-15 02:09:31
 '''
 import shutil
 from PIL import Image
@@ -149,133 +149,74 @@ class YOLO(Dataset_Base):
 
         return
 
-    def load_image_annotation(self, source_annotation_name: str, process_output: dict) -> list:
-        """[读取单个标签详细信息, 并添加至each_annotation_images_data_dict]
+    def load_image_annotation(self, source_annotation_name: str, process_output: dict) -> None:
+        """[读取单个图片标注信息]
 
         Args:
-            id(int): [标注id]
-            dataset (dict): [数据集信息字典]
-            one_annotation (dict): [单个数据字典信息]
-            class_dict (dict): [类别字典]
-            process_output (dict): [each_annotation_images_data_dict进程间通信字典]
-
-        Returns:
-            list: [ann_image_id, true_box_list, true_segmentation_list]
+            source_annotation_name (str): [图片标注信息文件名称]
+            process_output (dict): [多进程共享字典]
         """
 
         source_annotation_path = os.path.join(
-            self.source_dataset_annotations_folder, source_annotation_name)
+            self.source_dataset_annotations_folder,
+            source_annotation_name + '.' + self.source_dataset_annotation_form)
         with open(source_annotation_path, 'r') as f:
-            data = json.loads(f.read())
-
-        del f
-
-        class_dict = {}
-        for n in data['categories']:
-            class_dict['%s' % n['id']] = n['name']
-
-        image_name = os.path.splitext(data['images'][0]['file_name'])[
-            0] + '.' + self.temp_image_form
-        image_name_new = self.file_prefix + image_name
-        image_path = os.path.join(
-            self.temp_images_folder, image_name_new)
-        img = Image.open(image_path)
-        height, width = img.height, img.width
-        channels = 3
-        # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，
-        # 并将初始化后的对象存入total_images_data_list
-        object_list = []
-        for one_annotation in data['annotations']:
-            id = one_annotation['id']
-            box_xywh = []
-            segmentation = []
-            segmentation_area = None
-            segmentation_iscrowd = 0
-            keypoints_num = 0
-            keypoints = []
-            cls = class_dict[str(one_annotation['category_id'])]
-            cls = cls.replace(' ', '').lower()
-            total_class = []
-            for _, task_class_dict in self.task_dict.items():
-                if task_class_dict is None:
-                    continue
-                total_class.extend(task_class_dict['Source_dataset_class'])
-            if cls not in total_class:
-                continue
-            # 获取真实框信息
-            if 'bbox' in one_annotation and len(one_annotation['bbox']):
-                box = [one_annotation['bbox'][0],
-                       one_annotation['bbox'][1],
-                       one_annotation['bbox'][0] + one_annotation['bbox'][2],
-                       one_annotation['bbox'][1] + one_annotation['bbox'][3]]
-                xmin = max(min(int(box[0]), int(box[2]),
-                               int(width)), 0.)
-                ymin = max(min(int(box[1]), int(box[3]),
-                               int(height)), 0.)
-                xmax = min(max(int(box[2]), int(box[0]), 0.),
-                           int(width))
-                ymax = min(max(int(box[3]), int(box[1]), 0.),
-                           int(height))
+            image_name = source_annotation_name + '.' + self.target_dataset_image_form
+            image_path = os.path.join(
+                self.temp_images_folder, image_name)
+            img = cv2.imread(image_path)
+            size = img.shape
+            width = int(size[1])
+            height = int(size[0])
+            channels = int(size[2])
+            object_list = []
+            for n, one_bbox in enumerate(f.read().splitlines()):
+                true_box = one_bbox.split(' ')[1:]
+                cls = self.task_dict['Detection']['Target_dataset_class'][int(
+                    one_bbox.split(' ')[0])]
+                cls = cls.strip(' ').lower()
+                true_box = revers_yolo(size, true_box)
+                xmin = min(
+                    max(min(float(true_box[0]), float(true_box[1])), 0.), float(width))
+                ymin = min(
+                    max(min(float(true_box[2]), float(true_box[3])), 0.), float(height))
+                xmax = max(
+                    min(max(float(true_box[1]), float(true_box[0])), float(width)), 0.)
+                ymax = max(
+                    min(max(float(true_box[3]), float(true_box[2])), float(height)), 0.)
                 box_xywh = [xmin, ymin, xmax-xmin, ymax-ymin]
+                object_list.append(OBJECT(n,
+                                          cls,
+                                          box_clss=cls,
+                                          box_xywh=box_xywh))  # 将单个真实框加入单张图片真实框列表
+            image = IMAGE(image_name, image_name, image_path, int(
+                height), int(width), int(channels), object_list)
 
-            # 获取真实语义分割信息
-            if 'segmentation' in one_annotation and len(one_annotation['segmentation']):
-                segment = []
-                point = []
-                for i, x in enumerate(one_annotation['segmentation']):
-                    if 0 == i % 2:
-                        point.append(x)
-                    else:
-                        point.append(x)
-                        point = list(map(int, point))
-                        segment.append(point)
-                        if 2 != len(point):
-                            print('Segmentation label wrong: ', image_name_new)
-                            continue
-                        point = []
-                segmentation = segment
-                segmentation_area = one_annotation['area']
-                if '1' == one_annotation['iscrowd']:
-                    segmentation_iscrowd = 1
-
-            # 关键点信息
-            if 'keypoints' in one_annotation and len(one_annotation['keypoints']) \
-                    and 'num_keypoints' in one_annotation:
-                keypoints_num = one_annotation['num_keypoints']
-                keypoints = one_annotation['keypoints']
-
-            object_list.append(OBJECT(id, cls, cls, cls, cls,
-                                      box_xywh, segmentation, keypoints_num, keypoints,
-                                      self.task_convert,
-                                      segmentation_area=segmentation_area,
-                                      segmentation_iscrowd=segmentation_iscrowd,
-                                      ))
-        image = IMAGE(image_name, image_name_new,
-                      image_path, height, width, channels, object_list)
-
-        temp_annotation_output_path = os.path.join(
-            self.temp_annotations_folder,
-            image.file_name_new + '.' + self.temp_annotation_form)
-        image.modify_object_list(self)
-        image.object_pixel_limit(self)
-        if 0 == len(image.object_list):
-            print('{} no object, has been delete.'.format(
-                image.image_name_new))
-            os.remove(image.image_path)
-            process_output['no_object'] += 1
-            process_output['fail_count'] += 1
-            return
-        if image.output_temp_annotation(temp_annotation_output_path):
-            process_output['temp_file_name_list'].append(image.file_name_new)
-            process_output['success_count'] += 1
-        else:
-            print('errow output temp annotation: {}'.format(image.file_name_new))
-            process_output['fail_count'] += 1
+            temp_annotation_output_path = os.path.join(
+                self.temp_annotations_folder,
+                image.file_name_new + '.' + self.temp_annotation_form)
+            image.modify_object_list(self)
+            image.object_pixel_limit(self)
+            if 0 == len(image.object_list):
+                print('{} no object, has been delete.'.format(
+                    image.image_name_new))
+                os.remove(image.image_path)
+                process_output['no_object'] += 1
+                process_output['fail_count'] += 1
+                return
+            if image.output_temp_annotation(temp_annotation_output_path):
+                process_output['temp_file_name_list'].append(
+                    image.file_name_new)
+                process_output['success_count'] += 1
+            else:
+                print('errow output temp annotation: {}'.format(
+                    image.file_name_new))
+                process_output['fail_count'] += 1
 
         return
 
     @staticmethod
-    def target_dataset(dataset_instance: object):
+    def target_dataset(dataset_instance: Dataset_Base):
         """[输出target annotation]
 
         Args:
@@ -310,7 +251,7 @@ class YOLO(Dataset_Base):
         return
 
     @staticmethod
-    def annotation_output(dataset_instance: object, temp_annotation_path: str) -> None:
+    def annotation_output(dataset_instance: Dataset_Base, temp_annotation_path: str) -> None:
         """读取暂存annotation
 
         Args:
@@ -326,30 +267,29 @@ class YOLO(Dataset_Base):
             dataset_instance.target_dataset_annotations_folder,
             image.file_name + '.' + dataset_instance.target_dataset_annotation_form)
         one_image_bbox = []                                     # 声明每张图片bbox列表
-        for true_box in image.true_box_list:                        # 遍历单张图片全部bbox
-            true_box_class = str(true_box.clss).replace(
+        for object in image.object_list:                        # 遍历单张图片全部bbox
+            box_class = str(object.box_clss).replace(
                 ' ', '').lower()    # 获取bbox类别
-            if true_box_class in set(dataset['class_list_new']):
-                cls_id = dataset['class_list_new'].index(true_box_class)
-                b = (true_box.xmin, true_box.xmax, true_box.ymin,
-                     true_box.ymax,)                                # 获取源标签bbox的xxyy
-                bb = yolo((image.width, image.height),
-                          b)       # 转换bbox至yolo类型
-                one_image_bbox.append([cls_id, bb])
-            else:
-                print('\nErro! Class not in classes.names image: %s!' %
-                      image.image_name)
+            cls_id = dataset_instance.task_dict['Detection']['Target_dataset_class'].index(
+                box_class)
+            xyxy = (object.box_xywh[0],
+                    object.box_xywh[0] + object.box_xywh[2],
+                    object.box_xywh[1],
+                    object.box_xywh[1] + object.box_xywh[3])
+            xywh_yolo = yolo((image.width, image.height),
+                             xyxy)       # 转换bbox至yolo类型
+            one_image_bbox.append([cls_id, xywh_yolo])
 
         with open(annotation_output_path, 'w') as f:   # 创建图片对应txt格式的label文件
             for one_bbox in one_image_bbox:
-                f.write(str(one_bbox[0]) + " " +
-                        " ".join([str(a) for a in one_bbox[1]]) + '\n')
+                f.write(" ".join([str(one_bbox[0]), " ".join(
+                    [str(a) for a in one_bbox[1]])]) + '\n')
             f.close()
 
         return
 
     @staticmethod
-    def annotation_check(dataset_instance: object) -> list:
+    def annotation_check(dataset_instance: Dataset_Base) -> list:
         """[读取YOLO数据集图片类检测列表]
 
         Args:
@@ -361,13 +301,13 @@ class YOLO(Dataset_Base):
 
         check_images_list = []
         dataset_instance.target_check_file_name_list = annotations_path_list(
-            dataset_instance.total_file_name_path, dataset_instance.target_dataset_annotation_check_count)
+            dataset_instance.total_file_name_path, dataset_instance.target_dataset_annotations_check_count)
         for n in dataset_instance.target_check_file_name_list:
             target_annotation_path = os.path.join(
                 dataset_instance.target_dataset_annotations_folder,
                 n + '.' + dataset_instance.target_dataset_annotation_form)
             with open(target_annotation_path, 'r') as f:
-                image_name = n + '.' + dataset['target_image_form']
+                image_name = n + '.' + dataset_instance.target_dataset_image_form
                 image_path = os.path.join(
                     dataset_instance.temp_images_folder, image_name)
                 img = cv2.imread(image_path)
@@ -376,13 +316,11 @@ class YOLO(Dataset_Base):
                 height = int(size[0])
                 channels = int(size[2])
                 object_list = []
-                for one_bbox in f.read().splitlines():
+                for n, one_bbox in enumerate(f.read().splitlines()):
                     true_box = one_bbox.split(' ')[1:]
-                    cls = dataset['class_list_new'][int(
+                    cls = dataset_instance.task_dict['Detection']['Target_dataset_class'][int(
                         one_bbox.split(' ')[0])]
                     cls = cls.strip(' ').lower()
-                    if cls not in dataset['class_list_new']:
-                        continue
                     true_box = revers_yolo(size, true_box)
                     xmin = min(
                         max(min(float(true_box[0]), float(true_box[1])), 0.), float(width))
@@ -392,8 +330,11 @@ class YOLO(Dataset_Base):
                         min(max(float(true_box[1]), float(true_box[0])), float(width)), 0.)
                     ymax = max(
                         min(max(float(true_box[3]), float(true_box[2])), float(height)), 0.)
-                    object_list.append(OBJECT(
-                        cls, xmin, ymin, xmax, ymax))  # 将单个真实框加入单张图片真实框列表
+                    box_xywh = [xmin, ymin, xmax-xmin, ymax-ymin]
+                    object_list.append(OBJECT(n,
+                                              cls,
+                                              box_clss=cls,
+                                              box_xywh=box_xywh))  # 将单个真实框加入单张图片真实框列表
                 image = IMAGE(image_name, image_name, image_path, int(
                     height), int(width), int(channels), object_list)
                 check_images_list.append(image)
@@ -401,7 +342,7 @@ class YOLO(Dataset_Base):
         return check_images_list
 
     @staticmethod
-    def target_dataset_folder(dataset_instance: object) -> None:
+    def target_dataset_folder(dataset_instance: Dataset_Base) -> None:
         """[生成YOLO组织格式的数据集]
 
         Args:
@@ -410,35 +351,33 @@ class YOLO(Dataset_Base):
 
         print('\nStart build target dataset folder:')
         output_root = check_output_path(
-            os.path.join(dataset_instance.dataset_output_folder, 'coco2017'))
+            os.path.join(dataset_instance.dataset_output_folder, 'YOLO'))
         shutil.rmtree(output_root)
         output_root = check_output_path(
-            os.path.join(dataset_instance.dataset_output_folder, 'coco2017'))
+            os.path.join(dataset_instance.dataset_output_folder, 'YOLO'))
         annotations_output_folder = check_output_path(
             os.path.join(output_root, 'annotations'))
+        
         print('Start copy images:')
-        for temp_divide_file in dataset_instance.temp_divide_file_list[1:4]:
-            image_list = []
-            coco_images_folder = os.path.splitext(
-                temp_divide_file.split(os.sep)[-1])[0]
-            image_output_folder = check_output_path(
-                os.path.join(output_root, coco_images_folder + '2017'))
-            with open(temp_divide_file, 'r') as f:
-                for n in f.readlines():
-                    image_list.append(n.replace('\n', ''))
-            pbar, update = multiprocessing_list_tqdm(
-                image_list, desc='Copy images', leave=False)
-            pool = multiprocessing.Pool(dataset_instance.workers)
-            for image_input_path in image_list:
-                image_output_path = image_input_path.replace(
-                    dataset_instance.temp_images_folder, image_output_folder)
-                pool.apply_async(func=shutil.copy,
-                                 args=(image_input_path, image_output_path,),
-                                 callback=update,
-                                 error_callback=err_call_back)
-            pool.close()
-            pool.join()
-            pbar.close()
+        image_list = []
+        image_output_folder = check_output_path(
+            os.path.join(output_root, 'images'))
+        with open(dataset_instance.temp_divide_file_list[0], 'r') as f:
+            for n in f.readlines():
+                image_list.append(n.replace('\n', ''))
+        pbar, update = multiprocessing_list_tqdm(
+            image_list, desc='Copy images', leave=False)
+        pool = multiprocessing.Pool(dataset_instance.workers)
+        for image_input_path in image_list:
+            image_output_path = image_input_path.replace(
+                dataset_instance.temp_images_folder, image_output_folder)
+            pool.apply_async(func=shutil.copy,
+                             args=(image_input_path, image_output_path,),
+                             callback=update,
+                             error_callback=err_call_back)
+        pool.close()
+        pool.join()
+        pbar.close()
 
         print('Start copy annotations:')
         for root, dirs, files in os.walk(dataset_instance.target_dataset_annotations_folder):

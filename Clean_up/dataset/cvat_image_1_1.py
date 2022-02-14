@@ -7,7 +7,6 @@ LastEditors: Leidi
 LastEditTime: 2022-02-14 17:53:41
 '''
 import shutil
-from PIL import Image
 import multiprocessing
 import xml.etree.ElementTree as ET
 
@@ -222,7 +221,7 @@ class CVAT_IMAGE_1_1(Dataset_Base):
             return
 
     @staticmethod
-    def target_dataset(dataset_instance: object) -> None:
+    def target_dataset(dataset_instance: Dataset_Base) -> None:
         """输出target annotation
 
         Args:
@@ -275,7 +274,7 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         return
 
     @staticmethod
-    def annotation_creat_root(dataset_instance: dict, class_color_encode_dict: dict) -> object:
+    def annotation_creat_root(dataset_instance: Dataset_Base, class_color_encode_dict: dict) -> object:
         """创建xml根节点
 
         Args:
@@ -351,7 +350,7 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         return annotations
 
     @staticmethod
-    def annotation_get_temp(dataset_instance: dict, temp_annotation_path: str) -> None:
+    def annotation_get_temp(dataset_instance: Dataset_Base, temp_annotation_path: str) -> None:
         """[获取temp标签信息]
 
         Args:
@@ -404,7 +403,7 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         return image_xml
 
     @staticmethod
-    def annotation_check(dataset_instance: object) -> list:
+    def annotation_check(dataset_instance: Dataset_Base) -> list:
         """[读取CVAT_IMAGE_1_1数据集图片类检测列表]
 
         Args:
@@ -478,7 +477,7 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         return check_images_list
 
     @staticmethod
-    def target_dataset_folder(dataset_instance: object) -> None:
+    def target_dataset_folder(dataset_instance: Dataset_Base) -> None:
         """[生成CVAT_IMAGE_1_1组织格式的数据集]
 
         Args:

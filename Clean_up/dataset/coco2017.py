@@ -353,7 +353,7 @@ class COCO2017(Dataset_Base):
         return
 
     @staticmethod
-    def target_dataset(dataset_instance: object):
+    def target_dataset(dataset_instance: Dataset_Base):
         """[输出target annotation]
 
         Args:
@@ -496,7 +496,7 @@ class COCO2017(Dataset_Base):
         return
 
     @staticmethod
-    def get_image_information(dataset_instance: object, coco: dict, n: int, temp_annotation_path: str) -> dict:
+    def get_image_information(dataset_instance: Dataset_Base, coco: dict, n: int, temp_annotation_path: str) -> dict:
         """读取暂存annotation
 
         Args:
@@ -527,7 +527,7 @@ class COCO2017(Dataset_Base):
         return image_information
 
     @staticmethod
-    def get_annotation(dataset_instance: object,
+    def get_annotation(dataset_instance: Dataset_Base,
                        n: int,
                        temp_annotation_path: str,
                        task: str,
@@ -621,7 +621,7 @@ class COCO2017(Dataset_Base):
         return one_image_annotations_list
 
     @staticmethod
-    def annotation_check(dataset_instance: object) -> list:
+    def annotation_check(dataset_instance: Dataset_Base) -> list:
         """[读取COCO2017数据集图片类检测列表]
 
         Args:
@@ -751,7 +751,7 @@ class COCO2017(Dataset_Base):
         return check_images_list
 
     @staticmethod
-    def target_dataset_folder(dataset_instance: object) -> None:
+    def target_dataset_folder(dataset_instance: Dataset_Base) -> None:
         """[生成COCO 2017组织格式的数据集]
 
         Args:

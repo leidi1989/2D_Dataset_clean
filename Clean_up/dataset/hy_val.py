@@ -126,7 +126,7 @@ class HY_VAL(Dataset_Base):
         return
 
     @staticmethod
-    def annotation_check(dataset_instance: object) -> list:
+    def annotation_check(dataset_instance: Dataset_Base) -> list:
         """[读取HY_VAL数据集图片类检测列表]
 
         Args:
@@ -139,7 +139,7 @@ class HY_VAL(Dataset_Base):
         return []
 
     @staticmethod
-    def target_dataset_folder(dataset_instance: object) -> None:
+    def target_dataset_folder(dataset_instance: Dataset_Base) -> None:
         """[生成HY_VAL组织格式的数据集]
 
         Args:

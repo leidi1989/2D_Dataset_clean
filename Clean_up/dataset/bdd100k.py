@@ -503,7 +503,7 @@ class BDD100K(Dataset_Base):
         return
 
     @staticmethod
-    def target_dataset(dataset_instance: object):
+    def target_dataset(dataset_instance: Dataset_Base):
         """[输出temp dataset annotation]
 
         Args:
@@ -515,7 +515,7 @@ class BDD100K(Dataset_Base):
         return
 
     @staticmethod
-    def annotation_check(dataset_instance: object) -> list:
+    def annotation_check(dataset_instance: Dataset_Base) -> list:
         """[读取BDD100K数据集图片类检测列表]
 
         Args:
@@ -528,7 +528,7 @@ class BDD100K(Dataset_Base):
         return
 
     @staticmethod
-    def target_dataset_folder(dataset_instance: object) -> None:
+    def target_dataset_folder(dataset_instance: Dataset_Base) -> None:
         """[生成COCO 2017组织格式的数据集]
 
         Args:

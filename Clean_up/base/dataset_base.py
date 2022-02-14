@@ -4,9 +4,8 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-14 16:39:04
+LastEditTime: 2022-02-15 01:31:24
 '''
-from sympy import E
 import dataset
 from utils.utils import *
 from .dataset_characteristic import *
@@ -219,7 +218,7 @@ class Dataset_Base:
         """[输出类别文件]
         """
 
-        print('\nOutput task class name file.')
+        print('Output task class name file.')
         for task, task_class_dict in self.task_dict.items():
             if task_class_dict is None:
                 continue
@@ -235,7 +234,7 @@ class Dataset_Base:
         """[删除无标注图片]
         """
 
-        print('\nStar delete redundant image:')
+        print('Star delete redundant image:')
         delete_count = 0
         for n in os.listdir(self.temp_images_folder):
             image_name = os.path.splitext(n)[0]
@@ -245,24 +244,6 @@ class Dataset_Base:
                 os.remove(delete_image_path)
                 delete_count += 1
         print('Total delete redundant images count: {}'.format(delete_count))
-
-        return
-
-    def get_dataset_information(self) -> None:
-        """[数据集信息分析]
-
-        Args:
-            dataset (dict): [数据集信息字典]
-        """
-
-        print('\nStart get temp dataset information:')
-        self.divide_dataset()
-        if self.target_dataset_style == 'CITYSCAPES_VAL':
-            self.image_mean_std()
-            return
-        self.sample_statistics()
-        self.image_mean_std()
-        # image_resolution_analysis(dataset)
 
         return
 
@@ -415,6 +396,9 @@ class Dataset_Base:
         """[数据集样本统计]
         """
 
+        if self.target_dataset_style == 'CITYSCAPES_VAL':
+            return
+        
         # 分割后各数据集annotation文件路径
         for n in self.temp_divide_file_list:
             divide_file_name = os.path.splitext(n.split(os.sep)[-1])[0]
@@ -829,7 +813,7 @@ class Dataset_Base:
 
         return m.reshape((3,)), s.reshape((3,)), name
 
-    def image_mean_std(self) -> None:
+    def get_dataset_image_mean_std(self) -> None:
         """[计算读取的数据集图片均值、标准差]
 
         Args:

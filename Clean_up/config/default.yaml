@@ -1,8 +1,8 @@
 # dataset path
-Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/bdd100k_images_annotations_test
+Dataset_input_folder: /home/leidi/Data/dataset_test/bdd100k_images_annotations_test
 
 # output path
-Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/bdd100k_images_annotations_yolo_20220214
+Dataset_output_folder: /home/leidi/Data/dataset_test/bdd100k_images_annotations_test_yolo_20220214
 
 # Source dataset style:
 # COCO2017, YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, HY_VAL, BDD100K
