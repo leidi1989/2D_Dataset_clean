@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-14 14:32:38
+LastEditTime: 2022-02-14 14:43:00
 '''
 import shutil
 from PIL import Image
@@ -400,16 +400,19 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         print('Start load target annotations:')
         for n in tqdm(dataset_instance.target_check_file_name_list,
                       desc='Load target dataset annotation'):
+            if os.path.splitext(n)[-1] != '.xml':
+                continue
             source_annotations_path = os.path.join(
-                dataset_instance.source_dataset_annotations_folder, n)
+                dataset_instance.target_dataset_annotations_folder, n)
         tree = ET.parse(source_annotations_path)
         root = tree.getroot()
+        random.shuffle(root)
+        root = root[0: dataset_instance.target_dataset_annotations_check_count+1]
         for annotation in root:
             if annotation.tag != 'image':
                 continue
-            image_name = str(annotation.attrib['name']).replace(
-                '.' + dataset_instance.source_dataset_image_form, '.' + dataset_instance.target_dataset_image_form)
-            image_name_new = dataset_instance.file_prefix + image_name
+            image_name = str(annotation.attrib['name'])
+            image_name_new = image_name
             image_path = os.path.join(
                 dataset_instance.temp_images_folder, image_name_new)
             img = cv2.imread(image_path)
