@@ -4,12 +4,10 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-11-08 17:27:59
+LastEditTime: 2022-02-14 10:17:31
 '''
 import os
 import cv2
-import json
-import operator
 import xml.etree.ElementTree as ET
 
 from utils.utils import *

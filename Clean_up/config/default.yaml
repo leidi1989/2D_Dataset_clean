@@ -11,9 +11,9 @@ Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/bdd100k_images_annotatio
 # PASCAL_VOC, KITTI, YOLO, TT100K, LISA, CCTSDB, SJT, MYXB, HY_HIGHWAY(小写)
 Source_dataset_style: BDD100K
 
-# Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL,
+# Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1
 
-# NO: cvat_image_1_1, pascal_voc, yolo
+# NO: pascal_voc, yolo
 Target_dataset_style: CITYSCAPES
 
 # images or labels need to rename prefix

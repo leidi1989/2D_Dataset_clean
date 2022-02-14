@@ -4,12 +4,13 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-10 11:34:21
+LastEditTime: 2022-02-14 10:21:20
 '''
 import time
 import shutil
 from PIL import Image
 import multiprocessing
+import xml.etree.ElementTree as ET
 
 import dataset
 from utils.utils import *
@@ -19,12 +20,12 @@ from utils import image_form_transform
 from base.dataset_base import Dataset_Base
 
 
-class COCO2017(Dataset_Base):
+class CVAT_IMAGE_1_1(Dataset_Base):
 
     def __init__(self, opt) -> None:
         super().__init__(opt)
         self.source_dataset_image_form_list = ['jpg']
-        self.source_dataset_annotation_form = 'json'
+        self.source_dataset_annotation_form = 'xml'
         self.source_dataset_image_count = self.get_source_dataset_image_count()
         self.source_dataset_annotation_count = self.get_source_dataset_annotation_count()
 
@@ -102,257 +103,125 @@ class COCO2017(Dataset_Base):
 
         return
 
-    def transform_to_temp_dataset(self):
+    def transform_to_temp_dataset(self) -> None:
+        """[转换标注文件为暂存标注]
+        """
+
         print('\nStart transform to temp dataset:')
         success_count = 0
         fail_count = 0
         no_object = 0
         temp_file_name_list = []
+        total_source_dataset_annotations_list = os.listdir(
+            self.source_dataset_annotations_folder)
 
-        for source_annotation_name in tqdm(os.listdir(self.source_dataset_annotations_folder),
-                                           desc='Total annotations'):
-            source_annotation_path = os.path.join(
-                self.source_dataset_annotations_folder, source_annotation_name)
-            with open(source_annotation_path, 'r') as f:
-                data = json.loads(f.read())
+        pbar, update = multiprocessing_list_tqdm(total_source_dataset_annotations_list,
+                                                 desc='Total annotations')
+        process_temp_file_name_list = multiprocessing.Manager().list()
+        process_output = multiprocessing.Manager().dict({'success_count': 0,
+                                                         'fail_count': 0,
+                                                         'no_object': 0,
+                                                         'temp_file_name_list': process_temp_file_name_list
+                                                         })
+        pool = multiprocessing.Pool(self.workers)
+        for source_annotation_name in total_source_dataset_annotations_list:
+            pool.apply_async(func=self.load_annotation,
+                             args=(source_annotation_name,
+                                   process_output,),
+                             callback=update,
+                             error_callback=err_call_back)
+        pool.close()
+        pool.join()
+        pbar.close()
 
-            del f
-
-            class_dict = {}
-            for n in data['categories']:
-                class_dict['%s' % n['id']] = n['name']
-
-            # 获取data字典中images内的图片信息，file_name、height、width
-            pbar, update = multiprocessing_list_tqdm(
-                data['images'], desc='Load image base information', leave=False)
-            total_annotations_dict = multiprocessing.Manager().dict()
-            pool = multiprocessing.Pool(self.workers)
-            for image_base_information in data['images']:
-                pool.apply_async(func=self.load_image_base_information,
-                                 args=(image_base_information,
-                                       total_annotations_dict,),
-                                 callback=update,
-                                 error_callback=err_call_back)
-            pool.close()
-            pool.join()
-            pbar.close()
-
-            # 读取目标标注信息
-            pbar, update = multiprocessing_list_tqdm(
-                data['annotations'], desc='Load image annotation', leave=False)
-            total_image_annotation_list = []
-            pool = multiprocessing.Pool(self.workers)
-            for id, one_annotation in enumerate(data['annotations']):
-                total_image_annotation_list.append(pool.apply_async(func=self.load_image_annotation,
-                                                                    args=(
-                                                                        id, one_annotation, class_dict, total_annotations_dict),
-                                                                    callback=update,
-                                                                    error_callback=err_call_back))
-            pool.close()
-            pool.join()
-            pbar.close()
-
-            del data
-
-            total_images_data_dict = {}
-            for image_true_annotation in total_image_annotation_list:
-                if image_true_annotation.get()[1] is None:
-                    continue
-                if image_true_annotation.get()[0] not in total_images_data_dict:
-                    total_images_data_dict[image_true_annotation.get(
-                    )[0]] = total_annotations_dict[image_true_annotation.get()[0]]
-                    total_images_data_dict[image_true_annotation.get()[0]].object_list.append(
-                        image_true_annotation.get()[1])
-                else:
-                    total_images_data_dict[image_true_annotation.get()[0]].object_list.append(
-                        image_true_annotation.get()[1])
-
-            del total_annotations_dict, total_image_annotation_list
-
-            # 输出读取的source annotation至temp annotation
-            pbar, update = multiprocessing_list_tqdm(
-                total_images_data_dict, desc='Output temp annotation', leave=False)
-            process_temp_file_name_list = multiprocessing.Manager().list()
-            process_output = multiprocessing.Manager().dict({'success_count': 0,
-                                                             'fail_count': 0,
-                                                             'no_object': 0,
-                                                             'temp_file_name_list': process_temp_file_name_list
-                                                             })
-            pool = multiprocessing.Pool(self.workers)
-            for _, image in total_images_data_dict.items():
-                pool.apply_async(func=self.output_temp_annotation,
-                                 args=(image, process_output,),
-                                 callback=update,
-                                 error_callback=err_call_back)
-            pool.close()
-            pool.join()
-            pbar.close()
-
-            # 更新输出统计
-            success_count += process_output['success_count']
-            fail_count += process_output['fail_count']
-            no_object += process_output['no_object']
-            temp_file_name_list += process_output['temp_file_name_list']
+        success_count = process_output['success_count']
+        fail_count = process_output['fail_count']
+        no_object = process_output['no_object']
+        temp_file_name_list += process_output['temp_file_name_list']
 
         # 输出读取统计结果
         print('\nSource dataset convert to temp dataset file count: ')
         print('Total annotations:         \t {} '.format(
-            len(os.listdir(self.source_dataset_annotations_folder))))
-        print('Convert fail:              \t {} '.format(fail_count))
-        print('No object delete images: \t {} '.format(no_object))
-        print('Convert success:           \t {} '.format(success_count))
+            len(total_source_dataset_annotations_list)))
+        print('Convert fail:              \t {} '.format(
+            fail_count))
+        print('No object delete images: \t {} '.format(
+            no_object))
+        print('Convert success:           \t {} '.format(
+            success_count))
         self.temp_annotation_name_list = temp_file_name_list
         print('Source dataset annotation transform to temp dataset end.')
 
         return
 
-    def load_image_base_information(self, image_base_information: dict, total_annotations_dict: dict) -> None:
-        """[读取标签获取图片基础信息，并添加至each_annotation_images_data_dict]
+    def load_annotation(self, source_annotation_name: str, process_output: dict) -> None:
+        """将源标注转换为暂存标注
 
         Args:
-            dataset (dict): [数据集信息字典]
-            one_image_base_information (dict): [单个数据字典信息]
-            each_annotation_images_data_dict进程间通信字典 (dict): [each_annotation_images_data_dict进程间通信字典]
+            source_annotation_name (str): 源标注文件名称
+            process_output (dict): 进程间通信字典
         """
 
-        image_id = image_base_information['id']
-        image_name = os.path.splitext(image_base_information['file_name'])[
-            0] + '.' + self.temp_image_form
-        image_name_new = self.file_prefix + image_name
-        image_path = os.path.join(
-            self.temp_images_folder, image_name_new)
-        img = Image.open(image_path)
-        height, width = img.height, img.width
-        channels = 3
-        # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，
-        # 并将初始化后的对象存入total_images_data_list
-        image = IMAGE(image_name, image_name_new,
-                      image_path, height, width, channels, [])
-        total_annotations_dict.update({image_id: image})
-
-        return
-
-    def load_image_annotation(self, id: int, one_annotation: dict,
-                              class_dict: dict, each_annotation_images_data_dict: dict) -> list:
-        """[读取单个标签详细信息，并添加至each_annotation_images_data_dict]
-
-        Args:
-            id(int): [标注id]
-            dataset (dict): [数据集信息字典]
-            one_annotation (dict): [单个数据字典信息]
-            class_dict (dict): [类别字典]
-            process_output (dict): [each_annotation_images_data_dict进程间通信字典]
-
-        Returns:
-            list: [ann_image_id, true_box_list, true_segmentation_list]
-        """
-
-        box_xywh = []
-        segmentation = []
-        segmentation_area = None
-        segmentation_iscrowd = 0
-        keypoints_num = 0
-        keypoints = []
-
-        ann_image_id = one_annotation['image_id']   # 获取此object图片id
-
-        cls = class_dict[str(one_annotation['category_id'])]     # 获取object类别
-        cls = cls.replace(' ', '').lower()
-        total_class = []
-        for _, task_class_dict in self.task_dict.items():
-            total_class.extend(task_class_dict['Source_dataset_class'])
-        if cls not in total_class:
-            return ann_image_id, None
-        if ann_image_id in each_annotation_images_data_dict.keys():
-            image = each_annotation_images_data_dict[ann_image_id]
-        else:
-            return ann_image_id, None
-
-        # 获取真实框信息
-        if 'bbox' in one_annotation and len(one_annotation['bbox']):
-            box = [one_annotation['bbox'][0],
-                   one_annotation['bbox'][1],
-                   one_annotation['bbox'][0] + one_annotation['bbox'][2],
-                   one_annotation['bbox'][1] + one_annotation['bbox'][3]]
-            xmin = max(min(int(box[0]), int(box[2]),
-                           int(image.width)), 0.)
-            ymin = max(min(int(box[1]), int(box[3]),
-                           int(image.height)), 0.)
-            xmax = min(max(int(box[2]), int(box[0]), 0.),
-                       int(image.width))
-            ymax = min(max(int(box[3]), int(box[1]), 0.),
-                       int(image.height))
-            box_xywh = [xmin, ymin, xmax-xmin, ymax-ymin]
-
-        # 获取真实语义分割信息
-        if 'segmentation' in one_annotation and len(one_annotation['segmentation']):
-            for one_seg in one_annotation['segmentation']:
+        source_annotations_path = os.path.join(
+            self.source_dataset_annotations_folder, source_annotation_name)
+        tree = ET.parse(source_annotations_path)
+        root = tree.getroot()
+        for annotation in root:
+            if annotation.tag != 'image':
+                continue
+            image_name = str(annotation.attrib['name']).replace(
+                '.' + self.source_dataset_image_form, '.' + self.target_dataset_image_form)
+            image_name_new = self.file_prefix + image_name
+            image_path = os.path.join(
+                self.temp_images_folder, image_name_new)
+            img = cv2.imread(image_path)
+            if img is None:
+                print('Can not load: {}'.format(image_name_new))
+                return
+            width = int(annotation.attrib['width'])
+            height = int(annotation.attrib['height'])
+            channels = img.shape[-1]
+            object_list = []
+            for n, obj in enumerate(annotation):
+                cls = str(obj.attrib['label'])
+                cls = cls.replace(' ', '').lower()
                 segment = []
-                point = []
-                for i, x in enumerate(one_seg):
-                    if 0 == i % 2:
-                        point.append(x)
-                    else:
-                        point.append(x)
-                        point = list(map(int, point))
-                        segment.append(point)
-                        if 2 != len(point):
-                            print('Segmentation label wrong: ',
-                                  each_annotation_images_data_dict[ann_image_id].image_name_new)
-                            continue
-                        point = []
-                segmentation = segment
-                segmentation_area = one_annotation['area']
-                if '1' == one_annotation['iscrowd']:
-                    segmentation_iscrowd = 1
+                for seg in obj.attrib['points'].split(';'):
+                    x, y = seg.split(',')
+                    x = float(x)
+                    y = float(y)
+                    segment.append(list(map(int, [x, y])))
+                object_list.append(OBJECT(n,
+                                          cls,
+                                          segmentation_clss=cls,
+                                          segmentation=segment))
+            image = IMAGE(image_name, image_name_new, image_path,
+                          height, width, channels, object_list)
+            # 读取目标标注信息，输出读取的source annotation至temp annotation
+            if image == None:
+                return
+            temp_annotation_output_path = os.path.join(
+                self.temp_annotations_folder,
+                image.file_name_new + '.' + self.temp_annotation_form)
+            image.modify_object_list(self)
+            image.object_pixel_limit(self)
+            if 0 == len(image.object_list):
+                print('{} no object, has been delete.'.format(
+                    image.image_name_new))
+                os.remove(image.image_path)
+                process_output['no_object'] += 1
+                process_output['fail_count'] += 1
+                return
+            if image.output_temp_annotation(temp_annotation_output_path):
+                process_output['temp_file_name_list'].append(
+                    image.file_name_new)
+                process_output['success_count'] += 1
+            else:
+                print('errow output temp annotation: {}'.format(
+                    image.file_name_new))
+                process_output['fail_count'] += 1
 
-        # 关键点信息
-        if 'keypoints' in one_annotation and len(one_annotation['keypoints']) \
-                and 'num_keypoints' in one_annotation:
-            keypoints_num = one_annotation['num_keypoints']
-            keypoints = one_annotation['keypoints']
-
-        one_object = OBJECT(id, cls, cls, cls, cls,
-                            box_xywh, segmentation, keypoints_num, keypoints,
-                            self.task_convert,
-                            segmentation_area=segmentation_area,
-                            segmentation_iscrowd=segmentation_iscrowd,
-                            )
-
-        return ann_image_id, one_object
-
-    def output_temp_annotation(self, image: IMAGE, process_output: dict) -> None:
-        """[输出单个标签详细信息至temp annotation]
-
-        Args:
-            dataset (dict): [数据集信息字典]
-            image (IMAGE): [IMAGE类实例]
-            process_output (dict): [进程间计数通信字典]
-        """
-
-        if image == None:
             return
-
-        temp_annotation_output_path = os.path.join(
-            self.temp_annotations_folder,
-            image.file_name_new + '.' + self.temp_annotation_form)
-        image.modify_object_list(self)
-        image.object_pixel_limit(self)
-        if 0 == len(image.object_list):
-            print('{} no object, has been delete.'.format(
-                image.image_name_new))
-            os.remove(image.image_path)
-            process_output['no_object'] += 1
-            process_output['fail_count'] += 1
-            return
-        if image.output_temp_annotation(temp_annotation_output_path):
-            process_output['temp_file_name_list'].append(image.file_name_new)
-            process_output['success_count'] += 1
-        else:
-            print('errow output temp annotation: {}'.format(image.file_name_new))
-            process_output['fail_count'] += 1
-
-        return
 
     @staticmethod
     def target_dataset(dataset_instance: object):

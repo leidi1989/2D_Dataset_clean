@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-14 09:51:41
+LastEditTime: 2022-02-14 10:15:18
 '''
 import shutil
 import multiprocessing
@@ -153,12 +153,11 @@ class BDD100K(Dataset_Base):
         return
 
     def load_annotation(self, source_annotation_name: str, process_output: dict) -> None:
-        """[读取标签获取图片基础信息, 并添加至each_annotation_images_data_dict]
+        """将源标注转换为暂存标注
 
         Args:
-            dataset (dict): [数据集信息字典]
-            one_image_base_information (dict): [单个数据字典信息]
-            each_annotation_images_data_dict进程间通信字典 (dict): [each_annotation_images_data_dict进程间通信字典]
+            source_annotation_name (str): 源标注文件名称
+            process_output (dict): 进程间通信字典
         """
 
         area_list = ['area/drivable',
@@ -238,7 +237,6 @@ class BDD100K(Dataset_Base):
         object_count += len(object_box_list)
 
         # object segment area
-        # TODO bug
         for n, object in enumerate(object_segment_area_list):
             clss = object['category']
             clss = clss.replace(' ', '').lower()
