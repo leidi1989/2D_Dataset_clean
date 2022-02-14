@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-14 10:15:18
+LastEditTime: 2022-02-14 15:17:00
 '''
 import shutil
 import multiprocessing
@@ -232,8 +232,7 @@ class BDD100K(Dataset_Base):
                                       clss,
                                       box_clss=clss,
                                       box_xywh=box_xywh,
-                                      box_color=object['attributes']['trafficLightColor'],
-                                      box_occlusion=object['attributes']['occluded']))
+                                      box_color=object['attributes']['trafficLightColor']))
         object_count += len(object_box_list)
 
         # object segment area

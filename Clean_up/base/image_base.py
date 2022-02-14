@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-02-13 22:07:18
+LastEditTime: 2022-02-14 15:15:06
 '''
 import os
 import cv2
@@ -241,14 +241,14 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
             self.task_convert_dict = task_convert_dict
         if 0 == len(self.box_xywh)\
                 and 0 != len(self.segmentation)  \
-        and 'Detection' in self.task_convert_dict \
+            and 'Detection' in self.task_convert_dict \
                 and self.task_convert_dict['Detection']:
             self.box_xywh = self.true_segmentation_to_true_box()
             self.box_clss = self.segmentation_clss
             self.object_convert_flag = 'segmentation_to_box'
         if 0 == len(self.segmentation)\
                 and 0 != len(self.box_xywh) \
-        and 'Semantic_segmentation' in self.task_convert_dict \
+            and 'Semantic_segmentation' in self.task_convert_dict \
                 and self.task_convert_dict['Semantic_segmentation']:
             self.segmentation = self.true_box_to_true_segmentation()
             self.segmentation_clss = self.box_clss
@@ -452,27 +452,27 @@ class IMAGE:
                 and object.segmentation_exist_flag == False \
                     and object.keypoints_exist_flag == False:
                 continue
-            object = {'id': id,
-                      'object_clss': object.object_clss,
-                      'box_clss': object.box_clss,
-                      'box_color': object.box_color,
-                      'box_difficult': object.box_difficult,
-                      'box_distance': object.box_distance,
-                      'box_occlusion': object.box_occlusion,
-                      'box_tool': object.box_tool,
-                      'box_xywh': object.box_xywh,
-                      'box_exist_flag': object.box_exist_flag,
-                      'keypoints_clss': object.keypoints_clss,
-                      'keypoints_num': object.keypoints_num,
-                      'keypoints': object.keypoints,
-                      'keypoints_exist_flag': object.keypoints_exist_flag,
-                      'segmentation_clss': object.segmentation_clss,
-                      'segmentation': object.segmentation,
-                      'segmentation_area': object.segmentation_area,
-                      'segmentation_iscrowd': object.segmentation_iscrowd,
-                      'segmentation_exist_flag': object.segmentation_exist_flag,
-                      }
-            annotation['frames'][0]['objects'].append(object)
+            object_dict = {'id': id,
+                           'object_clss': object.object_clss,
+                           'box_clss': object.box_clss,
+                           'box_color': object.box_color,
+                           'box_difficult': object.box_difficult,
+                           'box_distance': object.box_distance,
+                           'box_occlusion': object.box_occlusion,
+                           'box_tool': object.box_tool,
+                           'box_xywh': object.box_xywh,
+                           'box_exist_flag': object.box_exist_flag,
+                           'keypoints_clss': object.keypoints_clss,
+                           'keypoints_num': object.keypoints_num,
+                           'keypoints': object.keypoints,
+                           'keypoints_exist_flag': object.keypoints_exist_flag,
+                           'segmentation_clss': object.segmentation_clss,
+                           'segmentation': object.segmentation,
+                           'segmentation_area': object.segmentation_area,
+                           'segmentation_iscrowd': object.segmentation_iscrowd,
+                           'segmentation_exist_flag': object.segmentation_exist_flag,
+                           }
+            annotation['frames'][0]['objects'].append(object_dict)
             id += 1
         # 输出json文件
         json.dump(annotation, open(temp_annotation_output_path, 'w'))

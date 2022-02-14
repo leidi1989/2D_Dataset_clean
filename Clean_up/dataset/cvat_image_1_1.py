@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-14 14:43:00
+LastEditTime: 2022-02-14 16:43:14
 '''
 import shutil
 from PIL import Image
@@ -371,14 +371,22 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         image_xml = ET.Element('image', {
             'id': '', 'name': image.image_name_new, 'width': str(image.width), 'height': str(image.height)})
         for n in image.object_list:
-            point_list = []
-            for x in n.segmentation:
-                point_list.append(str(x[0])+','+str(x[1]))
-            if 2 == len(point_list):
-                continue
-            polygon = ET.SubElement(image_xml, 'polygon', {
-                                    'label': n.segmentation_clss, 'occluded': '0', 'source': 'manual', 'points': ';'.join(point_list)})
-            attribute = ET.SubElement(polygon, 'attribute', {'name': '1'})
+            if n.segmentation_exist_flag:
+                point_list = []
+                for x in n.segmentation:
+                    point_list.append(str(x[0])+','+str(x[1]))
+                if 2 == len(point_list):
+                    continue
+                polygon = ET.SubElement(image_xml, 'polygon', {
+                                        'label': n.segmentation_clss, 'occluded': '0', 'source': 'manual', 'points': ';'.join(point_list)})
+                attribute = ET.SubElement(polygon, 'attribute', {'name': '1'})
+            if n.box_exist_flag:
+                polygon = ET.SubElement(image_xml, 'box', {
+                                        'label': n.box_clss, 'occluded': '0', 'source': 'manual',
+                                        'xtl': str(n.box_xywh[0]), 'ytl': str(n.box_xywh[1]),
+                                        'xbr': str(n.box_xywh[0]+n.box_xywh[2]), 'ybr': str(n.box_xywh[1]+n.box_xywh[3]),
+                                        'z_order': "0"})
+                attribute = ET.SubElement(polygon, 'attribute', {'name': '1'})
 
         return image_xml
 
@@ -424,18 +432,32 @@ class CVAT_IMAGE_1_1(Dataset_Base):
             channels = img.shape[-1]
             object_list = []
             for n, obj in enumerate(annotation):
-                cls = str(obj.attrib['label'])
-                cls = cls.replace(' ', '').lower()
-                segment = []
-                for seg in obj.attrib['points'].split(';'):
-                    x, y = seg.split(',')
-                    x = float(x)
-                    y = float(y)
-                    segment.append(list(map(int, [x, y])))
-                object_list.append(OBJECT(n,
-                                          cls,
-                                          segmentation_clss=cls,
-                                          segmentation=segment))
+                if obj.tag == 'box':
+                    cls = str(obj.attrib['label'])
+                    cls = cls.replace(' ', '').lower()
+                    box_xywh = [int(obj.attrib['xtl']),
+                                int(obj.attrib['ytl']),
+                                int(obj.attrib['xbr']) -
+                                int(obj.attrib['xtl']),
+                                int(obj.attrib['ybr']) - int(obj.attrib['ytl'])
+                                ]
+                    object_list.append(OBJECT(n,
+                                              cls,
+                                              box_clss=cls,
+                                              box_xywh=box_xywh))
+                elif obj.tag == 'polygon':
+                    cls = str(obj.attrib['label'])
+                    cls = cls.replace(' ', '').lower()
+                    segment = []
+                    for seg in obj.attrib['points'].split(';'):
+                        x, y = seg.split(',')
+                        x = float(x)
+                        y = float(y)
+                        segment.append(list(map(int, [x, y])))
+                    object_list.append(OBJECT(n,
+                                              cls,
+                                              segmentation_clss=cls,
+                                              segmentation=segment))
             image = IMAGE(image_name, image_name, image_path, int(
                 height), int(width), int(channels), object_list)
             check_images_list.append(image)
@@ -451,5 +473,42 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         """
 
         print('\nStart build target dataset folder:')
+        output_root = check_output_path(
+            os.path.join(dataset_instance.dataset_output_folder, 'cvat_image_1_1'))
+        shutil.rmtree(output_root)
+        output_root = check_output_path(
+            os.path.join(dataset_instance.dataset_output_folder, 'cvat_image_1_1'))
+        annotations_output_folder = check_output_path(
+            os.path.join(output_root, 'annotations'))
+        
+        print('Start copy images:')
+        image_list = []
+        image_output_folder = check_output_path(
+            os.path.join(output_root, 'images'))
+        with open(dataset_instance.temp_divide_file_list[0], 'r') as f:
+            for n in f.readlines():
+                image_list.append(n.replace('\n', ''))
+        pbar, update = multiprocessing_list_tqdm(
+            image_list, desc='Copy images', leave=False)
+        pool = multiprocessing.Pool(dataset_instance.workers)
+        for image_input_path in image_list:
+            image_output_path = image_input_path.replace(
+                dataset_instance.temp_images_folder, image_output_folder)
+            pool.apply_async(func=shutil.copy,
+                                args=(image_input_path, image_output_path,),
+                                callback=update,
+                                error_callback=err_call_back)
+        pool.close()
+        pool.join()
+        pbar.close()
 
+        print('Start copy annotations:')
+        for root, dirs, files in os.walk(dataset_instance.target_dataset_annotations_folder):
+            for n in tqdm(files, desc='Copy annotations'):
+                annotations_input_path = os.path.join(root, n)
+                annotations_output_path = annotations_input_path.replace(
+                    dataset_instance.target_dataset_annotations_folder,
+                    annotations_output_folder)
+                shutil.copy(annotations_input_path, annotations_output_path)
         return
+

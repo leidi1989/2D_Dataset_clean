@@ -4,8 +4,9 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-13 13:57:29
+LastEditTime: 2022-02-14 16:39:04
 '''
+from sympy import E
 import dataset
 from utils.utils import *
 from .dataset_characteristic import *
@@ -329,6 +330,8 @@ class Dataset_Base:
         # 遍历场景图片计数字典，获取键（不同场景）和键值（图片数、图片名称）
         if self.target_dataset_style == 'CITYSCAPES_VAL':
             self.target_dataset_divide_proportion = (0, 1, 0, 0)
+        if self.target_dataset_style == 'CVAT_IMAGE_1_1':
+            self.target_dataset_divide_proportion = (1, 0, 0, 0)
         for key, val in scene_count_dict.items():
             # 打包配对不同set对应不同的比例
             for diff_set_dict, diff_ratio in zip(set_dict_list, self.target_dataset_divide_proportion):
@@ -465,7 +468,7 @@ class Dataset_Base:
             if divide_file_name == 'total':
                 continue
 
-            # 统计全部labels各类别像素点数量
+            # 统计全部labels各类别数量
             total_image_count_object_dict_list = []
             pbar, update = multiprocessing_list_tqdm(divide_annotation_list,
                                                      desc='Count {} set class object'.format(
@@ -545,7 +548,9 @@ class Dataset_Base:
         total_annotation_class_count_dict_list = []
         image = self.TEMP_LOAD(self, temp_annotation_path)
         for object in image.object_list:
-            total_annotation_class_count_dict_list.append({object.box_clss: 1})
+            if object.box_exist_flag:
+                total_annotation_class_count_dict_list.append(
+                    {object.box_clss: 1})
 
         return total_annotation_class_count_dict_list
 
@@ -673,17 +678,18 @@ class Dataset_Base:
             print('Load erro: ', temp_annotation_path)
             return
         for object in image.object_list:
-            area = polygon_area(object.segmentation[:-1])
-            if object.segmentation_clss != 'unlabeled':
-                image_class_pixal_dict_list.append(
-                    {object.segmentation_clss: area})
-                total_annotation_class_count_dict_list.append(
-                    {object.segmentation_clss: 1})
-            else:
-                image_pixal -= area
-                if 'unlabeled' in self.task_dict['Semantic_segmentation']['Target_dataset_class']:
+            if object.segmentation_exist_flag:
+                area = polygon_area(object.segmentation[:-1])
+                if object.segmentation_clss != 'unlabeled':
+                    image_class_pixal_dict_list.append(
+                        {object.segmentation_clss: area})
                     total_annotation_class_count_dict_list.append(
                         {object.segmentation_clss: 1})
+                else:
+                    image_pixal -= area
+                    if 'unlabeled' in self.task_dict['Semantic_segmentation']['Target_dataset_class']:
+                        total_annotation_class_count_dict_list.append(
+                            {object.segmentation_clss: 1})
         image_class_pixal_dict_list.append({'unlabeled': image_pixal})
 
         return [image_class_pixal_dict_list, total_annotation_class_count_dict_list]
@@ -866,7 +872,7 @@ class Dataset_Base:
 
         return
 
-    def plot_detection_sample_statistics(self, task:str , task_class_dict: dict) -> None:
+    def plot_detection_sample_statistics(self, task: str, task_class_dict: dict) -> None:
         """[绘制detection样本统计图]
 
         Args:
@@ -1078,8 +1084,8 @@ class Dataset_Base:
         plot_true_box_success = 0
         plot_true_box_fail = 0
         total_box = 0
-        print('Output check true box annotation images:')
-        for image in tqdm(self.target_dataset_check_images_list):
+        for image in tqdm(self.target_dataset_check_images_list,
+                          desc='Output check detection images'):
             image_path = os.path.join(
                 self.temp_images_folder, image.image_name)
             output_image = cv2.imread(image_path)  # 读取对应标签图片
@@ -1127,7 +1133,7 @@ class Dataset_Base:
             image_count += 1
 
         # 输出检查统计
-        print("\nTotal check annotations count: \t%d" % image_count)
+        print("Total check annotations count: \t%d" % image_count)
         print('Check annotation true box count:')
         print("Plot true box success image: \t%d" % plot_true_box_success)
         print("Plot true box fail image:    \t%d" % plot_true_box_fail)
@@ -1163,9 +1169,10 @@ class Dataset_Base:
         plot_true_box_success = 0
         plot_true_box_fail = 0
         total_box = 0
-        print('Output check images:')
-        for image in tqdm(self.target_dataset_check_images_list):
-            if task == 'Instance_segmentation' or 2 >= len(self.task_dict):
+        for image in tqdm(self.target_dataset_check_images_list,
+                          desc='Output check semantic segmentation images'):
+            if task == 'Instance_segmentation' or\
+                    self.task_dict['Detection'] is not None:
                 image_path = os.path.join(
                     self.target_dataset_annotation_check_output_folder, image.image_name)
             else:
@@ -1217,7 +1224,7 @@ class Dataset_Base:
             image_count += 1
 
         # 输出检查统计
-        print("\nTotal check annotations count: \t%d" % image_count)
+        print("Total check annotations count: \t%d" % image_count)
         print('Check annotation true box count:')
         print("Plot true segment success image: \t%d" % plot_true_box_success)
         print("Plot true segment fail image:    \t%d" % plot_true_box_fail)
@@ -1290,24 +1297,34 @@ class Dataset_Base:
 
             object_list = []
             for object in data['frames'][0]['objects']:
-                one_object = OBJECT(object['id'],
-                                    object['object_clss'],
-                                    object['box_clss'],
-                                    object['segmentation_clss'],
-                                    object['keypoints_clss'],
-                                    object['box_xywh'],
-                                    object['segmentation'],
-                                    object['keypoints_num'],
-                                    object['keypoints'],
-                                    dataset_instance.task_convert,
-                                    box_color=object['box_color'],
-                                    box_tool=object['box_tool'],
-                                    box_difficult=object['box_difficult'],
-                                    box_distance=object['box_distance'],
-                                    box_occlusion=object['box_occlusion'],
-                                    segmentation_area=object['segmentation_area'],
-                                    segmentation_iscrowd=object['segmentation_iscrowd']
-                                    )
+                try:
+                    one_object = OBJECT(object['id'],
+                                        object['object_clss'],
+                                        box_clss=object['box_clss'],
+                                        segmentation_clss=object['segmentation_clss'],
+                                        keypoints_clss=object['keypoints_clss'],
+                                        box_xywh=object['box_xywh'],
+                                        segmentation=object['segmentation'],
+                                        keypoints_num=int(
+                                            object['keypoints_num']) if object['keypoints_num'] != '' else 0,
+                                        keypoints=object['keypoints'],
+                                        task_convert_dict=dataset_instance.task_convert,
+                                        box_color=object['box_color'],
+                                        box_tool=object['box_tool'],
+                                        box_difficult=int(
+                                            object['box_difficult']) if object['box_difficult'] != '' else 0,
+                                        box_distance=float(
+                                            object['box_distance']) if object['box_distance'] != '' else 0.0,
+                                        box_occlusion=float(
+                                            object['box_occlusion']) if object['box_occlusion'] != '' else 0.0,
+                                        segmentation_area=int(
+                                            object['segmentation_area']) if object['segmentation_area'] != '' else 0,
+                                        segmentation_iscrowd=int(
+                                            object['segmentation_iscrowd']) if object['segmentation_iscrowd'] != '' else 0,
+                                        )
+                except EOFError as e:
+                    print('未知错误: %s', e)
+                    print(0)
                 object_list.append(one_object)
             image = IMAGE(image_name, image_name,
                           image_path, height, width, channels, object_list)

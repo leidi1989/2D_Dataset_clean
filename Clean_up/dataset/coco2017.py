@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-14 11:07:24
+LastEditTime: 2022-02-14 16:36:58
 '''
 import time
 import shutil
@@ -759,7 +759,6 @@ class COCO2017(Dataset_Base):
         """
 
         print('\nStart build target dataset folder:')
-        # 调整image
         output_root = check_output_path(
             os.path.join(dataset_instance.dataset_output_folder, 'coco2017'))
         shutil.rmtree(output_root)
@@ -767,7 +766,6 @@ class COCO2017(Dataset_Base):
             os.path.join(dataset_instance.dataset_output_folder, 'coco2017'))
         annotations_output_folder = check_output_path(
             os.path.join(output_root, 'annotations'))
-        # 调整ImageSets
         print('Start copy images:')
         for temp_divide_file in dataset_instance.temp_divide_file_list[1:4]:
             image_list = []
