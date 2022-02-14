@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 02:31:30
+LastEditTime: 2022-02-15 02:46:53
 '''
 import shutil
 from PIL import Image
@@ -163,9 +163,13 @@ class YOLO(Dataset_Base):
         with open(source_annotation_path, 'r') as f:
             image_name = os.path.splitext(source_annotation_name)[
                 0] + '.' + self.target_dataset_image_form
+            image_name_new = self.file_prefix + image_name
             image_path = os.path.join(
-                self.temp_images_folder, image_name)
+                self.temp_images_folder, image_name_new)
             img = cv2.imread(image_path)
+            if img is None:
+                print('Can not load: {}'.format(image_name_new))
+                return
             size = img.shape
             width = int(size[1])
             height = int(size[0])

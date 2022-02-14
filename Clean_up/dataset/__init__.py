@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:07:13
 LastEditors: Leidi
-LastEditTime: 2022-02-14 17:51:44
+LastEditTime: 2022-02-15 02:39:34
 '''
 
 from .coco2017 import COCO2017
@@ -18,3 +18,4 @@ from .bdd100k import BDD100K
 from .cvat_image_1_1 import CVAT_IMAGE_1_1
 from .cvat_coco2017 import CVAT_COCO2017
 from .yolo import YOLO
+from .tt100k import TT100K

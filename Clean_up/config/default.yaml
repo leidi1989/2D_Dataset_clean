@@ -6,13 +6,11 @@ Dataset_output_folder: /home/leidi/Data/dataset_test/YOLO_20220214
 
 # Source dataset style:
 # COCO2017, YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, HY_VAL, BDD100K, YOLO
-
-# NO: cityscapes, apolloscape_lane_segment, cvat_coco2017
-# PASCAL_VOC, KITTI, TT100K, LISA, CCTSDB, SJT, MYXB, HY_HIGHWAY(小写)
+# NO: cityscapes, apolloscape_lane_segment, cvat_coco2017, KITTI, TT100K, LISA, CCTSDB, SJT, MYXB, HY_HIGHWAY(小写)
 Source_dataset_style: BDD100K
 
 # Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1, YOLO
-Target_dataset_style: CVAT_IMAGE_1_1
+Target_dataset_style: COCO2017
 
 # images or labels need to rename prefix
 File_prefix: ''
