@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 02:29:34
+LastEditTime: 2022-02-15 02:31:30
 '''
 import shutil
 from PIL import Image
@@ -161,7 +161,8 @@ class YOLO(Dataset_Base):
             self.source_dataset_annotations_folder,
             source_annotation_name)
         with open(source_annotation_path, 'r') as f:
-            image_name = os.path.splitext(source_annotation_name)[0] + '.' + self.target_dataset_image_form
+            image_name = os.path.splitext(source_annotation_name)[
+                0] + '.' + self.target_dataset_image_form
             image_path = os.path.join(
                 self.temp_images_folder, image_name)
             img = cv2.imread(image_path)
@@ -359,7 +360,7 @@ class YOLO(Dataset_Base):
             os.path.join(dataset_instance.dataset_output_folder, 'YOLO'))
         annotations_output_folder = check_output_path(
             os.path.join(output_root, 'annotations'))
-        
+
         print('Start copy images:')
         image_list = []
         image_output_folder = check_output_path(
