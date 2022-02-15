@@ -4,8 +4,9 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 14:09:02
+LastEditTime: 2022-02-15 14:16:13
 '''
+from PIL import Image
 import multiprocessing
 
 from utils.utils import *
@@ -38,11 +39,27 @@ class CCTSDB(Dataset_Base):
                 self.source_dataset_annotations_folder, source_annotation_name)
             with open(source_annotation_path, 'r') as f:
                 data = json.loads(f.read())
+            del f
 
             class_dict = {}
             for n, clss in enumerate(data['types']):
                 class_dict['%s' % n] = clss
 
+            # 获取data字典中images内的图片信息，file_name、height、width
+            pbar, update = multiprocessing_list_tqdm(
+                data['images'], desc='Load image base information', leave=False)
+            total_annotations_dict = multiprocessing.Manager().dict()
+            pool = multiprocessing.Pool(self.workers)
+            for image_base_information in data['images']:
+                pool.apply_async(func=self.load_image_base_information,
+                                 args=(image_base_information,
+                                       total_annotations_dict,),
+                                 callback=update,
+                                 error_callback=err_call_back)
+            pool.close()
+            pool.join()
+            pbar.close()
+            
             total_image_list_processing = []
             pbar, update = multiprocessing_list_tqdm(
                 data['imgs'], 'Load annotation', leave=False)
@@ -101,6 +118,31 @@ class CCTSDB(Dataset_Base):
 
         return
 
+    def load_image_base_information(self, image_base_information: dict, total_annotations_dict: dict) -> None:
+        """读取标签获取图片基础信息, 并添加至each_annotation_images_data_dict
+
+        Args:
+            image_base_information (dict): 图片基础信息字典
+            total_annotations_dict (dict): 全部标注信息字典
+        """
+
+        image_id = image_base_information['id']
+        image_name = os.path.splitext(image_base_information['file_name'])[
+            0] + '.' + self.temp_image_form
+        image_name_new = self.file_prefix + image_name
+        image_path = os.path.join(
+            self.temp_images_folder, image_name_new)
+        img = Image.open(image_path)
+        height, width = img.height, img.width
+        channels = 3
+        # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，
+        # 并将初始化后的对象存入total_images_data_list
+        image = IMAGE(image_name, image_name_new,
+                      image_path, height, width, channels, [])
+        total_annotations_dict.update({image_id: image})
+
+        return
+    
     def load_annotation(self, image_annotation: dict) -> IMAGE:
         """[读取单个图片标注信息]
 
