@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 14:18:47
+LastEditTime: 2022-02-15 14:52:16
 '''
 from PIL import Image
 import multiprocessing
@@ -37,50 +37,55 @@ class CCTSDB(Dataset_Base):
                                            desc='Total annotations'):
             source_annotation_path = os.path.join(
                 self.source_dataset_annotations_folder, source_annotation_name)
+            data = []
             with open(source_annotation_path, 'r') as f:
-                data = f.readlines()
+                for n in f.readlines():
+                    data.append(n.strip('\n'))
             del f
 
             # 获取data字典中images内的图片信息，file_name、height、width
             pbar, update = multiprocessing_list_tqdm(
                 data, desc='Load image base information', leave=False)
-            total_annotations_dict = multiprocessing.Manager().dict()
+            total_image_base_information_dict_processing = multiprocessing.Manager().dict()
             pool = multiprocessing.Pool(self.workers)
             for image_annotation in data:
                 pool.apply_async(func=self.load_image_base_information,
                                  args=(image_annotation,
-                                       total_annotations_dict,),
+                                       total_image_base_information_dict_processing,),
                                  callback=update,
                                  error_callback=err_call_back)
             pool.close()
             pool.join()
             pbar.close()
 
-            total_image_list_processing = []
+            total_image_base_information_dict = {}
+            for key, value in total_image_base_information_dict_processing.items():
+                total_image_base_information_dict.update({key: value})
+
+            total_image_annotation_list_processing = []
             pbar, update = multiprocessing_list_tqdm(
-                data['imgs'], 'Load annotation', leave=False)
+                data, 'Load annotation', leave=False)
             pool = multiprocessing.Pool(self.workers)
-            for image_annotation in data['imgs'].values():
-                total_image_list_processing.append(pool.apply_async(func=self.load_annotation,
-                                                                    args=(
-                                                                        image_annotation,),
-                                                                    callback=update,
-                                                                    error_callback=err_call_back))
+            for image_annotation in data:
+                total_image_annotation_list_processing.append(pool.apply_async(func=self.load_annotation,
+                                                                               args=(
+                                                                                   image_annotation,),
+                                                                               callback=update,
+                                                                               error_callback=err_call_back))
             pool.close()
             pool.join()
             pbar.close()
 
-            total_image_list = []
-            for n in total_image_list_processing:
+            total_image_annotation_list = []
+            for n in total_image_annotation_list_processing:
                 image = n.get()
                 if image is not None:
-                    total_image_list.append(image)
-
-            del total_image_list_processing
+                    total_image_annotation_list.append(image)
+            del total_image_annotation_list_processing
 
             # 输出读取的source annotation至temp annotation
             pbar, update = multiprocessing_list_tqdm(
-                total_image_list, desc='Output temp annotation', leave=False)
+                total_image_annotation_list, desc='Output temp annotation', leave=False)
             process_temp_file_name_list = multiprocessing.Manager().list()
             process_output = multiprocessing.Manager().dict({'success_count': 0,
                                                              'fail_count': 0,
@@ -88,7 +93,7 @@ class CCTSDB(Dataset_Base):
                                                              'temp_file_name_list': process_temp_file_name_list
                                                              })
             pool = multiprocessing.Pool(self.workers)
-            for image in total_image_list:
+            for image in total_image_annotation_list:
                 pool.apply_async(func=self.output_temp_annotation,
                                  args=(image, process_output,),
                                  callback=update,
@@ -105,7 +110,7 @@ class CCTSDB(Dataset_Base):
 
         # 输出读取统计结果
         print('\nSource dataset convert to temp dataset file count: ')
-        print('Total annotations:         \t {} '.format(len(total_image_list)))
+        print('Total annotations:         \t {} '.format(len(total_image_annotation_list)))
         print('Convert fail:              \t {} '.format(fail_count))
         print('No object delete images: \t {} '.format(no_object))
         print('Convert success:           \t {} '.format(success_count))
@@ -114,20 +119,23 @@ class CCTSDB(Dataset_Base):
 
         return
 
-    def load_image_base_information(self, image_annotation: dict, total_annotations_dict: dict) -> None:
+    def load_image_base_information(self, image_annotation: str, total_annotations_dict: dict) -> None:
         """读取标签获取图片基础信息, 并添加至each_annotation_images_data_dict
 
         Args:
-            image_base_information (dict): 图片基础信息字典
+            image_annotation (str): 图片基础信息
             total_annotations_dict (dict): 全部标注信息字典
         """
 
-        image_id = image_annotation['id']
-        image_name = os.path.splitext(image_annotation['file_name'])[
+        image_annotation = image_annotation.split(';')
+        image_name = os.path.splitext(image_annotation[0])[
             0] + '.' + self.temp_image_form
         image_name_new = self.file_prefix + image_name
         image_path = os.path.join(
             self.temp_images_folder, image_name_new)
+        if not os.path.exists(image_path):
+            print('\nNo such file or directory: {}.'.format(image_path))
+            return
         img = Image.open(image_path)
         height, width = img.height, img.width
         channels = 3
@@ -135,11 +143,11 @@ class CCTSDB(Dataset_Base):
         # 并将初始化后的对象存入total_images_data_list
         image = IMAGE(image_name, image_name_new,
                       image_path, height, width, channels, [])
-        total_annotations_dict.update({image_id: image})
+        total_annotations_dict.update({image_name_new: image})
 
         return
 
-    def load_annotation(self, image_annotation: dict) -> IMAGE:
+    def load_annotation(self, image_annotation: str) -> IMAGE:
         """[读取单个图片标注信息]
 
         Args:
@@ -147,43 +155,32 @@ class CCTSDB(Dataset_Base):
             process_output (dict): [多进程共享字典]
         """
 
-        image_origin, image_name = image_annotation['path'].split('/')
-        if image_origin not in ['train', 'test']:
-            return
-        image_name = os.path.splitext(image_name)[
-            0] + '.' + self.target_dataset_image_form
-        image_path = os.path.join(
-            self.temp_images_folder, image_name)
+        image_annotation = image_annotation.split(';')
+        image_name = os.path.splitext(image_annotation[0])[
+            0] + '.' + self.temp_image_form
         image_name_new = self.file_prefix + image_name
         image_path = os.path.join(
             self.temp_images_folder, image_name_new)
-        img = cv2.imread(image_path)
-        if img is None:
-            print('Can not load: {}'.format(image_name_new))
-            return
-        height, width, channels = img.shape
-        object_list = []
-        for n, m in enumerate(image_annotation['objects']):
-            cls = str(m['category'])
-            cls = cls.replace(' ', '').lower()
-            true_box = m['bbox']
-            box = (int(true_box['xmin']),
-                   int(true_box['xmax']),
-                   int(true_box['ymin']),
-                   int(true_box['ymax']))
-            xmin = max(min(int(box[0]), int(box[1]), int(width)), 0.)
-            ymin = max(min(int(box[2]), int(box[3]), int(height)), 0.)
-            xmax = min(max(int(box[1]), int(box[0]), 0.), int(width))
-            ymax = min(max(int(box[3]), int(box[2]), 0.), int(height))
-            box_xywh = [xmin, ymin, xmax-xmin, ymax-ymin]
-            object_list.append(OBJECT(n,
-                                      cls,
-                                      box_clss=cls,
-                                      box_xywh=box_xywh))  # 将单个真实框加入单张图片真实框列表
-        image = IMAGE(image_name, image_name_new, image_path, int(
-            height), int(width), int(channels), object_list)
+        img = Image.open(image_path)
+        height, width = img.height, img.width
+        cls = image_annotation[5]
+        cls = cls.replace(' ', '').lower()
+        box = (int(image_annotation[1]),
+               int(image_annotation[3]),
+               int(image_annotation[2]),
+               int(image_annotation[4]))
+        xmin = max(min(int(box[0]), int(box[1]), int(width)), 0.)
+        ymin = max(min(int(box[2]), int(box[3]), int(height)), 0.)
+        xmax = min(max(int(box[1]), int(box[0]), 0.), int(width))
+        ymax = min(max(int(box[3]), int(box[2]), 0.), int(height))
+        box_xywh = [xmin, ymin, xmax-xmin, ymax-ymin]
 
-        return image
+        object = OBJECT(0,
+                        cls,
+                        box_clss=cls,
+                        box_xywh=box_xywh)
+
+        return {image_name_new: object}
 
     def output_temp_annotation(self, image: IMAGE, process_output: dict) -> None:
         """[输出单个标签详细信息至temp annotation]

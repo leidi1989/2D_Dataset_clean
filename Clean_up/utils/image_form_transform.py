@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2021-12-22 14:54:07
+LastEditTime: 2022-02-15 14:29:13
 '''
 # -*- coding: utf-8 -*-
 from PIL import Image
@@ -34,7 +34,7 @@ def png_jpg(image_path: str, image_output_path: str) -> int:
                 img.convert('RGB').save(image_output_path, quality=100)
                 return 1
         except Exception as e:
-            print("PNG转换JPG 错误", e)
+            print("PNG转换JPG,{}错误{}".format(image_path, e))
             return 0
     else:
         return 0
@@ -58,7 +58,7 @@ def jpg_png(image_path: str, image_output_path: str) -> int:
             img.convert('RGB').save(image_output_path, quality=100)
             return 1
         except Exception as e:
-            print("JPG转换PNG 错误", e)
+            print("PNG转换JPG,{}错误{}".format(image_path, e))
             return 0
     else:
         return 0

@@ -7,7 +7,7 @@ Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/CCTSDB_20220215
 # Source dataset style:
 # COCO2017, YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, HY_VAL, BDD100K, YOLO, CCTSDB
 # NO: cityscapes, apolloscape_lane_segment, cvat_coco2017, KITTI, TT100K, LISA, SJT, MYXB, HY_HIGHWAY(小写)
-Source_dataset_style: TT100K
+Source_dataset_style: CCTSDB
 
 # Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1, YOLO
 Target_dataset_style: YOLO
