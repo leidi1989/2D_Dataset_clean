@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 11:19:28
+LastEditTime: 2022-02-15 11:25:18
 '''
 import multiprocessing
 
@@ -143,7 +143,7 @@ class TT100K(Dataset_Base):
                                       cls,
                                       box_clss=cls,
                                       box_xywh=box_xywh))  # 将单个真实框加入单张图片真实框列表
-        image = IMAGE(image_name, image_name, image_path, int(
+        image = IMAGE(image_name, image_name_new, image_path, int(
             height), int(width), int(channels), object_list)
 
         return image
