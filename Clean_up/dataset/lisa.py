@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 17:55:24
+LastEditTime: 2022-02-15 18:13:24
 '''
 import shutil
 from PIL import Image
@@ -64,6 +64,7 @@ class LISA(Dataset_Base):
             with open(source_annotation_path, 'r') as f:
                 for n in f.readlines():
                     data.append(n.strip('\n'))
+            data.pop(0)
             del f
 
             # 获取data字典中images内的图片信息，file_name、height、width
@@ -157,8 +158,11 @@ class LISA(Dataset_Base):
         """
 
         image_annotation = image_annotation.split(';')
-        image_name = os.path.splitext(image_annotation[0])[
-            0] + '.' + self.temp_image_form
+        image_name = image_annotation[0].split(os.sep)[-1]
+        if image_name == 'Filename':
+            return
+        image_name = os.path.splitext(
+            image_name)[0] + '.' + self.temp_image_form
         image_name_new = self.file_prefix + image_name
         image_path = os.path.join(
             self.temp_images_folder, image_name_new)
@@ -185,12 +189,12 @@ class LISA(Dataset_Base):
         """
 
         image_annotation = image_annotation.split(';')
-        image_name = os.path.splitext(image_annotation[0])[
-            0] + '.' + self.temp_image_form
-        image_name_new = self.file_prefix + image_name
-        if 6 != len(image_annotation) or '' in image_annotation:
-            print('{} erro annotation.'.format(image_name_new))
+        image_name = image_annotation[0].split(os.sep)[-1]
+        if image_name == 'Filename':
             return
+        image_name = os.path.splitext(
+            image_name)[0] + '.' + self.temp_image_form
+        image_name_new = self.file_prefix + image_name
         image_path = os.path.join(
             self.temp_images_folder, image_name_new)
         if not os.path.exists(image_path):
@@ -198,17 +202,17 @@ class LISA(Dataset_Base):
             return
         img = Image.open(image_path)
         height, width = img.height, img.width
-        cls = str(image_annotation[5])
-        cls = cls.replace(' ', '').lower()
-        box = (float(image_annotation[1]),
-               float(image_annotation[3]),
-               float(image_annotation[2]),
-               float(image_annotation[4]))
-        xmin = max(min(int(box[0]), int(box[1]), int(width)), 0)
-        ymin = max(min(int(box[2]), int(box[3]), int(height)), 0)
-        xmax = min(max(int(box[1]), int(box[0]), 0), int(width))
-        ymax = min(max(int(box[3]), int(box[2]), 0), int(height))
-        box_xywh = [xmin, ymin, xmax-xmin, ymax-ymin]
+        cls = str(image_annotation[1])
+        cls = cls.strip(' ').lower()
+        xmin = min(max(min(float(image_annotation[2]), float(
+            image_annotation[4])), 0.), float(width))
+        ymin = min(max(min(float(image_annotation[3]), float(
+            image_annotation[5])), 0.), float(height))
+        xmax = max(min(max(float(image_annotation[2]), float(
+            image_annotation[4])), float(width)), 0.)
+        ymax = max(min(max(float(image_annotation[3]), float(
+            image_annotation[5])), float(height)), 0.)
+        box_xywh = [int(xmin), int(ymin), int(xmax-xmin), int(ymax-ymin)]
         object = OBJECT(0,
                         cls,
                         box_clss=cls,
