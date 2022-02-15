@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 14:15:56
+LastEditTime: 2022-02-15 18:32:47
 '''
 import time
 import shutil
@@ -288,7 +288,7 @@ class COCO2017(Dataset_Base):
         """[输出target annotation]
 
         Args:
-            dataset_instance (object): [数据集类]
+            dataset_instance (Dataset_Base): [数据集实例]
         """
 
         print('\nStart transform to target dataset:')
@@ -556,7 +556,7 @@ class COCO2017(Dataset_Base):
         """[读取COCO2017数据集图片类检测列表]
 
         Args:
-            dataset_instance (object): [数据集实例]
+            dataset_instance (Dataset_Base): [数据集实例]
 
         Returns:
             list: [数据集图片类检测列表]
@@ -688,7 +688,7 @@ class COCO2017(Dataset_Base):
         """[生成COCO 2017组织格式的数据集]
 
         Args:
-            dataset_instance (object): [数据集实例]
+            dataset_instance (Dataset_Base): [数据集实例]
         """
 
         print('\nStart build target dataset folder:')

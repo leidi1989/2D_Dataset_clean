@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 14:09:29
+LastEditTime: 2022-02-15 18:32:53
 '''
 import time
 import shutil
@@ -134,12 +134,11 @@ class CVAT_COCO2017(Dataset_Base):
         return
 
     def load_image_base_information(self, image_base_information: dict, total_annotations_dict: dict) -> None:
-        """[读取标签获取图片基础信息，并添加至each_annotation_images_data_dict]
+        """读取标签获取图片基础信息, 并添加至each_annotation_images_data_dict
 
         Args:
-            dataset (dict): [数据集信息字典]
-            one_image_base_information (dict): [单个数据字典信息]
-            each_annotation_images_data_dict进程间通信字典 (dict): [each_annotation_images_data_dict进程间通信字典]
+            image_base_information (dict): 图片基础信息字典
+            total_annotations_dict (dict): 全部标注信息字典
         """
 
         image_id = image_base_information['id']
@@ -161,14 +160,13 @@ class CVAT_COCO2017(Dataset_Base):
 
     def load_image_annotation(self, id: int, one_annotation: dict,
                               class_dict: dict, each_annotation_images_data_dict: dict) -> list:
-        """[读取单个标签详细信息，并添加至each_annotation_images_data_dict]
+        """[读取单个标签详细信息, 并添加至each_annotation_images_data_dict]
 
         Args:
             id(int): [标注id]
-            dataset (dict): [数据集信息字典]
             one_annotation (dict): [单个数据字典信息]
             class_dict (dict): [类别字典]
-            process_output (dict): [each_annotation_images_data_dict进程间通信字典]
+            each_annotation_images_data_dict (dict): [进程间通信字典]
 
         Returns:
             list: [ann_image_id, true_box_list, true_segmentation_list]
@@ -282,11 +280,11 @@ class CVAT_COCO2017(Dataset_Base):
         return
 
     @staticmethod
-    def target_dataset(dataset_instance: Dataset_Base):
+    def target_dataset(dataset_instance: Dataset_Base) -> None:
         """[输出target annotation]
 
         Args:
-            dataset (object): [数据集类]
+            dataset_instance (Dataset_Base): [数据集实例]
         """
 
         print('\nStart transform to target dataset:')
@@ -425,15 +423,17 @@ class CVAT_COCO2017(Dataset_Base):
         return
 
     @staticmethod
-    def get_image_information(dataset_instance: Dataset_Base, coco: dict, n: int, temp_annotation_path: str) -> None:
-        """[读取暂存annotation]
+    def get_image_information(dataset_instance: Dataset_Base, coco: dict, n: int, temp_annotation_path: str) -> dict:
+        """读取暂存annotation
 
         Args:
-            dataset_instance (): [数据集信息字典]
-            temp_annotation_path (str): [annotation路径]
+            dataset_instance (object): 数据集信息字典
+            coco (dict): coco格式基础信息
+            n (int): 图片id
+            temp_annotation_path (str): 暂存标注路径
 
         Returns:
-            IMAGE: [输出IMAGE类变量]
+            dict: 图片基础信息
         """
 
         image = dataset_instance.TEMP_LOAD(
@@ -458,13 +458,18 @@ class CVAT_COCO2017(Dataset_Base):
                        n: int,
                        temp_annotation_path: str,
                        task: str,
-                       task_class_dict: dict) -> None:
-        """[获取暂存标注信息]
+                       task_class_dict: dict) -> list:
+        """获取暂存标注信息
 
         Args:
-            dataset (dict): [数据集信息字典]
-            n (int): [图片id]
-            temp_annotation_path (str): [暂存标签路径]
+            dataset_instance (object): 数据集信息字典
+            n (int): 图片id
+            temp_annotation_path (str): 暂存标签路径
+            task (str): 任务类型
+            task_class_dict (dict): 任务对应类别字典
+
+        Returns:
+            list: 图片标注信息字典列表
         """
 
         image = dataset_instance.TEMP_LOAD(
@@ -547,7 +552,7 @@ class CVAT_COCO2017(Dataset_Base):
         """[读取CVAT_COCO2017数据集图片类检测列表]
 
         Args:
-            dataset_instance (object): [数据集实例]
+            dataset_instance (Dataset_Base): [数据集实例]
 
         Returns:
             list: [数据集图片类检测列表]
@@ -679,7 +684,7 @@ class CVAT_COCO2017(Dataset_Base):
         """[生成COCO 2017组织格式的数据集]
 
         Args:
-            dataset_instance (object): [数据集实例]
+            dataset_instance (Dataset_Base): [数据集实例]
         """
 
         print('\nStart build target dataset folder:')
