@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 11:25:18
+LastEditTime: 2022-02-15 11:27:34
 '''
 import multiprocessing
 
@@ -46,7 +46,7 @@ class TT100K(Dataset_Base):
 
             total_image_list_processing = []
             pbar, update = multiprocessing_list_tqdm(
-                data['imgs'], 'Load annotations', leave=False)
+                data['imgs'], 'Load annotation', leave=False)
             pool = multiprocessing.Pool(self.workers)
             for image_annotation in data['imgs'].values():
                 total_image_list_processing.append(pool.apply_async(func=self.load_annotation,
