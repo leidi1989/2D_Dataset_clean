@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 11:34:00
+LastEditTime: 2022-02-15 14:00:00
 '''
 import multiprocessing
 
@@ -18,8 +18,8 @@ class CCTSDB(Dataset_Base):
 
     def __init__(self, opt) -> None:
         super().__init__(opt)
-        self.source_dataset_image_form_list = ['jpg']
-        self.source_dataset_annotation_form = 'json'
+        self.source_dataset_image_form_list = ['png']
+        self.source_dataset_annotation_form = 'txt'
         self.source_dataset_image_count = self.get_source_dataset_image_count()
         self.source_dataset_annotation_count = self.get_source_dataset_annotation_count()
 
