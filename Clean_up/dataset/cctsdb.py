@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 14:52:16
+LastEditTime: 2022-02-15 15:49:57
 '''
 from PIL import Image
 import multiprocessing
@@ -76,12 +76,18 @@ class CCTSDB(Dataset_Base):
             pool.join()
             pbar.close()
 
-            total_image_annotation_list = []
+            
             for n in total_image_annotation_list_processing:
                 image = n.get()
-                if image is not None:
-                    total_image_annotation_list.append(image)
+                if image is not None and \
+                        key in total_image_base_information_dict:
+                    total_image_base_information_dict[image[0]].object_list.append(
+                        image[1])
             del total_image_annotation_list_processing
+            
+            total_image_annotation_list = []
+            for _, value in total_image_base_information_dict:
+                total_image_annotation_list.append(value)
 
             # 输出读取的source annotation至temp annotation
             pbar, update = multiprocessing_list_tqdm(
@@ -110,7 +116,8 @@ class CCTSDB(Dataset_Base):
 
         # 输出读取统计结果
         print('\nSource dataset convert to temp dataset file count: ')
-        print('Total annotations:         \t {} '.format(len(total_image_annotation_list)))
+        print('Total annotations:         \t {} '.format(
+            len(total_image_annotation_list)))
         print('Convert fail:              \t {} '.format(fail_count))
         print('No object delete images: \t {} '.format(no_object))
         print('Convert success:           \t {} '.format(success_count))
@@ -161,26 +168,28 @@ class CCTSDB(Dataset_Base):
         image_name_new = self.file_prefix + image_name
         image_path = os.path.join(
             self.temp_images_folder, image_name_new)
+        if not os.path.exists(image_path):
+            print('\nNo such file or directory: {}.'.format(image_path))
+            return
         img = Image.open(image_path)
         height, width = img.height, img.width
         cls = image_annotation[5]
         cls = cls.replace(' ', '').lower()
-        box = (int(image_annotation[1]),
-               int(image_annotation[3]),
-               int(image_annotation[2]),
-               int(image_annotation[4]))
-        xmin = max(min(int(box[0]), int(box[1]), int(width)), 0.)
-        ymin = max(min(int(box[2]), int(box[3]), int(height)), 0.)
-        xmax = min(max(int(box[1]), int(box[0]), 0.), int(width))
-        ymax = min(max(int(box[3]), int(box[2]), 0.), int(height))
+        box = (float(image_annotation[1]),
+               float(image_annotation[3]),
+               float(image_annotation[2]),
+               float(image_annotation[4]))
+        xmin = max(min(int(box[0]), int(box[1]), int(width)), 0)
+        ymin = max(min(int(box[2]), int(box[3]), int(height)), 0)
+        xmax = min(max(int(box[1]), int(box[0]), 0), int(width))
+        ymax = min(max(int(box[3]), int(box[2]), 0), int(height))
         box_xywh = [xmin, ymin, xmax-xmin, ymax-ymin]
-
         object = OBJECT(0,
                         cls,
                         box_clss=cls,
                         box_xywh=box_xywh)
 
-        return {image_name_new: object}
+        return image_name_new, object
 
     def output_temp_annotation(self, image: IMAGE, process_output: dict) -> None:
         """[输出单个标签详细信息至temp annotation]
