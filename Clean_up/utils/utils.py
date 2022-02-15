@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2022-02-15 10:41:26
+LastEditTime: 2022-02-15 17:31:47
 '''
 # -*- coding: utf-8 -*-
 import os
@@ -96,7 +96,7 @@ def check_prefix(prefix: str, delimiter: str) -> str:
     """
 
     if prefix == '' or prefix is None:
-        name_prefix = prefix
+        name_prefix = ''
 
         return name_prefix
     else:

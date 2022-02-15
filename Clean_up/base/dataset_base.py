@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-15 17:14:58
+LastEditTime: 2022-02-15 17:32:54
 '''
 import dataset
 from utils.utils import *
@@ -83,7 +83,8 @@ class Dataset_Base:
                           }
 
         # File_prefix
-        self.file_prefix_delimiter = dataset_config['File_prefix_delimiter']
+        self.file_prefix_delimiter = '' if dataset_config['File_prefix_delimiter'] == '' or \
+            dataset_config['File_prefix_delimiter'] is None else dataset_config['File_prefix_delimiter']
         self.file_prefix = check_prefix(
             dataset_config['File_prefix'], dataset_config['File_prefix_delimiter'])
 
