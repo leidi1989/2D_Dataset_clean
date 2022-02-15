@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-15 17:51:30
+LastEditTime: 2022-02-15 17:52:31
 '''
 import dataset
 from utils.utils import *
@@ -372,10 +372,7 @@ class Dataset_Base:
 
     def get_temp_annotations_name_list(self) -> list:
         """[获取暂存数据集文件名称列表]
-
-        Args:
-            dataset (dict): [数据集信息字典]
-
+        
         Returns:
             list: [暂存数据集文件名称列表]
         """
@@ -389,13 +386,9 @@ class Dataset_Base:
         return temp_file_name_list
 
     def divide_dataset(self) -> None:
-        """[按不同场景划分数据集, 并根据不同场景按比例抽取train、val、test、redundancy比例为
-        train_ratio, val_ratio, test_ratio, redund_ratio]
-
-        Args:
-            dataset (dict): [数据集信息字典]
+        """按不同场景划分数据集, 并根据不同场景按比例抽取train、val、test、redundancy比例为
+        train_ratio, val_ratio, test_ratio, redund_ratio
         """
-
         print('\nStart divide dataset:')
         Main_path = check_output_path(self.temp_informations_folder, 'Main')
         # 统计数据集不同场景图片数量

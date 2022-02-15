@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 17:51:25
+LastEditTime: 2022-02-15 17:55:24
 '''
 import shutil
 from PIL import Image
@@ -33,12 +33,14 @@ class LISA(Dataset_Base):
         """
 
         annotation = os.path.join(root, n)
+        upper_folder = root.split(os.sep)[-1]
         temp_annotation = os.path.join(
-            self.source_dataset_annotations_folder, n)
+            self.source_dataset_annotations_folder,
+            upper_folder + self.file_prefix_delimiter + n)
         shutil.copy(annotation, temp_annotation)
 
         return
-    
+
     def transform_to_temp_dataset(self) -> None:
         """[转换标注文件为暂存标注]
         """
@@ -48,13 +50,13 @@ class LISA(Dataset_Base):
         fail_count = 0
         no_object = 0
         temp_file_name_list = []
-        
+
         total_source_dataset_annotations = []
         for n in os.listdir(self.source_dataset_annotations_folder):
             if n.split(self.file_prefix_delimiter)[-1] == 'frameAnnotationsBOX.csv':
                 total_source_dataset_annotations.append(n)
 
-        for source_annotation_name in tqdm(os.listdir(self.source_dataset_annotations_folder),
+        for source_annotation_name in tqdm(total_source_dataset_annotations,
                                            desc='Total annotations'):
             source_annotation_path = os.path.join(
                 self.source_dataset_annotations_folder, source_annotation_name)
