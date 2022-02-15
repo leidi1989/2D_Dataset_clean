@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 16:17:56
+LastEditTime: 2022-02-15 16:22:32
 '''
 from PIL import Image
 import multiprocessing
@@ -76,7 +76,6 @@ class CCTSDB(Dataset_Base):
             pool.join()
             pbar.close()
 
-            
             for n in total_image_annotation_list_processing:
                 image = n.get()
                 if image is not None and \
@@ -84,7 +83,7 @@ class CCTSDB(Dataset_Base):
                     total_image_base_information_dict[image[0]].object_list.append(
                         image[1])
             del total_image_annotation_list_processing
-            
+
             total_image_annotation_list = []
             for _, value in total_image_base_information_dict.items():
                 total_image_annotation_list.append(value)
