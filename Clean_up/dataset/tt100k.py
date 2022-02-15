@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 10:47:22
+LastEditTime: 2022-02-15 11:19:28
 '''
 import multiprocessing
 
@@ -33,35 +33,67 @@ class TT100K(Dataset_Base):
         no_object = 0
         temp_file_name_list = []
 
-        pbar, update = multiprocessing_object_tqdm(
-            self.source_dataset_annotation_count, 'Total annotations')
-        process_temp_file_name_list = multiprocessing.Manager().list()
-        process_output = multiprocessing.Manager().dict({'success_count': 0,
-                                                         'fail_count': 0,
-                                                         'no_object': 0,
-                                                         'temp_file_name_list': process_temp_file_name_list
-                                                         })
-        pool = multiprocessing.Pool(self.workers)
-        for source_annotation_name in os.listdir(self.source_dataset_annotations_folder):
-            pool.apply_async(func=self.load_image_annotation,
-                             args=(source_annotation_name,
-                                   process_output,),
-                             callback=update,
-                             error_callback=err_call_back)
-        pool.close()
-        pool.join()
-        pbar.close()
+        for source_annotation_name in tqdm(os.listdir(self.source_dataset_annotations_folder),
+                                           desc='Total annotations'):
+            source_annotation_path = os.path.join(
+                self.source_dataset_annotations_folder, source_annotation_name)
+            with open(source_annotation_path, 'r') as f:
+                data = json.loads(f.read())
 
-        # 更新输出统计
-        success_count += process_output['success_count']
-        fail_count += process_output['fail_count']
-        no_object += process_output['no_object']
-        temp_file_name_list += process_output['temp_file_name_list']
+            class_dict = {}
+            for n, clss in enumerate(data['types']):
+                class_dict['%s' % n] = clss
+
+            total_image_list_processing = []
+            pbar, update = multiprocessing_list_tqdm(
+                data['imgs'], 'Load annotations', leave=False)
+            pool = multiprocessing.Pool(self.workers)
+            for image_annotation in data['imgs'].values():
+                total_image_list_processing.append(pool.apply_async(func=self.load_annotation,
+                                                                    args=(
+                                                                        image_annotation,),
+                                                                    callback=update,
+                                                                    error_callback=err_call_back))
+            pool.close()
+            pool.join()
+            pbar.close()
+
+            total_image_list = []
+            for n in total_image_list_processing:
+                image = n.get()
+                if image is not None:
+                    total_image_list.append(image)
+
+            del total_image_list_processing
+
+            # 输出读取的source annotation至temp annotation
+            pbar, update = multiprocessing_list_tqdm(
+                total_image_list, desc='Output temp annotation', leave=False)
+            process_temp_file_name_list = multiprocessing.Manager().list()
+            process_output = multiprocessing.Manager().dict({'success_count': 0,
+                                                             'fail_count': 0,
+                                                             'no_object': 0,
+                                                             'temp_file_name_list': process_temp_file_name_list
+                                                             })
+            pool = multiprocessing.Pool(self.workers)
+            for image in total_image_list:
+                pool.apply_async(func=self.output_temp_annotation,
+                                 args=(image, process_output,),
+                                 callback=update,
+                                 error_callback=err_call_back)
+            pool.close()
+            pool.join()
+            pbar.close()
+
+            # 更新输出统计
+            success_count += process_output['success_count']
+            fail_count += process_output['fail_count']
+            no_object += process_output['no_object']
+            temp_file_name_list += process_output['temp_file_name_list']
 
         # 输出读取统计结果
         print('\nSource dataset convert to temp dataset file count: ')
-        print('Total annotations:         \t {} '.format(
-            len(os.listdir(self.source_dataset_annotations_folder))))
+        print('Total annotations:         \t {} '.format(len(total_image_list)))
         print('Convert fail:              \t {} '.format(fail_count))
         print('No object delete images: \t {} '.format(no_object))
         print('Convert success:           \t {} '.format(success_count))
@@ -70,7 +102,7 @@ class TT100K(Dataset_Base):
 
         return
 
-    def load_image_annotation(self, source_annotation_name: str, process_output: dict) -> None:
+    def load_annotation(self, image_annotation: dict) -> IMAGE:
         """[读取单个图片标注信息]
 
         Args:
@@ -78,65 +110,73 @@ class TT100K(Dataset_Base):
             process_output (dict): [多进程共享字典]
         """
 
-        source_annotation_path = os.path.join(
-            self.source_dataset_annotations_folder,
-            source_annotation_name)
-        with open(source_annotation_path, 'r') as f:
-            annotation = json.loads(f.read())
-            for key, value in annotation['imgs']:
-                image_name = os.path.splitext(source_annotation_name)[
-                    0] + '.' + self.target_dataset_image_form
-                image_path = os.path.join(
-                    self.temp_images_folder, image_name)
-                image_name_new = self.file_prefix + image_name
-                image_path = os.path.join(
-                    self.temp_images_folder, image_name_new)
-                img = cv2.imread(image_path)
-                if img is None:
-                    print('Can not load: {}'.format(image_name_new))
-                    return
-                height, width, channels = img.shape
-                object_list = []
-                for n, m in enumerate(annotation['objects']):
-                    cls = str(m['category'])
-                    cls = cls.replace(' ', '').lower()
-                    true_box = m['bbox']
-                    box = (int(true_box['xmin']),
-                        int(true_box['xmax']),
-                        int(true_box['ymin']),
-                        int(true_box['ymax']))
-                    xmin = max(min(int(box[0]), int(box[1]), int(width)), 0.)
-                    ymin = max(min(int(box[2]), int(box[3]), int(height)), 0.)
-                    xmax = min(max(int(box[1]), int(box[0]), 0.), int(width))
-                    ymax = min(max(int(box[3]), int(box[2]), 0.), int(height))
-                    box_xywh = [xmin, ymin, xmax-xmin, ymax-ymin]
-                    object_list.append(OBJECT(n,
-                                            cls,
-                                            box_clss=cls,
-                                            box_xywh=box_xywh))  # 将单个真实框加入单张图片真实框列表
-                image = IMAGE(image_name, image_name, image_path, int(
-                    height), int(width), int(channels), object_list)
+        image_origin, image_name = image_annotation['path'].split('/')
+        if image_origin not in ['train', 'test']:
+            return
+        image_name = os.path.splitext(image_name)[
+            0] + '.' + self.target_dataset_image_form
+        image_path = os.path.join(
+            self.temp_images_folder, image_name)
+        image_name_new = self.file_prefix + image_name
+        image_path = os.path.join(
+            self.temp_images_folder, image_name_new)
+        img = cv2.imread(image_path)
+        if img is None:
+            print('Can not load: {}'.format(image_name_new))
+            return
+        height, width, channels = img.shape
+        object_list = []
+        for n, m in enumerate(image_annotation['objects']):
+            cls = str(m['category'])
+            cls = cls.replace(' ', '').lower()
+            true_box = m['bbox']
+            box = (int(true_box['xmin']),
+                   int(true_box['xmax']),
+                   int(true_box['ymin']),
+                   int(true_box['ymax']))
+            xmin = max(min(int(box[0]), int(box[1]), int(width)), 0.)
+            ymin = max(min(int(box[2]), int(box[3]), int(height)), 0.)
+            xmax = min(max(int(box[1]), int(box[0]), 0.), int(width))
+            ymax = min(max(int(box[3]), int(box[2]), 0.), int(height))
+            box_xywh = [xmin, ymin, xmax-xmin, ymax-ymin]
+            object_list.append(OBJECT(n,
+                                      cls,
+                                      box_clss=cls,
+                                      box_xywh=box_xywh))  # 将单个真实框加入单张图片真实框列表
+        image = IMAGE(image_name, image_name, image_path, int(
+            height), int(width), int(channels), object_list)
 
-                temp_annotation_output_path = os.path.join(
-                    self.temp_annotations_folder,
-                    image.file_name_new + '.' + self.temp_annotation_form)
-                image.modify_object_list(self)
-                image.object_pixel_limit(self)
-                if 0 == len(image.object_list):
-                    print('{} no object, has been delete.'.format(
-                        image.image_name_new))
-                    os.remove(image.image_path)
-                    process_output['no_object'] += 1
-                    process_output['fail_count'] += 1
-                    return
-                if image.output_temp_annotation(temp_annotation_output_path):
-                    process_output['temp_file_name_list'].append(
-                        image.file_name_new)
-                    process_output['success_count'] += 1
-                else:
-                    print('errow output temp annotation: {}'.format(
-                        image.file_name_new))
-                    process_output['fail_count'] += 1
+        return image
+
+    def output_temp_annotation(self, image: IMAGE, process_output: dict) -> None:
+        """[输出单个标签详细信息至temp annotation]
+
+        Args:
+            image (IMAGE): [IMAGE类实例]
+            process_output (dict): [进程间计数通信字典]
+        """
+
+        if image == None:
+            return
+
+        temp_annotation_output_path = os.path.join(
+            self.temp_annotations_folder,
+            image.file_name_new + '.' + self.temp_annotation_form)
+        image.modify_object_list(self)
+        image.object_pixel_limit(self)
+        if 0 == len(image.object_list):
+            print('{} no object, has been delete.'.format(
+                image.image_name_new))
+            os.remove(image.image_path)
+            process_output['no_object'] += 1
+            process_output['fail_count'] += 1
+            return
+        if image.output_temp_annotation(temp_annotation_output_path):
+            process_output['temp_file_name_list'].append(image.file_name_new)
+            process_output['success_count'] += 1
+        else:
+            print('errow output temp annotation: {}'.format(image.file_name_new))
+            process_output['fail_count'] += 1
 
         return
 
