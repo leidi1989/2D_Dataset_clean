@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 03:37:38
+LastEditTime: 2022-02-15 14:09:41
 '''
 import time
 import shutil
@@ -14,7 +14,6 @@ import multiprocessing
 import dataset
 from utils.utils import *
 from base.image_base import *
-from base.dataset_characteristic import *
 from base.dataset_base import Dataset_Base
 
 

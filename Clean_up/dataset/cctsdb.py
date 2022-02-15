@@ -4,13 +4,12 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 14:00:00
+LastEditTime: 2022-02-15 14:09:02
 '''
 import multiprocessing
 
 from utils.utils import *
 from base.image_base import *
-from base.dataset_characteristic import *
 from base.dataset_base import Dataset_Base
 
 

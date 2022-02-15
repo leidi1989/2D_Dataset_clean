@@ -4,11 +4,10 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 10:37:18
+LastEditTime: 2022-02-15 14:09:09
 '''
 from utils.utils import *
 from base.image_base import *
-from base.dataset_characteristic import *
 from base.dataset_base import Dataset_Base
 from utils.convertion_function import temp_box_to_coco_box
 
