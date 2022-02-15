@@ -4,9 +4,8 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 03:39:24
+LastEditTime: 2022-02-15 10:42:49
 '''
-from PIL import Image
 import multiprocessing
 
 from utils.utils import *
@@ -84,6 +83,7 @@ class TT100K(Dataset_Base):
             source_annotation_name)
         with open(source_annotation_path, 'r') as f:
             annotation = json.loads(f.read())
+            
             image_name = os.path.splitext(source_annotation_name)[
                 0] + '.' + self.target_dataset_image_form
             image_path = os.path.join(

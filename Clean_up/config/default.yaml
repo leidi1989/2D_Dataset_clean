@@ -1,8 +1,8 @@
 # dataset path
-Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/tt100k_221_classes_input_20210814_test
+Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/tt100k_221_classes_input_20210814
 
 # output path
-Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/tt100k_221_classes_input_20210814_test_20220215
+Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/tt100k_221_classes_input_20210814_20220215
 
 # Source dataset style:
 # COCO2017, YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, HY_VAL, BDD100K, YOLO
@@ -10,10 +10,10 @@ Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/tt100k_221_classes_input
 Source_dataset_style: TT100K
 
 # Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1, YOLO
-Target_dataset_style: CVAT_IMAGE_1_1
+Target_dataset_style: YOLO
 
 # images or labels need to rename prefix
-File_prefix: 'test'
+File_prefix: "test"
 
 # name delimiter(cityscapes need: "@")
 File_prefix_delimiter: "@"
@@ -32,7 +32,7 @@ Task_and_class_config:
   # Detection, Semantic_segmentation, Instance_segmentation, Keypoints
   Detection:
     Source_dataset_class_file_path: Clean_up/data/detection/detect_classes_tt100k_211_classes.names
-    Modify_class_file_path: Clean_up/data/detect_classes_bdd100k_10_classes_to_hy_7_classes.txt
+    Modify_class_file_path:
     Target_each_class_object_pixel_limit_file_path:
     Need_convert: False
   # Semantic_segmentation:

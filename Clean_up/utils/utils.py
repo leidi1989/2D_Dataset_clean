@@ -4,14 +4,12 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2022-01-26 09:30:21
+LastEditTime: 2022-02-15 10:41:26
 '''
 # -*- coding: utf-8 -*-
 import os
-import json
 import random
 import numpy as np
-from sqlalchemy import func
 from tqdm import tqdm
 
 
@@ -24,6 +22,7 @@ def check_input_path(path: str) -> str:
     Returns:
         str: [输入路径]
     """
+
     if os.path.exists(path):
         return path
     else:
@@ -96,7 +95,7 @@ def check_prefix(prefix: str, delimiter: str) -> str:
         str: [前缀字符串]
     """
 
-    if prefix == '':
+    if prefix == '' or prefix is None:
         name_prefix = prefix
 
         return name_prefix
@@ -115,7 +114,8 @@ def get_class_list(source_dataset_class_file_path: str) -> list:
     Returns:
         list: [数据集类别列表]
     """
-    if source_dataset_class_file_path == '':
+    if source_dataset_class_file_path == '' or \
+            source_dataset_class_file_path is None:
         return None
     class_list = []     # 类别列表
     with open(source_dataset_class_file_path, 'r') as class_file:
@@ -136,7 +136,8 @@ def get_modify_class_dict(modify_class_file_path: str) -> dict or None:
         dict or None: [输出修改类别字典]
     """
 
-    if modify_class_file_path == '':
+    if modify_class_file_path == '' or \
+            modify_class_file_path is None:
         return None
     modify_class_dict = {}  # 修改类别对应字典
     with open(modify_class_file_path, 'r') as class_file:
@@ -166,7 +167,7 @@ def get_new_class_names_list(source_class_list: list,
         list: [目标数据集类别列表]
     """
 
-    if modify_class_dict == None:
+    if modify_class_dict is None:
         return source_class_list
     else:
         new_class_names_list = []   # 新类别列表
@@ -586,9 +587,10 @@ def multiprocessing_list_tqdm(file_list: list,
 
     Returns:
         [type]: [description]
-    """    
+    """
 
-    pbar = tqdm(total=len(file_list), position=position, leave=leave, desc=desc)
+    pbar = tqdm(total=len(file_list), position=position,
+                leave=leave, desc=desc)
 
     return pbar, lambda *args: pbar.update()
 
