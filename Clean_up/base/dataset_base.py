@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-15 17:42:30
+LastEditTime: 2022-02-15 17:51:30
 '''
 import dataset
 from utils.utils import *
@@ -248,7 +248,6 @@ class Dataset_Base:
         """[复制源数据集标签文件至目标数据集中的source_annotations中]
 
         Args:
-            dataset (dict): [数据集信息字典]
             root (str): [文件所在目录]
             n (str): [文件名]
         """
