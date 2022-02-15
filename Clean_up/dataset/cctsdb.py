@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 14:16:13
+LastEditTime: 2022-02-15 14:18:47
 '''
 from PIL import Image
 import multiprocessing
@@ -38,28 +38,24 @@ class CCTSDB(Dataset_Base):
             source_annotation_path = os.path.join(
                 self.source_dataset_annotations_folder, source_annotation_name)
             with open(source_annotation_path, 'r') as f:
-                data = json.loads(f.read())
+                data = f.readlines()
             del f
-
-            class_dict = {}
-            for n, clss in enumerate(data['types']):
-                class_dict['%s' % n] = clss
 
             # 获取data字典中images内的图片信息，file_name、height、width
             pbar, update = multiprocessing_list_tqdm(
-                data['images'], desc='Load image base information', leave=False)
+                data, desc='Load image base information', leave=False)
             total_annotations_dict = multiprocessing.Manager().dict()
             pool = multiprocessing.Pool(self.workers)
-            for image_base_information in data['images']:
+            for image_annotation in data:
                 pool.apply_async(func=self.load_image_base_information,
-                                 args=(image_base_information,
+                                 args=(image_annotation,
                                        total_annotations_dict,),
                                  callback=update,
                                  error_callback=err_call_back)
             pool.close()
             pool.join()
             pbar.close()
-            
+
             total_image_list_processing = []
             pbar, update = multiprocessing_list_tqdm(
                 data['imgs'], 'Load annotation', leave=False)
@@ -118,7 +114,7 @@ class CCTSDB(Dataset_Base):
 
         return
 
-    def load_image_base_information(self, image_base_information: dict, total_annotations_dict: dict) -> None:
+    def load_image_base_information(self, image_annotation: dict, total_annotations_dict: dict) -> None:
         """读取标签获取图片基础信息, 并添加至each_annotation_images_data_dict
 
         Args:
@@ -126,8 +122,8 @@ class CCTSDB(Dataset_Base):
             total_annotations_dict (dict): 全部标注信息字典
         """
 
-        image_id = image_base_information['id']
-        image_name = os.path.splitext(image_base_information['file_name'])[
+        image_id = image_annotation['id']
+        image_name = os.path.splitext(image_annotation['file_name'])[
             0] + '.' + self.temp_image_form
         image_name_new = self.file_prefix + image_name
         image_path = os.path.join(
@@ -142,7 +138,7 @@ class CCTSDB(Dataset_Base):
         total_annotations_dict.update({image_id: image})
 
         return
-    
+
     def load_annotation(self, image_annotation: dict) -> IMAGE:
         """[读取单个图片标注信息]
 

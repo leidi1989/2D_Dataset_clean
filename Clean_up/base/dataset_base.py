@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-15 14:03:59
+LastEditTime: 2022-02-15 14:21:15
 '''
 import dataset
 from utils.utils import *
@@ -28,6 +28,11 @@ matplotlib.rc("font", family='AR PL UMing CN')
 plt.switch_backend('agg')
 # matplotlib.use('TkAgg')
 
+SOURCE_DATASET_STYLE = ['COCO2017', 'YUNCE_SEGMENT_COCO', 'YUNCE_SEGMENT_COCO_ONE_IMAGE',
+                        'HUAWEIYUN_SEGMENT', 'HY_VAL', 'BDD100K', 'YOLO', 'CCTSDB']
+
+TARGET_DATASET_STYLE = ['YOLO', 'COCO2017',
+                        'CITYSCAPES', 'CITYSCAPES_VAL', 'CVAT_IMAGE_1_1']
 
 TARGET_DATASET_FILE_FORM = {'CVAT_IMAGE_1_1': {'image': 'jpg',
                                                'annotation': 'xml'
