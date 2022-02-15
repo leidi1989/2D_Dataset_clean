@@ -4,11 +4,10 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-15 13:51:32
+LastEditTime: 2022-02-15 14:03:59
 '''
 import dataset
 from utils.utils import *
-from .dataset_characteristic import *
 from .image_base import IMAGE, OBJECT
 from utils import image_form_transform
 
@@ -28,6 +27,24 @@ import matplotlib.pyplot as plt
 matplotlib.rc("font", family='AR PL UMing CN')
 plt.switch_backend('agg')
 # matplotlib.use('TkAgg')
+
+
+TARGET_DATASET_FILE_FORM = {'CVAT_IMAGE_1_1': {'image': 'jpg',
+                                               'annotation': 'xml'
+                                               },
+                            'CITYSCAPES_VAL': {'image': 'png',
+                                               'annotation': 'json'
+                                               },
+                            'COCO2017': {'image': 'jpg',
+                                         'annotation': 'json'
+                                         },
+                            'CITYSCAPES': {'image': 'png',
+                                           'annotation': 'json'
+                                           },
+                            'YOLO': {'image': 'jpg',
+                                     'annotation': 'txt'
+                                     }
+                            }
 
 
 class Dataset_Base:
