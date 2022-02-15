@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 14:09:25
+LastEditTime: 2022-02-15 14:15:56
 '''
 import time
 import shutil
@@ -42,7 +42,6 @@ class COCO2017(Dataset_Base):
                 self.source_dataset_annotations_folder, source_annotation_name)
             with open(source_annotation_path, 'r') as f:
                 data = json.loads(f.read())
-
             del f
 
             class_dict = {}
@@ -237,9 +236,15 @@ class COCO2017(Dataset_Base):
             keypoints_num = one_annotation['num_keypoints']
             keypoints = one_annotation['keypoints']
 
-        one_object = OBJECT(id, cls, cls, cls, cls,
-                            box_xywh, segmentation, keypoints_num, keypoints,
-                            self.task_convert,
+        one_object = OBJECT(id, cls,
+                            box_clss=cls,
+                            segmentation_clss=cls,
+                            keypoints_clss=cls,
+                            box_xywh=box_xywh,
+                            segmentation=segmentation,
+                            keypoints_num=keypoints_num,
+                            keypoints=keypoints,
+                            task_convert_dict=self.task_convert,
                             segmentation_area=segmentation_area,
                             segmentation_iscrowd=segmentation_iscrowd,
                             )
