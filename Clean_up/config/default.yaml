@@ -1,8 +1,8 @@
 # dataset path
-Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/CCTSDB
+Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/lisa_trafficlight_input
 
 # output path
-Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/CCTSDB_20220215
+Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/lisa_trafficlight_input_20220215
 
 # Source dataset style:
 # YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, HY_VAL, 

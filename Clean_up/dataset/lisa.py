@@ -4,8 +4,9 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 17:02:42
+LastEditTime: 2022-02-15 17:47:48
 '''
+import shutil
 from PIL import Image
 import multiprocessing
 
@@ -23,6 +24,22 @@ class LISA(Dataset_Base):
         self.source_dataset_image_count = self.get_source_dataset_image_count()
         self.source_dataset_annotation_count = self.get_source_dataset_annotation_count()
 
+    def source_dataset_copy_annotation(self, root: str, n: str) -> None:
+        """[复制源数据集标签文件至目标数据集中的source_annotations中]
+
+        Args:
+            dataset (dict): [数据集信息字典]
+            root (str): [文件所在目录]
+            n (str): [文件名]
+        """
+
+        annotation = os.path.join(root, n)
+        temp_annotation = os.path.join(
+            self.source_dataset_annotations_folder, n)
+        shutil.copy(annotation, temp_annotation)
+
+        return
+    
     def transform_to_temp_dataset(self) -> None:
         """[转换标注文件为暂存标注]
         """
@@ -32,6 +49,11 @@ class LISA(Dataset_Base):
         fail_count = 0
         no_object = 0
         temp_file_name_list = []
+        
+        total_source_dataset_annotations = []
+        for n in os.listdir(self.source_dataset_annotations_folder):
+            if n.split(self.file_prefix_delimiter)[-1] == 'frameAnnotationsBOX.csv':
+                total_source_dataset_annotations.append(n)
 
         for source_annotation_name in tqdm(os.listdir(self.source_dataset_annotations_folder),
                                            desc='Total annotations'):
