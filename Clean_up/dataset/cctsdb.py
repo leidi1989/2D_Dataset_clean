@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 15:49:57
+LastEditTime: 2022-02-15 16:17:56
 '''
 from PIL import Image
 import multiprocessing
@@ -86,7 +86,7 @@ class CCTSDB(Dataset_Base):
             del total_image_annotation_list_processing
             
             total_image_annotation_list = []
-            for _, value in total_image_base_information_dict:
+            for _, value in total_image_base_information_dict.items():
                 total_image_annotation_list.append(value)
 
             # 输出读取的source annotation至temp annotation
@@ -166,6 +166,9 @@ class CCTSDB(Dataset_Base):
         image_name = os.path.splitext(image_annotation[0])[
             0] + '.' + self.temp_image_form
         image_name_new = self.file_prefix + image_name
+        if 6 != len(image_annotation) or '' in image_annotation:
+            print('{} erro annotation.'.format(image_name_new))
+            return
         image_path = os.path.join(
             self.temp_images_folder, image_name_new)
         if not os.path.exists(image_path):
@@ -173,7 +176,7 @@ class CCTSDB(Dataset_Base):
             return
         img = Image.open(image_path)
         height, width = img.height, img.width
-        cls = image_annotation[5]
+        cls = str(image_annotation[5])
         cls = cls.replace(' ', '').lower()
         box = (float(image_annotation[1]),
                float(image_annotation[3]),
