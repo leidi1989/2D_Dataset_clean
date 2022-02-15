@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 10:42:49
+LastEditTime: 2022-02-15 10:47:22
 '''
 import multiprocessing
 
@@ -83,60 +83,60 @@ class TT100K(Dataset_Base):
             source_annotation_name)
         with open(source_annotation_path, 'r') as f:
             annotation = json.loads(f.read())
-            
-            image_name = os.path.splitext(source_annotation_name)[
-                0] + '.' + self.target_dataset_image_form
-            image_path = os.path.join(
-                self.temp_images_folder, image_name)
-            image_name_new = self.file_prefix + image_name
-            image_path = os.path.join(
-                self.temp_images_folder, image_name_new)
-            img = cv2.imread(image_path)
-            if img is None:
-                print('Can not load: {}'.format(image_name_new))
-                return
-            height, width, channels = img.shape
-            object_list = []
-            for n, m in enumerate(annotation['objects']):
-                cls = str(m['category'])
-                cls = cls.replace(' ', '').lower()
-                true_box = m['bbox']
-                box = (int(true_box['xmin']),
-                       int(true_box['xmax']),
-                       int(true_box['ymin']),
-                       int(true_box['ymax']))
-                xmin = max(min(int(box[0]), int(box[1]), int(width)), 0.)
-                ymin = max(min(int(box[2]), int(box[3]), int(height)), 0.)
-                xmax = min(max(int(box[1]), int(box[0]), 0.), int(width))
-                ymax = min(max(int(box[3]), int(box[2]), 0.), int(height))
-                box_xywh = [xmin, ymin, xmax-xmin, ymax-ymin]
-                object_list.append(OBJECT(n,
-                                          cls,
-                                          box_clss=cls,
-                                          box_xywh=box_xywh))  # 将单个真实框加入单张图片真实框列表
-            image = IMAGE(image_name, image_name, image_path, int(
-                height), int(width), int(channels), object_list)
+            for key, value in annotation['imgs']:
+                image_name = os.path.splitext(source_annotation_name)[
+                    0] + '.' + self.target_dataset_image_form
+                image_path = os.path.join(
+                    self.temp_images_folder, image_name)
+                image_name_new = self.file_prefix + image_name
+                image_path = os.path.join(
+                    self.temp_images_folder, image_name_new)
+                img = cv2.imread(image_path)
+                if img is None:
+                    print('Can not load: {}'.format(image_name_new))
+                    return
+                height, width, channels = img.shape
+                object_list = []
+                for n, m in enumerate(annotation['objects']):
+                    cls = str(m['category'])
+                    cls = cls.replace(' ', '').lower()
+                    true_box = m['bbox']
+                    box = (int(true_box['xmin']),
+                        int(true_box['xmax']),
+                        int(true_box['ymin']),
+                        int(true_box['ymax']))
+                    xmin = max(min(int(box[0]), int(box[1]), int(width)), 0.)
+                    ymin = max(min(int(box[2]), int(box[3]), int(height)), 0.)
+                    xmax = min(max(int(box[1]), int(box[0]), 0.), int(width))
+                    ymax = min(max(int(box[3]), int(box[2]), 0.), int(height))
+                    box_xywh = [xmin, ymin, xmax-xmin, ymax-ymin]
+                    object_list.append(OBJECT(n,
+                                            cls,
+                                            box_clss=cls,
+                                            box_xywh=box_xywh))  # 将单个真实框加入单张图片真实框列表
+                image = IMAGE(image_name, image_name, image_path, int(
+                    height), int(width), int(channels), object_list)
 
-            temp_annotation_output_path = os.path.join(
-                self.temp_annotations_folder,
-                image.file_name_new + '.' + self.temp_annotation_form)
-            image.modify_object_list(self)
-            image.object_pixel_limit(self)
-            if 0 == len(image.object_list):
-                print('{} no object, has been delete.'.format(
-                    image.image_name_new))
-                os.remove(image.image_path)
-                process_output['no_object'] += 1
-                process_output['fail_count'] += 1
-                return
-            if image.output_temp_annotation(temp_annotation_output_path):
-                process_output['temp_file_name_list'].append(
-                    image.file_name_new)
-                process_output['success_count'] += 1
-            else:
-                print('errow output temp annotation: {}'.format(
-                    image.file_name_new))
-                process_output['fail_count'] += 1
+                temp_annotation_output_path = os.path.join(
+                    self.temp_annotations_folder,
+                    image.file_name_new + '.' + self.temp_annotation_form)
+                image.modify_object_list(self)
+                image.object_pixel_limit(self)
+                if 0 == len(image.object_list):
+                    print('{} no object, has been delete.'.format(
+                        image.image_name_new))
+                    os.remove(image.image_path)
+                    process_output['no_object'] += 1
+                    process_output['fail_count'] += 1
+                    return
+                if image.output_temp_annotation(temp_annotation_output_path):
+                    process_output['temp_file_name_list'].append(
+                        image.file_name_new)
+                    process_output['success_count'] += 1
+                else:
+                    print('errow output temp annotation: {}'.format(
+                        image.file_name_new))
+                    process_output['fail_count'] += 1
 
         return
 
