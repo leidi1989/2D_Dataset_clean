@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-15 15:02:38
+LastEditTime: 2022-02-15 17:14:58
 '''
 import dataset
 from utils.utils import *
@@ -29,7 +29,7 @@ plt.switch_backend('agg')
 # matplotlib.use('TkAgg')
 
 SOURCE_DATASET_STYLE = ['COCO2017', 'YUNCE_SEGMENT_COCO', 'YUNCE_SEGMENT_COCO_ONE_IMAGE',
-                        'HUAWEIYUN_SEGMENT', 'HY_VAL', 'BDD100K', 'YOLO', 'CCTSDB']
+                        'HUAWEIYUN_SEGMENT', 'HY_VAL', 'BDD100K', 'YOLO', 'TT100K', 'CCTSDB', 'LISA']
 
 TARGET_DATASET_STYLE = ['YOLO', 'COCO2017',
                         'CITYSCAPES', 'CITYSCAPES_VAL', 'CVAT_IMAGE_1_1']

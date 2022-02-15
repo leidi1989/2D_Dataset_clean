@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-10-28 15:43:03
+LastEditTime: 2022-02-15 17:02:24
 '''
 import os
 import cv2
@@ -16,7 +16,7 @@ from utils.modify_class import modify_true_box_list
 
 
 def load_image_base_information(dataset: dict, image_base_information, total_annotations_dict):
-    """[读取标签获取图片基础信息，并添加至each_annotation_images_data_dict]
+    """[读取标签获取图片基础信息, 并添加至each_annotation_images_data_dict]
 
     Args:
         dataset (dict): [数据集信息字典]
