@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 18:32:53
+LastEditTime: 2022-02-16 15:45:45
 '''
 import time
 import shutil
@@ -185,7 +185,8 @@ class CVAT_COCO2017(Dataset_Base):
         cls = cls.replace(' ', '').lower()
         total_class = []
         for _, task_class_dict in self.task_dict.items():
-            total_class.extend(task_class_dict['Source_dataset_class'])
+            if task_class_dict:
+                total_class.extend(task_class_dict['Source_dataset_class'])
         if cls not in total_class:
             return ann_image_id, None
         if ann_image_id in each_annotation_images_data_dict.keys():
