@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-18 02:45:19
+LastEditTime: 2022-02-18 03:32:56
 '''
 import dataset
 from utils.utils import *
@@ -178,9 +178,6 @@ class Dataset_Base:
                 source_dataset_class)
             self.temp_merge_class_list['Merge_target_dataset_class_list'].extend(
                 target_dataset_class)
-        if self.task_dict['Instance_segmentation'] != None:
-            self.task_dict['Detection'] = self.task_dict['Instance_segmentation']
-            self.task_dict['Semantic_segmentation'] = self.task_dict['Instance_segmentation']
         self.total_task_source_class_list = self.get_total_task_source_class_list()
 
         print('Dataset instance initialize end.')

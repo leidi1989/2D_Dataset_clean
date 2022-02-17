@@ -1,10 +1,10 @@
 '''
-Description: 
-Version: 
+Description:
+Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-18 01:59:13
+LastEditTime: 2022-02-18 03:35:51
 '''
 import shutil
 import multiprocessing
@@ -170,33 +170,39 @@ class CVAT_IMAGE_1_1(Dataset_Base):
             dataset_instance.target_dataset_style].annotation_creat_root(dataset_instance,
                                                                          class_color_encode_dict)
         # 获取全部图片标签信息列表
-        total_image_xml = []
-        pbar, update = multiprocessing_list_tqdm(dataset_instance.temp_annotations_path_list,
-                                                 desc='transform to target dataset')
-        pool = multiprocessing.Pool(dataset_instance.workers)
-        for temp_annotation_path in dataset_instance.temp_annotations_path_list:
-            total_image_xml.append(pool.apply_async(func=dataset.__dict__[dataset_instance.target_dataset_style].annotation_get_temp,
-                                                    args=(dataset_instance,
-                                                          temp_annotation_path,),
-                                                    callback=update,
-                                                    error_callback=err_call_back))
-        pool.close()
-        pool.join()
-        pbar.close()
+        for task, task_class_dict in tqdm(dataset_instance.task_dict.items(), desc='Load each task annotation'):
+            if task_class_dict is None:
+                continue
+            total_image_xml = []
+            pbar, update = multiprocessing_list_tqdm(dataset_instance.temp_annotations_path_list,
+                                                     desc='transform to target dataset',
+                                                     leave=False)
+            pool = multiprocessing.Pool(dataset_instance.workers)
+            for temp_annotation_path in dataset_instance.temp_annotations_path_list:
+                total_image_xml.append(pool.apply_async(func=dataset.__dict__[dataset_instance.target_dataset_style].annotation_get_temp,
+                                                        args=(dataset_instance,
+                                                              temp_annotation_path,
+                                                              task,
+                                                              task_class_dict,),
+                                                        callback=update,
+                                                        error_callback=err_call_back))
+            pool.close()
+            pool.join()
+            pbar.close()
 
-        # 将image标签信息添加至annotations中
-        for n, image in enumerate(total_image_xml):
-            annotation = image.get()
-            annotation.attrib['id'] = str(n)
-            annotations.append(annotation)
+            # 将image标签信息添加至annotations中
+            for n, image in enumerate(total_image_xml):
+                annotation = image.get()
+                annotation.attrib['id'] = str(n)
+                annotations.append(annotation)
 
-        tree = ET.ElementTree(annotations)
+            tree = ET.ElementTree(annotations)
 
-        annotation_output_path = os.path.join(
-            dataset_instance.target_dataset_annotations_folder,
-            'annotatons.' + dataset_instance.target_dataset_annotation_form)
-        tree.write(annotation_output_path,
-                   encoding='utf-8', xml_declaration=True)
+            annotation_output_path = os.path.join(
+                dataset_instance.target_dataset_annotations_folder,
+                'annotatons.' + dataset_instance.target_dataset_annotation_form)
+            tree.write(annotation_output_path,
+                       encoding='utf-8', xml_declaration=True)
 
         return
 
@@ -277,12 +283,17 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         return annotations
 
     @staticmethod
-    def annotation_get_temp(dataset_instance: Dataset_Base, temp_annotation_path: str) -> object:
+    def annotation_get_temp(dataset_instance: Dataset_Base,
+                            temp_annotation_path: str,
+                            task: str,
+                            task_class_dict: dict) -> object:
         """[获取temp标签信息]
 
         Args:
             dataset_instance (Dataset_Base): [数据集实例]
             temp_annotation_path (str): [暂存标签路径]
+            task (str): 任务类型
+            task_class_dict (dict): 任务对应类别字典
 
         Returns:
             object: [ET.Element格式标注信息]
@@ -294,45 +305,87 @@ class CVAT_IMAGE_1_1(Dataset_Base):
             return
         image_xml = ET.Element('image', {
             'id': '', 'name': image.image_name_new, 'width': str(image.width), 'height': str(image.height)})
-        for n in image.object_list:
-            if n.box_exist_flag:
+        for object in image.object_list:
+            if task == 'Detection':
+                clss = object.box_clss
+                if clss not in task_class_dict['Target_dataset_class']:
+                    continue
+                if object.box_exist_flag:
+                    box = ET.SubElement(image_xml, 'box', {
+                        'label': object.box_clss, 'occluded': '0', 'source': 'manual',
+                        'xtl': str(object.box_xywh[0]), 'ytl': str(object.box_xywh[1]),
+                        'xbr': str(object.box_xywh[0]+object.box_xywh[2]), 'ybr': str(object.box_xywh[1]+object.box_xywh[3]),
+                        'z_order': "0",
+                        'group_id': str(object.object_id)})
+                    attribute = ET.SubElement(
+                        box, 'attribute', {'name': '1'})
+                    attribute.text = object.box_clss+str(object.object_id)
+            elif task == 'Semantic_segmentation':
+                segmentation = np.asarray(
+                    object.segmentation).flatten().tolist()
+                clss = object.segmentation_clss
+                if clss not in task_class_dict['Target_dataset_class']:
+                    continue
+                if object.segmentation_exist_flag:
+                    point_list = []
+                    for x in object.segmentation:
+                        point_list.append(str(x[0])+','+str(x[1]))
+                    if 2 == len(point_list):
+                        continue
+                    polygon = ET.SubElement(image_xml, 'polygon', {
+                        'label': object.segmentation_clss, 'occluded': '0', 'source': 'manual',
+                        'points': ';'.join(point_list),
+                        'z_order': "0",
+                        'group_id': str(object.object_id)})
+                    attribute = ET.SubElement(polygon, 'attribute', {
+                        'name': '1'})
+                    attribute.text = object.segmentation_clss+str(object.object_id)
+            elif task == 'Instance_segmentation':
+                segmentation = np.asarray(
+                    object.segmentation).flatten().tolist()
+                clss = object.segmentation_clss
+                if clss not in task_class_dict['Target_dataset_class']:
+                    continue
                 box = ET.SubElement(image_xml, 'box', {
-                    'label': n.box_clss, 'occluded': '0', 'source': 'manual',
-                    'xtl': str(n.box_xywh[0]), 'ytl': str(n.box_xywh[1]),
-                    'xbr': str(n.box_xywh[0]+n.box_xywh[2]), 'ybr': str(n.box_xywh[1]+n.box_xywh[3]),
-                    'z_order': "0",
-                    'group_id': str(n.object_id)})
+                        'label': object.box_clss, 'occluded': '0', 'source': 'manual',
+                        'xtl': str(object.box_xywh[0]), 'ytl': str(object.box_xywh[1]),
+                        'xbr': str(object.box_xywh[0]+object.box_xywh[2]), 'ybr': str(object.box_xywh[1]+object.box_xywh[3]),
+                        'z_order': "0",
+                        'group_id': str(object.object_id)})
                 attribute = ET.SubElement(
                     box, 'attribute', {'name': '1'})
-                attribute.text = n.box_clss+str(n.object_id)
-            elif n.segmentation_exist_flag:
+                attribute.text = object.box_clss+str(object.object_id)
                 point_list = []
-                for x in n.segmentation:
+                for x in object.segmentation:
                     point_list.append(str(x[0])+','+str(x[1]))
                 if 2 == len(point_list):
                     continue
                 polygon = ET.SubElement(image_xml, 'polygon', {
-                                        'label': n.segmentation_clss, 'occluded': '0', 'source': 'manual',
-                                        'points': ';'.join(point_list),
-                                        'z_order': "0",
-                                        'group_id': str(n.object_id)})
+                    'label': object.segmentation_clss, 'occluded': '0', 'source': 'manual',
+                    'points': ';'.join(point_list),
+                    'z_order': "0",
+                    'group_id': str(object.object_id)})
                 attribute = ET.SubElement(polygon, 'attribute', {
-                                          'name': '1'})
-                attribute.text = n.segmentation_clss+str(n.object_id)
-            elif n.keypoints_exist_flag:
-                for m, xy in n.keypoints:
-                    points = ET.SubElement(image_xml, 'points', {
-                        'label': n.keypoints_clss, 'occluded': '0', 'source': 'manual',
-                        'points': str(xy[0])+','+str(xy[1]),
-                        'z_order': "0",
-                        'group_id': str(n.object_id)})
-                    attribute = ET.SubElement(points, 'attribute', {
-                                              'name': '1'})
-                    attribute.text = str(n.object_id)+'-'+m
+                    'name': '1'})
+                attribute.text = object.segmentation_clss+str(object.object_id)
+            elif task == 'Keypoint':
+                clss = object.keypoints_clss
+                if clss not in task_class_dict['Target_dataset_class']:
+                    continue
+                if object.keypoints_exist_flag:
+                    for m, xy in object.keypoints:
+                        points = ET.SubElement(image_xml, 'points', {
+                            'label': object.keypoints_clss, 'occluded': '0', 'source': 'manual',
+                            'points': str(xy[0])+','+str(xy[1]),
+                            'z_order': "0",
+                            'group_id': str(object.object_id)})
+                        attribute = ET.SubElement(points, 'attribute', {
+                            'name': '1'})
+                        attribute.text = str(object.object_id)+'-'+m
 
         return image_xml
 
-    @staticmethod
+    @ staticmethod
     def annotation_check(dataset_instance: Dataset_Base) -> list:
         """[读取CVAT_IMAGE_1_1数据集图片类检测列表]
 

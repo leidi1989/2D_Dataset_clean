@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-18 02:06:16
+LastEditTime: 2022-02-18 03:34:58
 '''
 import time
 import shutil
@@ -687,7 +687,7 @@ class CVAT_COCO2017(Dataset_Base):
 
     @staticmethod
     def target_dataset_folder(dataset_instance: Dataset_Base) -> None:
-        """[生成COCO 2017组织格式的数据集]
+        """[生成CVAT_COCO2017组织格式的数据集]
 
         Args:
             dataset_instance (Dataset_Base): [数据集实例]

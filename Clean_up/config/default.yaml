@@ -36,10 +36,10 @@ Task_and_class_config:
     Source_dataset_class_file_path: Clean_up/data/segmentation/segment_classes_apolloscape_lane_segmentation_38_classes.names
     Modify_class_file_path:
     Target_each_class_object_pixel_limit_file_path:
-  Semantic_segmentation:
-    Source_dataset_class_file_path: Clean_up/data/segmentation/segment_classes_apolloscape_lane_segmentation_38_classes.names
-    Modify_class_file_path: 
-    Target_each_class_object_pixel_limit_file_path:
+  # Semantic_segmentation:
+  #   Source_dataset_class_file_path: Clean_up/data/segmentation/segment_classes_apolloscape_lane_segmentation_38_classes.names
+  #   Modify_class_file_path: 
+  #   Target_each_class_object_pixel_limit_file_path:
   # Instance_segmentation:
   #   Source_dataset_class_file_path: Clean_up/data/segmentation/segment_classes_apolloscape_lane_segmentation_38_classes.names
   #   Modify_class_file_path: 
