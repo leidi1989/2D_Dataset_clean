@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-17 19:04:15
+LastEditTime: 2022-02-18 03:43:04
 '''
 import xml.etree.ElementTree as ET
 
@@ -83,7 +83,6 @@ class HY_HIGHWAY(Dataset_Base):
                 image.image_name_new))
             os.remove(image.image_path)
             process_output['no_object'] += 1
-            process_output['fail_count'] += 1
             return
         if image.output_temp_annotation(temp_annotation_output_path):
             process_output['temp_file_name_list'].append(

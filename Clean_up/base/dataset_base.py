@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-18 03:32:56
+LastEditTime: 2022-02-18 03:43:59
 '''
 import dataset
 from utils.utils import *
@@ -193,7 +193,8 @@ class Dataset_Base:
         total_task_source_class_list = []
         for task_class_dict in self.task_dict.values():
             if task_class_dict is not None:
-                total_task_source_class_list.extend(task_class_dict['Source_dataset_class'])
+                total_task_source_class_list.extend(
+                    task_class_dict['Source_dataset_class'])
         total_task_source_class_list = list(set(total_task_source_class_list))
 
         return total_task_source_class_list
@@ -306,12 +307,14 @@ class Dataset_Base:
         temp_file_name_list += process_output['temp_file_name_list']
 
         # 输出读取统计结果
+        total_annotations = len(os.listdir(
+            self.source_dataset_annotations_folder))
         print('\nSource dataset convert to temp dataset file count: ')
-        print('Total annotations:         \t {} '.format(
-            len(os.listdir(self.source_dataset_annotations_folder))))
+        print('Total annotations:         \t {} '.format(total_annotations))
         print('Convert fail:              \t {} '.format(fail_count))
         print('No object delete images: \t {} '.format(no_object))
-        print('Convert success:           \t {} '.format(success_count))
+        print('Convert success:           \t {} '.format(
+            total_annotations-fail_count-no_object))
         self.temp_annotation_name_list = temp_file_name_list
         print('Source dataset annotation transform to temp dataset end.')
 
