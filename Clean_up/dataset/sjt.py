@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-17 20:31:46
+LastEditTime: 2022-02-17 21:01:29
 '''
 from utils.utils import *
 from base.image_base import *
@@ -153,6 +153,7 @@ class SJT(Dataset_Base):
         light_go = []   # 声明绿灯信号灯命名列表
         light_stop = []     # 声明红灯信号灯命名列表
         light_warning = []      # 声明黄灯信号灯命名列表
+        xy_offset = 5
         for one_name in light_base_name:
             light_go.append(one_name + '_' + 'green')
         for one_name in light_base_name:
@@ -169,17 +170,17 @@ class SJT(Dataset_Base):
         light_numbers.append('trafficlightframe_numbers' + '_' + 'no')
         new_object_list = []  # 声明新真实框列表
         for object in object_list:  # 遍历源真实框列表
-            if object.box_clss == 'trafficlightframe':    # 搜索trafficlightframe真实框
+            if object.object_clss == 'trafficlightframe':    # 搜索trafficlightframe真实框
                 if object.box_color == 'no':
                     for object_light in object_list:    # 遍历源真实框列表
                         if (object_light.box_clss in light_name and
-                            object_light.box_xywh[0] >= object.box_xywh[0] - 20 and
-                            object_light.box_xywh[1] >= object.box_xywh[1] - 20 and
-                            object_light.box_xywh[0]+object_light.box_xywh[2] <= object.box_xywh[0]+object.box_xywh[2] + 20 and
-                                object_light.box_xywh[1]+object_light.box_xywh[3] <= object.box_xywh[1]+object.box_xywh[3] + 20):  # 判断信号灯框类别
-                            object.box_clss += (
+                            object_light.box_xywh[0] >= object.box_xywh[0] - xy_offset and
+                            object_light.box_xywh[1] >= object.box_xywh[1] - xy_offset and
+                            object_light.box_xywh[0]+object_light.box_xywh[2] <= object.box_xywh[0]+object.box_xywh[2] + xy_offset and
+                                object_light.box_xywh[1]+object_light.box_xywh[3] <= object.box_xywh[1]+object.box_xywh[3] + xy_offset):  # 判断信号灯框类别
+                            object.object_clss += (
                                 '_' + object_light.object_clss + '_' + object_light.box_color)   # 新建信号灯真实框实例并更名
-                            object.object_clss = object.box_clss
+                            object.box_clss = object.object_clss
                         if object.object_clss in light_numbers:
                             continue
                         if object.object_clss in light_go:     # 将信号灯归类
@@ -191,14 +192,17 @@ class SJT(Dataset_Base):
                         if object.object_clss in light_warning:
                             object.object_clss = 'warning'
                             object.box_clss = 'warning'
+                    if object.object_clss == 'trafficlightframe':    # 若为发现框内有信号灯颜色则更换为warning
+                        object.object_clss = 'warning'
+                        object.box_clss = 'warning'
                 else:
                     innate_light = ''
                     for object_light in object_list:    # 遍历源真实框列表
                         if (object_light.box_clss in light_name and
-                            object_light.box_xywh[0] >= object.box_xywh[0] - 20 and
-                            object_light.box_xywh[1] >= object.box_xywh[1] - 20 and
-                            object_light.box_xywh[0]+object_light.box_xywh[2] <= object.box_xywh[0]+object.box_xywh[2] + 20 and
-                                object_light.box_xywh[1]+object_light.box_xywh[3] <= object.box_xywh[1]+object.box_xywh[3] + 20):  # 判断信号灯框类别
+                            object_light.box_xywh[0] >= object.box_xywh[0] - xy_offset and
+                            object_light.box_xywh[1] >= object.box_xywh[1] - xy_offset and
+                            object_light.box_xywh[0]+object_light.box_xywh[2] <= object.box_xywh[0]+object.box_xywh[2] + xy_offset and
+                                object_light.box_xywh[1]+object_light.box_xywh[3] <= object.box_xywh[1]+object.box_xywh[3] + xy_offset):  # 判断信号灯框类别
                             innate_light = object_light.box_clss
                             object.object_clss = object.box_clss
                     if innate_light == 'numbers':
@@ -213,6 +217,9 @@ class SJT(Dataset_Base):
                     if object.object_clss in light_warning:
                         object.object_clss = 'warning'
                         object.box_clss = 'warning'
+                    if object.object_clss == 'trafficlightframe':
+                        object.object_clss = 'warning'
+                        object.box_clss = 'warning'
             # if one_true_box.clss == 'numbers':
             #     if one_true_box.color == 'green':     # 将数字类信号灯归类
             #         one_true_box.clss = 'go'
@@ -222,9 +229,6 @@ class SJT(Dataset_Base):
             #         one_true_box.color == 'no' or
             #         one_true_box.color == 'unclear'):
             #         one_true_box.clss = 'warning'
-            if object.object_clss == 'trafficlightframe':
-                object.object_clss = 'warning'
-                object.box_clss = 'warning'
             if object.object_clss not in self.total_task_source_class_list:
                 continue
             new_object_list.append(object)
