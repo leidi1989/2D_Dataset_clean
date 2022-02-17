@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-02-15 01:29:36
+LastEditTime: 2022-02-18 02:57:28
 '''
 import os
 import cv2
@@ -192,7 +192,7 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
                  keypoints_num: int = 0,
                  keypoints: list = None,
 
-                 task_convert_dict: dict = None,
+                 need_convert: str = None,
 
                  box_color: str = '',
                  box_tool: str = '',
@@ -215,7 +215,7 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
             segmentation (list): [分割多边形点列表]
             keypoints_num (int): [关键点个数]
             keypoints (list): [关键点坐标]
-            task_convert_dict (dict): [标注目标任务转换]
+            need_convert (str): [标注目标任务转换形式]
             box_color (str, optional): [真实框颜色]. Defaults to ''.
             box_tool (str, optional): [真实框标注工具]. Defaults to ''.
             box_difficult (int, optional): [真实框困难程度]. Defaults to 0.
@@ -235,23 +235,23 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
         self.object_id = object_id
         self.object_clss = object_clss
         self.object_convert_flag = ''
-        if task_convert_dict == None:
-            self.task_convert_dict = {}
+        if need_convert == None:
+            self.need_convert = None
         else:
-            self.task_convert_dict = task_convert_dict
+            self.need_convert = need_convert
         if 0 == len(self.box_xywh)\
                 and 0 != len(self.segmentation)  \
-            and 'Detection' in self.task_convert_dict \
-                and self.task_convert_dict['Detection']:
+            and self.need_convert == 'segmentation_to_box':
             self.box_xywh = self.true_segmentation_to_true_box()
             self.box_clss = self.segmentation_clss
+            self.box_exist_flag = True
             self.object_convert_flag = 'segmentation_to_box'
         if 0 == len(self.segmentation)\
                 and 0 != len(self.box_xywh) \
-            and 'Semantic_segmentation' in self.task_convert_dict \
-                and self.task_convert_dict['Semantic_segmentation']:
+        and self.need_convert == 'box_to_segmentation':
             self.segmentation = self.true_box_to_true_segmentation()
             self.segmentation_clss = self.box_clss
+            self.segmentation_exist_flag = True
             self.object_convert_flag = 'box_to_segmentation'
 
     def delete_box_information(self) -> None:

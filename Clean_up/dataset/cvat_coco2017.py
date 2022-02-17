@@ -667,7 +667,7 @@ class CVAT_COCO2017(Dataset_Base):
 
                     one_object = OBJECT(id, clss, clss, clss, clss,
                                         box_xywh, segmentation, keypoints_num, keypoints,
-                                        dataset_instance.task_convert,
+                                        dataset_instance.need_convert,
                                         segmentation_area=segmentation_area,
                                         segmentation_iscrowd=segmentation_iscrowd
                                         )

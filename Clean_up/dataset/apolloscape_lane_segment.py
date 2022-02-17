@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-18 02:28:34
+LastEditTime: 2022-02-18 02:40:49
 '''
 from collections import namedtuple
 
@@ -157,7 +157,7 @@ class APOLLOSCAPE_LANE_SEGMENT(Dataset_Base):
                                           object_clss=one.name,
                                           segmentation_clss=one.name,
                                           segmentation=point,
-                                          task_convert_dict=self.need_convert))
+                                          need_convert=self.need_convert))
 
         # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，
         # 并将初始化后的对象存入total_images_data_list

@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-18 02:04:36
+LastEditTime: 2022-02-18 02:40:51
 '''
 import time
 import shutil
@@ -244,7 +244,7 @@ class COCO2017(Dataset_Base):
                             segmentation=segmentation,
                             keypoints_num=keypoints_num,
                             keypoints=keypoints,
-                            task_convert_dict=self.task_convert,
+                            need_convert=self.task_convert,
                             segmentation_area=segmentation_area,
                             segmentation_iscrowd=segmentation_iscrowd,
                             )
@@ -672,7 +672,7 @@ class COCO2017(Dataset_Base):
 
                     one_object = OBJECT(id, clss, clss, clss, clss,
                                         box_xywh, segmentation, keypoints_num, keypoints,
-                                        dataset_instance.task_convert,
+                                        dataset_instance.need_convert,
                                         segmentation_area=segmentation_area,
                                         segmentation_iscrowd=segmentation_iscrowd
                                         )

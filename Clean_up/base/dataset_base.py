@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-18 02:27:39
+LastEditTime: 2022-02-18 02:45:19
 '''
 import dataset
 from utils.utils import *
@@ -1228,7 +1228,7 @@ class Dataset_Base:
                                         keypoints_num=int(
                                             object['keypoints_num']) if object['keypoints_num'] != '' else 0,
                                         keypoints=object['keypoints'],
-                                        task_convert_dict=dataset_instance.task_convert,
+                                        need_convert=dataset_instance.need_convert,
                                         box_color=object['box_color'],
                                         box_tool=object['box_tool'],
                                         box_difficult=int(
