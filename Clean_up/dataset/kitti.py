@@ -4,19 +4,18 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 18:27:46
+LastEditTime: 2022-02-17 15:03:56
 '''
 from utils.utils import *
 from base.image_base import *
 from base.dataset_base import Dataset_Base
-from utils.convertion_function import temp_box_to_coco_box
 
 
 class KITTI(Dataset_Base):
 
     def __init__(self, opt) -> None:
         super().__init__(opt)
-        self.source_dataset_image_form_list = ['jpg']
+        self.source_dataset_image_form_list = ['png']
         self.source_dataset_annotation_form = 'txt'
         self.source_dataset_image_count = self.get_source_dataset_image_count()
         self.source_dataset_annotation_count = self.get_source_dataset_annotation_count()
@@ -35,8 +34,8 @@ class KITTI(Dataset_Base):
             object_list = []
             for one_bbox in f.read().splitlines():
                 one_bbox = one_bbox.split(' ')
-                image_name = (source_annotation_path.split(
-                    os.sep)[-1]).replace('.txt', '.jpg')
+                image_name = os.path.splitext(source_annotation_name)[
+            0] + '.' + self.temp_image_form
                 image_name_new = self.file_prefix + image_name
                 image_path = os.path.join(
                     self.temp_images_folder, image_name_new)

@@ -1,17 +1,17 @@
 # dataset path
-Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/huaweiyun_fix_20211206/huaweiyun_fix_3215_20210918
+Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/KITTI_data_input
 
 # output path
-Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/huaweiyun_fix_20211206/huaweiyun_fix_3215_20210918_20220216
+Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/KITTI_data_input_20220217
 
 # Source dataset style:
 # YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, HY_VAL, CVAT_COCO2017
-# YOLO, COCO2017, BDD100K, TT100K, CCTSDB, LISA, 
+# YOLO, COCO2017, BDD100K, TT100K, CCTSDB, LISA, KITTI
 # NO: cityscapes, apolloscape_lane_segment, KITTI, SJT, MYXB, HY_HIGHWAY(小写)
-Source_dataset_style: CVAT_COCO2017
+Source_dataset_style: KITTI
 
 # Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1, YOLO
-Target_dataset_style: COCO2017
+Target_dataset_style: YOLO
 
 # images or labels need to rename prefix
 File_prefix: "test"
@@ -31,16 +31,26 @@ Target_dataset_check_annotations_output_as_mask: True
 # Task and class config
 Task_and_class_config:
   # Detection, Semantic_segmentation, Instance_segmentation, Keypoints
-  # Detection:
-  #   Source_dataset_class_file_path: Clean_up/data/detection/detect_classes_lisa_6_classes.names
-  #   Modify_class_file_path:
-  #   Target_each_class_object_pixel_limit_file_path:
-  #   Need_convert: False
-  Semantic_segmentation:
-    Source_dataset_class_file_path: Clean_up/data/segmentation/segment_classes_huaweiyun_segmentation_183_classes_20211116.names
-    Modify_class_file_path: Clean_up/data/segmentation/segment_classes_huaweiyun_segmentation_183_classes_to_3_classes.txt
+  Detection:
+    Source_dataset_class_file_path: Clean_up/data/detection/detect_classes_kitti_9_classes.names
+    Modify_class_file_path:
     Target_each_class_object_pixel_limit_file_path:
     Need_convert: False
+  # Semantic_segmentation:
+  #   Source_dataset_class_file_path: Clean_up/data/segmentation/segment_classes_huaweiyun_segmentation_183_classes_20211116.names
+  #   Modify_class_file_path: Clean_up/data/segmentation/segment_classes_huaweiyun_segmentation_183_classes_to_3_classes.txt
+  #   Target_each_class_object_pixel_limit_file_path:
+  #   Need_convert: False
+  # Instance_segmentation:
+  #   Source_dataset_class_file_path: Clean_up/data/segmentation/segment_classes_huaweiyun_segmentation_183_classes_20211116.names
+  #   Modify_class_file_path: Clean_up/data/segmentation/segment_classes_huaweiyun_segmentation_183_classes_to_3_classes.txt
+  #   Target_each_class_object_pixel_limit_file_path:
+  #   Need_convert: False
+  # Keypoints:
+  #   Source_dataset_class_file_path: Clean_up/data/segmentation/segment_classes_huaweiyun_segmentation_183_classes_20211116.names
+  #   Modify_class_file_path: Clean_up/data/segmentation/segment_classes_huaweiyun_segmentation_183_classes_to_3_classes.txt
+  #   Target_each_class_object_pixel_limit_file_path:
+  #   Need_convert: False
 
 # progress debug
 debug: False
