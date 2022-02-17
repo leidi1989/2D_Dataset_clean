@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-17 17:26:21
+LastEditTime: 2022-02-17 18:54:11
 '''
 from matplotlib.pyplot import connect
 from utils.utils import *
@@ -32,7 +32,6 @@ class MYXB(Dataset_Base):
         source_annotation_path = os.path.join(
             self.source_dataset_annotations_folder, source_annotation_name)
         with open(source_annotation_path, 'r') as f:
-            object_list = []
             data = json.load(f)
             for annotation in data:
                 image_name = os.path.splitext(annotation['imageName'])[
@@ -45,6 +44,7 @@ class MYXB(Dataset_Base):
                     print('Can not load: {}'.format(image_name_new))
                     continue
                 height, width, channels = img.shape     # 读取每张图片的shape
+                object_list = []
                 if len(annotation['Data']):
                     for box in annotation['Data']['svgArr']:
                         clss = box['secondaryLabel'][0]['value']
