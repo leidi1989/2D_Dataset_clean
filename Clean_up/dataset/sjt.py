@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-17 16:44:24
+LastEditTime: 2022-02-17 17:47:27
 '''
 from utils.utils import *
 from base.image_base import *
@@ -53,19 +53,19 @@ class SJT(Dataset_Base):
                 xmax = max(min(float(x + one_box['w']), float(width)), 0.)
                 ymax = max(min(float(y + one_box['h']), float(height)), 0.)
                 true_box_color = ''
-                cls = ''
+                clss = ''
                 types = one_box['Object_type']
                 types = types.replace(' ', '').lower()
                 if types == 'pedestrians' or types == 'vehicles' or types == 'trafficlights':
-                    cls = one_box['Category']
+                    clss = one_box['Category']
                     if types == 'trafficlights':    # 获取交通灯颜色
                         true_box_color = one_box['Color']
                         true_box_color = true_box_color.replace(
                             ' ', '').lower()
                 else:
-                    cls = types
-                cls = cls.replace(' ', '').lower()
-                if cls == 'misc' or cls == 'dontcare':
+                    clss = types
+                clss = clss.replace(' ', '').lower()
+                if clss == 'misc' or clss == 'dontcare':
                     continue
                 ture_box_occlusion = 0
                 if 'Occlusion' in one_box:
@@ -79,22 +79,22 @@ class SJT(Dataset_Base):
                     box_xywh = [int(xmin), int(ymin), int(
                         xmax-xmin), int(ymax-ymin)]
                     object_list.append(OBJECT(0,
-                                                cls,
-                                                box_clss=cls,
-                                                box_xywh=box_xywh,
-                                                box_occlusion=ture_box_occlusion,
-                                                box_distance=ture_box_distance))
+                                              clss,
+                                              box_clss=clss,
+                                              box_xywh=box_xywh,
+                                              box_occlusion=ture_box_occlusion,
+                                              box_distance=ture_box_distance))
                 else:
                     print('\nBbox error!')
                     continue
                 box_xywh = [int(xmin), int(ymin), int(
                     xmax-xmin), int(ymax-ymin)]
                 object_list.append(OBJECT(0,
-                                            cls,
-                                            box_clss=cls,
-                                            box_xywh=box_xywh,
-                                            box_occlusion=ture_box_occlusion,
-                                            box_distance=ture_box_distance))
+                                          clss,
+                                          box_clss=clss,
+                                          box_xywh=box_xywh,
+                                          box_occlusion=ture_box_occlusion,
+                                          box_distance=ture_box_distance))
         # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，
         # 并将初始化后的对象存入total_images_data_list
         image = IMAGE(image_name, image_name_new, image_path,

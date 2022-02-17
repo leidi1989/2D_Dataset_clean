@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 14:10:00
+LastEditTime: 2022-02-17 17:39:45
 '''
 import multiprocessing
 
@@ -126,8 +126,10 @@ class TT100K(Dataset_Base):
         height, width, channels = img.shape
         object_list = []
         for n, m in enumerate(image_annotation['objects']):
-            cls = str(m['category'])
-            cls = cls.replace(' ', '').lower()
+            clss = str(m['category'])
+            clss = clss.replace(' ', '').lower()
+            if clss not in self.total_task_source_class_list:
+                continue
             true_box = m['bbox']
             box = (int(true_box['xmin']),
                    int(true_box['xmax']),
@@ -139,8 +141,8 @@ class TT100K(Dataset_Base):
             ymax = min(max(int(box[3]), int(box[2]), 0.), int(height))
             box_xywh = [xmin, ymin, xmax-xmin, ymax-ymin]
             object_list.append(OBJECT(n,
-                                      cls,
-                                      box_clss=cls,
+                                      clss,
+                                      box_clss=clss,
                                       box_xywh=box_xywh))  # 将单个真实框加入单张图片真实框列表
         image = IMAGE(image_name, image_name_new, image_path, int(
             height), int(width), int(channels), object_list)

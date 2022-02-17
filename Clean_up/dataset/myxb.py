@@ -4,8 +4,9 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-17 15:54:26
+LastEditTime: 2022-02-17 17:26:21
 '''
+from matplotlib.pyplot import connect
 from utils.utils import *
 from base.image_base import *
 from base.dataset_base import Dataset_Base
@@ -46,6 +47,10 @@ class MYXB(Dataset_Base):
                 height, width, channels = img.shape     # 读取每张图片的shape
                 if len(annotation['Data']):
                     for box in annotation['Data']['svgArr']:
+                        clss = box['secondaryLabel'][0]['value']
+                        clss = clss.replace(' ', '').lower()
+                        if clss not in self.total_task_source_class_list:
+                            continue
                         if box['tool'] == 'rectangle':
                             x = [float(box['data'][0]['x']), float(box['data'][1]['x']),
                                  float(box['data'][2]['x']), float(box['data'][3]['x'])]
@@ -55,13 +60,11 @@ class MYXB(Dataset_Base):
                             ymin = min(max(min(y), 0.), float(height))
                             xmax = max(min(max(x), float(width)), 0.)
                             ymax = max(min(max(y), float(height)), 0.)
-                            cls = box['secondaryLabel'][0]['value']
-                            cls = cls.replace(' ', '').lower()
                             box_xywh = [int(xmin), int(ymin), int(
                                 xmax-xmin), int(ymax-ymin)]
                             object_list.append(OBJECT(0,
-                                                      cls,
-                                                      box_clss=cls,
+                                                      clss,
+                                                      box_clss=clss,
                                                       box_xywh=box_xywh))
 
                 # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，

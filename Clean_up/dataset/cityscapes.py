@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 14:09:22
+LastEditTime: 2022-02-17 17:43:06
 '''
 import shutil
 import multiprocessing
@@ -129,11 +129,11 @@ class CITYSCAPES(Dataset_Base):
                 channels = image_size[2]
                 object_list = []
                 for id, object in enumerate(data['objects']):
-                    cls = str(object['label'])
-                    cls = cls.replace(' ', '').lower()
+                    clss = str(object['label'])
+                    clss = clss.replace(' ', '').lower()
                     segmentation = object['polygon']
                     object_list.append(
-                        OBJECT(id, cls, cls, cls, cls, segmentation=segmentation))
+                        OBJECT(id, clss, clss, clss, clss, segmentation=segmentation))
                 image = IMAGE(image_name, image_name, image_path, int(
                     height), int(width), int(channels), object_list)
                 check_images_list.append(image)
@@ -217,9 +217,9 @@ class CITYSCAPES(Dataset_Base):
         #                     }
 
         class_names_dict = {}
-        for x, cls in enumerate(dataset_instance.task_dict['Semantic_segmentation']
+        for x, clss in enumerate(dataset_instance.task_dict['Semantic_segmentation']
                                 ['Target_dataset_class']):
-            class_names_dict.update({cls: x})
+            class_names_dict.update({clss: x})
 
         # 获取全量数据编号字典
         file_name_dict = {}

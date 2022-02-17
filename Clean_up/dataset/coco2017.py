@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 18:32:47
+LastEditTime: 2022-02-17 17:43:21
 '''
 import time
 import shutil
@@ -180,12 +180,9 @@ class COCO2017(Dataset_Base):
 
         ann_image_id = one_annotation['image_id']   # 获取此object图片id
 
-        cls = class_dict[str(one_annotation['category_id'])]     # 获取object类别
-        cls = cls.replace(' ', '').lower()
-        total_class = []
-        for _, task_class_dict in self.task_dict.items():
-            total_class.extend(task_class_dict['Source_dataset_class'])
-        if cls not in total_class:
+        clss = class_dict[str(one_annotation['category_id'])]     # 获取object类别
+        clss = clss.replace(' ', '').lower()
+        if clss not in self.total_task_source_class_list:
             return ann_image_id, None
         if ann_image_id in each_annotation_images_data_dict.keys():
             image = each_annotation_images_data_dict[ann_image_id]
@@ -236,10 +233,11 @@ class COCO2017(Dataset_Base):
             keypoints_num = one_annotation['num_keypoints']
             keypoints = one_annotation['keypoints']
 
-        one_object = OBJECT(id, cls,
-                            box_clss=cls,
-                            segmentation_clss=cls,
-                            keypoints_clss=cls,
+        one_object = OBJECT(id,
+                            clss,
+                            box_clss=clss,
+                            segmentation_clss=clss,
+                            keypoints_clss=clss,
                             box_xywh=box_xywh,
                             segmentation=segmentation,
                             keypoints_num=keypoints_num,
@@ -350,11 +348,11 @@ class COCO2017(Dataset_Base):
             }
 
             # 将class_list_new转换为coco格式字典
-            for n, cls in enumerate(dataset_instance
+            for n, clss in enumerate(dataset_instance
                                     .temp_merge_class_list['Merge_target_dataset_class_list']):
                 category_item = {'supercategory': 'none',
                                  'id': n,
-                                 'name': cls}
+                                 'name': clss}
                 coco['categories'].append(category_item)
 
             annotation_output_path = os.path.join(
@@ -616,8 +614,8 @@ class COCO2017(Dataset_Base):
                     segmentation_iscrowd = 0
                     keypoints_num = 0
                     keypoints = []
-                    cls = name_dict[str(one_annotation['category_id'])]
-                    cls = cls.replace(' ', '').lower()
+                    clss = name_dict[str(one_annotation['category_id'])]
+                    clss = clss.replace(' ', '').lower()
                     image = images_data_dict[ann_image_id]
 
                     # 获取真实框信息
@@ -665,7 +663,7 @@ class COCO2017(Dataset_Base):
                         keypoints_num = one_annotation['num_keypoints']
                         keypoints = one_annotation['keypoints']
 
-                    one_object = OBJECT(id, cls, cls, cls, cls,
+                    one_object = OBJECT(id, clss, clss, clss, clss,
                                         box_xywh, segmentation, keypoints_num, keypoints,
                                         dataset_instance.task_convert,
                                         segmentation_area=segmentation_area,

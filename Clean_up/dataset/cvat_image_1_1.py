@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 14:09:35
+LastEditTime: 2022-02-17 17:43:45
 '''
 import shutil
 import multiprocessing
@@ -105,8 +105,10 @@ class CVAT_IMAGE_1_1(Dataset_Base):
             channels = img.shape[-1]
             object_list = []
             for n, obj in enumerate(annotation):
-                cls = str(obj.attrib['label'])
-                cls = cls.replace(' ', '').lower()
+                clss = str(obj.attrib['label'])
+                clss = clss.replace(' ', '').lower()
+                if clss not in self.total_task_source_class_list:
+                    continue
                 segment = []
                 for seg in obj.attrib['points'].split(';'):
                     x, y = seg.split(',')
@@ -114,8 +116,8 @@ class CVAT_IMAGE_1_1(Dataset_Base):
                     y = float(y)
                     segment.append(list(map(int, [x, y])))
                 object_list.append(OBJECT(n,
-                                          cls,
-                                          segmentation_clss=cls,
+                                          clss,
+                                          segmentation_clss=clss,
                                           segmentation=segment))
             image = IMAGE(image_name, image_name_new, image_path,
                           height, width, channels, object_list)
@@ -375,8 +377,8 @@ class CVAT_IMAGE_1_1(Dataset_Base):
             object_list = []
             for n, obj in enumerate(annotation):
                 if obj.tag == 'box':
-                    cls = str(obj.attrib['label'])
-                    cls = cls.replace(' ', '').lower()
+                    clss = str(obj.attrib['label'])
+                    clss = clss.replace(' ', '').lower()
                     box_xywh = [int(obj.attrib['xtl']),
                                 int(obj.attrib['ytl']),
                                 int(obj.attrib['xbr']) -
@@ -384,12 +386,12 @@ class CVAT_IMAGE_1_1(Dataset_Base):
                                 int(obj.attrib['ybr']) - int(obj.attrib['ytl'])
                                 ]
                     object_list.append(OBJECT(n,
-                                              cls,
-                                              box_clss=cls,
+                                              clss,
+                                              box_clss=clss,
                                               box_xywh=box_xywh))
                 elif obj.tag == 'polygon':
-                    cls = str(obj.attrib['label'])
-                    cls = cls.replace(' ', '').lower()
+                    clss = str(obj.attrib['label'])
+                    clss = clss.replace(' ', '').lower()
                     segment = []
                     for seg in obj.attrib['points'].split(';'):
                         x, y = seg.split(',')
@@ -397,8 +399,8 @@ class CVAT_IMAGE_1_1(Dataset_Base):
                         y = float(y)
                         segment.append(list(map(int, [x, y])))
                     object_list.append(OBJECT(n,
-                                              cls,
-                                              segmentation_clss=cls,
+                                              clss,
+                                              segmentation_clss=clss,
                                               segmentation=segment))
             image = IMAGE(image_name, image_name, image_path, int(
                 height), int(width), int(channels), object_list)

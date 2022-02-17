@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 18:13:24
+LastEditTime: 2022-02-17 17:38:57
 '''
 import shutil
 from PIL import Image
@@ -103,6 +103,7 @@ class LISA(Dataset_Base):
             for n in total_image_annotation_list_processing:
                 image = n.get()
                 if image is not None and \
+                    image[1] is not None and \
                         key in total_image_base_information_dict:
                     total_image_base_information_dict[image[0]].object_list.append(
                         image[1])
@@ -202,8 +203,10 @@ class LISA(Dataset_Base):
             return
         img = Image.open(image_path)
         height, width = img.height, img.width
-        cls = str(image_annotation[1])
-        cls = cls.strip(' ').lower()
+        clss = str(image_annotation[1])
+        clss = clss.strip(' ').lower()
+        if clss not in self.total_task_source_class_list:
+            return image_name_new, None
         xmin = min(max(min(float(image_annotation[2]), float(
             image_annotation[4])), 0.), float(width))
         ymin = min(max(min(float(image_annotation[3]), float(
@@ -214,8 +217,8 @@ class LISA(Dataset_Base):
             image_annotation[5])), float(height)), 0.)
         box_xywh = [int(xmin), int(ymin), int(xmax-xmin), int(ymax-ymin)]
         object = OBJECT(0,
-                        cls,
-                        box_clss=cls,
+                        clss,
+                        box_clss=clss,
                         box_xywh=box_xywh)
 
         return image_name_new, object

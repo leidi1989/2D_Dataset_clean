@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-17 16:56:10
+LastEditTime: 2022-02-17 17:47:06
 '''
 import xml.etree.ElementTree as ET
 
@@ -48,8 +48,8 @@ class KITTI(Dataset_Base):
         object_list = []
         for obj in root.iter('object'):
             difficult = obj.find('difficult').text
-            cls = str(obj.find('name').text)
-            cls = cls.replace(' ', '').lower()
+            clss = str(obj.find('name').text)
+            clss = clss.replace(' ', '').lower()
             if int(difficult) == 1:
                 continue
             xmlbox = obj.find('bndbox')
@@ -62,8 +62,8 @@ class KITTI(Dataset_Base):
             box_xywh = [int(xmin), int(ymin), int(
                 xmax-xmin), int(ymax-ymin)]
             object_list.append(OBJECT(0,
-                                      cls,
-                                      box_clss=cls,
+                                      clss,
+                                      box_clss=clss,
                                       box_xywh=box_xywh))
 
         # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，

@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 16:22:32
+LastEditTime: 2022-02-17 17:31:02
 '''
 from PIL import Image
 import multiprocessing
@@ -168,6 +168,10 @@ class CCTSDB(Dataset_Base):
         if 6 != len(image_annotation) or '' in image_annotation:
             print('{} erro annotation.'.format(image_name_new))
             return
+        clss = str(image_annotation[5])
+        clss = clss.replace(' ', '').lower()
+        if clss not in self.total_task_source_class_list:
+            return
         image_path = os.path.join(
             self.temp_images_folder, image_name_new)
         if not os.path.exists(image_path):
@@ -175,8 +179,6 @@ class CCTSDB(Dataset_Base):
             return
         img = Image.open(image_path)
         height, width = img.height, img.width
-        cls = str(image_annotation[5])
-        cls = cls.replace(' ', '').lower()
         box = (float(image_annotation[1]),
                float(image_annotation[3]),
                float(image_annotation[2]),
@@ -187,8 +189,8 @@ class CCTSDB(Dataset_Base):
         ymax = min(max(int(box[3]), int(box[2]), 0), int(height))
         box_xywh = [xmin, ymin, xmax-xmin, ymax-ymin]
         object = OBJECT(0,
-                        cls,
-                        box_clss=cls,
+                        clss,
+                        box_clss=clss,
                         box_xywh=box_xywh)
 
         return image_name_new, object

@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-15 14:10:05
+LastEditTime: 2022-02-17 17:40:26
 '''
 import shutil
 import multiprocessing
@@ -53,9 +53,11 @@ class YOLO(Dataset_Base):
             object_list = []
             for n, one_bbox in enumerate(f.read().splitlines()):
                 true_box = one_bbox.split(' ')[1:]
-                cls = self.task_dict['Detection']['Target_dataset_class'][int(
+                clss = self.task_dict['Detection']['Target_dataset_class'][int(
                     one_bbox.split(' ')[0])]
-                cls = cls.strip(' ').lower()
+                clss = clss.strip(' ').lower()
+                if clss not in self.total_task_source_class_list:
+                    continue
                 true_box = revers_yolo(size, true_box)
                 xmin = min(
                     max(min(float(true_box[0]), float(true_box[1])), 0.), float(width))
@@ -67,8 +69,8 @@ class YOLO(Dataset_Base):
                     min(max(float(true_box[3]), float(true_box[2])), float(height)), 0.)
                 box_xywh = [xmin, ymin, xmax-xmin, ymax-ymin]
                 object_list.append(OBJECT(n,
-                                          cls,
-                                          box_clss=cls,
+                                          clss,
+                                          box_clss=clss,
                                           box_xywh=box_xywh))  # 将单个真实框加入单张图片真实框列表
             image = IMAGE(image_name, image_name, image_path, int(
                 height), int(width), int(channels), object_list)
@@ -151,7 +153,7 @@ class YOLO(Dataset_Base):
         for object in image.object_list:                        # 遍历单张图片全部bbox
             box_class = str(object.box_clss).replace(
                 ' ', '').lower()    # 获取bbox类别
-            cls_id = dataset_instance.task_dict['Detection']['Target_dataset_class'].index(
+            clss_id = dataset_instance.task_dict['Detection']['Target_dataset_class'].index(
                 box_class)
             xyxy = (object.box_xywh[0],
                     object.box_xywh[0] + object.box_xywh[2],
@@ -159,7 +161,7 @@ class YOLO(Dataset_Base):
                     object.box_xywh[1] + object.box_xywh[3])
             xywh_yolo = yolo((image.width, image.height),
                              xyxy)       # 转换bbox至yolo类型
-            one_image_bbox.append([cls_id, xywh_yolo])
+            one_image_bbox.append([clss_id, xywh_yolo])
 
         with open(annotation_output_path, 'w') as f:   # 创建图片对应txt格式的label文件
             for one_bbox in one_image_bbox:
@@ -201,9 +203,9 @@ class YOLO(Dataset_Base):
                 object_list = []
                 for n, one_bbox in enumerate(f.read().splitlines()):
                     true_box = one_bbox.split(' ')[1:]
-                    cls = dataset_instance.task_dict['Detection']['Target_dataset_class'][int(
+                    clss = dataset_instance.task_dict['Detection']['Target_dataset_class'][int(
                         one_bbox.split(' ')[0])]
-                    cls = cls.strip(' ').lower()
+                    clss = clss.strip(' ').lower()
                     true_box = revers_yolo(size, true_box)
                     xmin = min(
                         max(min(float(true_box[0]), float(true_box[1])), 0.), float(width))
@@ -215,8 +217,8 @@ class YOLO(Dataset_Base):
                         min(max(float(true_box[3]), float(true_box[2])), float(height)), 0.)
                     box_xywh = [xmin, ymin, xmax-xmin, ymax-ymin]
                     object_list.append(OBJECT(n,
-                                              cls,
-                                              box_clss=cls,
+                                              clss,
+                                              box_clss=clss,
                                               box_xywh=box_xywh))  # 将单个真实框加入单张图片真实框列表
                 image = IMAGE(image_name, image_name, image_path, int(
                     height), int(width), int(channels), object_list)

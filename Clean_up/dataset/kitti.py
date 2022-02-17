@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-17 15:45:13
+LastEditTime: 2022-02-17 17:47:16
 '''
 from utils.utils import *
 from base.image_base import *
@@ -44,9 +44,9 @@ class KITTI(Dataset_Base):
             object_list = []
             for one_bbox in f.read().splitlines():
                 one_bbox = one_bbox.split(' ')
-                cls = str(one_bbox[0])
-                cls = cls.strip(' ').lower()
-                if cls == 'dontcare' or cls == 'misc':
+                clss = str(one_bbox[0])
+                clss = clss.strip(' ').lower()
+                if clss == 'dontcare' or clss == 'misc':
                     continue
                 xmin = min(
                     max(min(float(one_bbox[4]), float(one_bbox[6])), 0.), float(width))
@@ -59,8 +59,8 @@ class KITTI(Dataset_Base):
                 box_xywh = [int(xmin), int(ymin), int(
                     xmax-xmin), int(ymax-ymin)]
                 object_list.append(OBJECT(0,
-                                          cls,
-                                          box_clss=cls,
+                                          clss,
+                                          box_clss=clss,
                                           box_xywh=box_xywh))
 
             # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，

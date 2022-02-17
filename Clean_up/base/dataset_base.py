@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-15 17:52:31
+LastEditTime: 2022-02-17 17:23:03
 '''
 import dataset
 from utils.utils import *
@@ -183,9 +183,25 @@ class Dataset_Base:
         if self.task_dict['Instance_segmentation'] != None:
             self.task_dict['Detection'] = self.task_dict['Instance_segmentation']
             self.task_dict['Semantic_segmentation'] = self.task_dict['Instance_segmentation']
+        self.total_task_source_class_list = self.get_total_task_source_class_list()
 
         print('Dataset instance initialize end.')
         return True
+
+    def get_total_task_source_class_list(self) -> list:
+        """获取全部任务数据集列表
+
+        Returns:
+            list: _description_
+        """
+
+        total_task_source_class_list = []
+        for task_class_dict in self.task_dict.values():
+            if task_class_dict is not None:
+                total_task_source_class_list.extend(task_class_dict['Source_dataset_class'])
+        total_task_source_class_list = list(set(total_task_source_class_list))
+
+        return total_task_source_class_list
 
     def source_dataset_copy_image_and_annotation(self):
         print('\nStart source dataset copy image and annotation:')
@@ -372,7 +388,7 @@ class Dataset_Base:
 
     def get_temp_annotations_name_list(self) -> list:
         """[获取暂存数据集文件名称列表]
-        
+
         Returns:
             list: [暂存数据集文件名称列表]
         """
