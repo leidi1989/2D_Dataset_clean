@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-18 03:49:55
+LastEditTime: 2022-02-18 03:58:22
 '''
 import time
 import shutil
@@ -372,8 +372,9 @@ class COCO2017(Dataset_Base):
             # 读取标签图片基础信息
             print('Start load image information:')
             image_information_list = []
-            pbar, update = multiprocessing_list_tqdm(
-                annotation_path_list, desc='Load image information')
+            pbar, update = multiprocessing_list_tqdm(annotation_path_list,
+                                                     desc='Load image base information',
+                                                     leave=False)
             pool = multiprocessing.Pool(dataset_instance.workers)
             for n, temp_annotation_path in enumerate(annotation_path_list):
                 image_information_list.append(
@@ -392,7 +393,9 @@ class COCO2017(Dataset_Base):
 
             # 读取图片标注基础信息
             print('Start load annotation:')
-            for task, task_class_dict in tqdm(dataset_instance.task_dict.items(), desc='Load each task annotation'):
+            for task, task_class_dict in tqdm(dataset_instance.task_dict.items(),
+                                              desc='Load each task annotation',
+                                              leave=False):
                 if task_class_dict is None:
                     continue
                 annotations_list = []
