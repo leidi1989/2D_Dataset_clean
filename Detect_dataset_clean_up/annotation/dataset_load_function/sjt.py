@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-12-22 10:43:54
+LastEditTime: 2022-02-17 16:03:44
 '''
 import os
 import cv2
@@ -30,6 +30,7 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output,
         dataset['source_annotations_folder'], source_annotation_name)
     with open(source_annotation_path, 'r', encoding='unicode_escape') as f:
         data = json.load(f)
+        
     image_name = os.path.splitext(source_annotation_name)[0] + '.jpg'
     image_name_new = dataset['file_prefix'] + image_name
     image_path = os.path.join(

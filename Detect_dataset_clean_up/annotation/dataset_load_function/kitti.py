@@ -4,9 +4,10 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2022-02-17 15:44:29
+LastEditTime: 2022-02-17 16:07:03
 '''
 import os
+from pickletools import read_uint1
 import cv2
 
 from utils.utils import *
@@ -26,20 +27,21 @@ def load_annotation(dataset: dict, source_annotations_name: str, process_output)
 
     source_annotation_path = os.path.join(
         dataset['source_annotations_folder'], source_annotations_name)
+    image_name = (source_annotation_path.split(
+                os.sep)[-1]).replace('.txt', '.jpg')
+    image_name_new = dataset['file_prefix'] + image_name
+    image_path = os.path.join(
+        dataset['temp_images_folder'], image_name_new)
+    img = cv2.imread(image_path)
+    if img is None:
+        print('Can not load: {}'.format(image_name_new))
+        return
+    height, width, channels = img.shape     # 读取每张图片的shape
     with open(source_annotation_path, 'r') as f:
         true_box_dict_list = []
         for one_bbox in f.read().splitlines():
             one_bbox = one_bbox.split(' ')
-            image_name = (source_annotation_path.split(
-                os.sep)[-1]).replace('.txt', '.jpg')
-            image_name_new = dataset['file_prefix'] + image_name
-            image_path = os.path.join(
-                dataset['temp_images_folder'], image_name_new)
-            img = cv2.imread(image_path)
-            if img is None:
-                print('Can not load: {}'.format(image_name_new))
-                continue
-            height, width, channels = img.shape     # 读取每张图片的shape
+            
             cls = str(one_bbox[0])
             cls = cls.strip(' ').lower()
             if cls == 'dontcare' or cls == 'misc':
