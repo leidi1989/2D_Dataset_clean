@@ -1,15 +1,15 @@
 # dataset path
-Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/hy_highway_truck_input/hy_highway-truck_input
+Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/sjt_dataset_input
 
 # output path
-Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/hy_highway_truck_input/hy_highway-truck_input_20220217
+Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/sjt_dataset_input_20220217
 
 # Source dataset style:
 # YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, CVAT_COCO2017, HY_VAL,
 # SJT, MYXB, HY_HIGHWAY,
 # YOLO, COCO2017, BDD100K, TT100K, CCTSDB, LISA, KITTI,
 # NO: cityscapes, apolloscape_lane_segment
-Source_dataset_style: HY_HIGHWAY
+Source_dataset_style: SJT
 
 # Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1, YOLO
 Target_dataset_style: YOLO
@@ -33,7 +33,7 @@ Target_dataset_check_annotations_output_as_mask: True
 Task_and_class_config:
   # Detection, Semantic_segmentation, Instance_segmentation, Keypoints
   Detection:
-    Source_dataset_class_file_path: Clean_up/data/detection/detect_classes_myxb_df_highway_urban_38_classes.names
+    Source_dataset_class_file_path: Clean_up/data/detection/detect_classes_sjt_17_classes.names
     Modify_class_file_path:
     Target_each_class_object_pixel_limit_file_path:
     Need_convert: False

@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-17 17:47:27
+LastEditTime: 2022-02-17 19:41:17
 '''
 from utils.utils import *
 from base.image_base import *
@@ -15,8 +15,8 @@ class SJT(Dataset_Base):
 
     def __init__(self, opt) -> None:
         super().__init__(opt)
-        self.source_dataset_image_form_list = ['png']
-        self.source_dataset_annotation_form = 'txt'
+        self.source_dataset_image_form_list = ['jpg']
+        self.source_dataset_annotation_form = 'json'
         self.source_dataset_image_count = self.get_source_dataset_image_count()
         self.source_dataset_annotation_count = self.get_source_dataset_annotation_count()
 
@@ -52,15 +52,15 @@ class SJT(Dataset_Base):
                 ymin = min(max(float(y), 0.), float(height))
                 xmax = max(min(float(x + one_box['w']), float(width)), 0.)
                 ymax = max(min(float(y + one_box['h']), float(height)), 0.)
-                true_box_color = ''
+                box_color = ''
                 clss = ''
                 types = one_box['Object_type']
                 types = types.replace(' ', '').lower()
                 if types == 'pedestrians' or types == 'vehicles' or types == 'trafficlights':
                     clss = one_box['Category']
                     if types == 'trafficlights':    # 获取交通灯颜色
-                        true_box_color = one_box['Color']
-                        true_box_color = true_box_color.replace(
+                        box_color = one_box['Color']
+                        box_color = box_color.replace(
                             ' ', '').lower()
                 else:
                     clss = types
@@ -82,6 +82,7 @@ class SJT(Dataset_Base):
                                               clss,
                                               box_clss=clss,
                                               box_xywh=box_xywh,
+                                              box_color=box_color,
                                               box_occlusion=ture_box_occlusion,
                                               box_distance=ture_box_distance))
                 else:
@@ -93,10 +94,12 @@ class SJT(Dataset_Base):
                                           clss,
                                           box_clss=clss,
                                           box_xywh=box_xywh,
+                                          box_color=box_color,
                                           box_occlusion=ture_box_occlusion,
                                           box_distance=ture_box_distance))
         # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，
         # 并将初始化后的对象存入total_images_data_list
+        object_list = self.change_traffic_light(object_list)
         image = IMAGE(image_name, image_name_new, image_path,
                       height, width, channels, object_list)
         # 读取目标标注信息，输出读取的source annotation至temp annotation
@@ -125,7 +128,7 @@ class SJT(Dataset_Base):
 
         return
 
-    def change_traffic_light(self, true_box_dict_list: list) -> list:
+    def change_traffic_light(self, object_list: list) -> list:
         """[修改数据堂信号灯标签信息, 将灯与信号灯框结合]
 
         Args:
@@ -164,46 +167,55 @@ class SJT(Dataset_Base):
         light_numbers.append('trafficlightframe_numbers' + '_' + 'yellow')
         light_numbers.append('trafficlightframe_numbers' + '_' + 'unclear')
         light_numbers.append('trafficlightframe_numbers' + '_' + 'no')
-        new_true_box_dict_list = []  # 声明新真实框列表
-        for one_true_box in true_box_dict_list:  # 遍历源真实框列表
-            if one_true_box.clss == 'trafficlightframe':    # 搜索trafficlightframe真实框
-                if one_true_box.color == 'no':
-                    for light_true_box in true_box_dict_list:    # 遍历源真实框列表
-                        if (light_true_box.clss in light_name and
-                            light_true_box.xmin >= one_true_box.xmin - 20 and
-                            light_true_box.ymin >= one_true_box.ymin - 20 and
-                            light_true_box.xmax <= one_true_box.xmax + 20 and
-                                light_true_box.ymax <= one_true_box.ymax + 20):  # 判断信号灯框类别
-                            one_true_box.clss += (
-                                '_' + light_true_box.clss + '_' + light_true_box.color)   # 新建信号灯真实框实例并更名
-                        if one_true_box.clss in light_numbers:
+        new_object_list = []  # 声明新真实框列表
+        for object in object_list:  # 遍历源真实框列表
+            if object.box_clss == 'trafficlightframe':    # 搜索trafficlightframe真实框
+                if object.box_color == 'no':
+                    for object_light in object_list:    # 遍历源真实框列表
+                        if (object_light.box_clss in light_name and
+                            object_light.box_xywh[0] >= object.box_xywh[0] - 20 and
+                            object_light.box_xywh[1] >= object.box_xywh[1] - 20 and
+                            object_light.box_xywh[0]+object_light.box_xywh[2] <= object.box_xywh[0]+object.box_xywh[2] + 20 and
+                                object_light.box_xywh[1]+object_light.box_xywh[3] <= object.box_xywh[1]+object.box_xywh[3] + 20):  # 判断信号灯框类别
+                            object.box_clss += (
+                                '_' + object_light.object_clss + '_' + object_light.box_color)   # 新建信号灯真实框实例并更名
+                            object.object_clss = object.box_clss
+                        if object.object_clss in light_numbers:
                             continue
-                        if one_true_box.clss in light_go:     # 将信号灯归类
-                            one_true_box.clss = 'go'
-                        if one_true_box.clss in light_stop:
-                            one_true_box.clss = 'stop'
-                        if one_true_box.clss in light_warning:
-                            one_true_box.clss = 'warning'
-                    if one_true_box.clss == 'trafficlightframe':    # 若为发现框内有信号灯颜色则更换为warning
-                        one_true_box.clss = 'warning'
+                        if object.object_clss in light_go:     # 将信号灯归类
+                            object.object_clss = 'go'
+                            object.box_clss = object.object_clss
+                        if object.object_clss in light_stop:
+                            object.object_clss = 'stop'
+                            object.box_clss = object.object_clss
+                        if object.object_clss in light_warning:
+                            object.object_clss = 'warning'
+                            object.box_clss = object.object_clss
+                    if object.object_clss == 'trafficlightframe':    # 若为发现框内有信号灯颜色则更换为warning
+                        object.object_clss = 'warning'
+                        object.box_clss = object.object_clss
                 else:
                     innate_light = ''
-                    for light_true_box in true_box_dict_list:    # 遍历源真实框列表
-                        if (light_true_box.clss in light_name and
-                            light_true_box.xmin >= one_true_box.xmin - 20 and
-                            light_true_box.ymin >= one_true_box.ymin - 20 and
-                            light_true_box.xmax <= one_true_box.xmax + 20 and
-                                light_true_box.ymax <= one_true_box.ymax + 20):  # 判断信号灯框类别
-                            innate_light = light_true_box.clss
+                    for object_light in object_list:    # 遍历源真实框列表
+                        if (object_light.box_clss in light_name and
+                            object_light.box_xywh[0] >= object.box_xywh[0] - 20 and
+                            object_light.box_xywh[1] >= object.box_xywh[1] - 20 and
+                            object_light.box_xywh[0]+object_light.box_xywh[2] <= object.box_xywh[0]+object.box_xywh[2] + 20 and
+                                object_light.box_xywh[1]+object_light.box_xywh[3] <= object.box_xywh[1]+object.box_xywh[3] + 20):  # 判断信号灯框类别
+                            innate_light = object_light.box_clss
+                            object.object_clss = object.box_clss
                     if innate_light == 'numbers':
                         continue
-                    one_true_box.clss += ('_' + one_true_box.color)
-                    if one_true_box.clss in light_go:     # 将信号灯归类
-                        one_true_box.clss = 'go'
-                    if one_true_box.clss in light_stop:
-                        one_true_box.clss = 'stop'
-                    if one_true_box.clss in light_warning:
-                        one_true_box.clss = 'warning'
+                    object.object_clss += ('_' + object.box_color)
+                    if object.object_clss in light_go:     # 将信号灯归类
+                        object.object_clss = 'go'
+                        object.box_clss = object.object_clss
+                    if object.object_clss in light_stop:
+                        object.object_clss = 'stop'
+                        object.box_clss = object.object_clss
+                    if object.object_clss in light_warning:
+                        object.object_clss = 'warning'
+                        object.box_clss = object.object_clss
             # if one_true_box.clss == 'numbers':
             #     if one_true_box.color == 'green':     # 将数字类信号灯归类
             #         one_true_box.clss = 'go'
@@ -213,9 +225,9 @@ class SJT(Dataset_Base):
             #         one_true_box.color == 'no' or
             #         one_true_box.color == 'unclear'):
             #         one_true_box.clss = 'warning'
-            new_true_box_dict_list.append(one_true_box)
+            new_object_list.append(object)
 
-        return new_true_box_dict_list
+        return new_object_list
 
     def change_Occlusion(self, source_occlusion: str) -> int:
         """[转换真实框遮挡信息]
