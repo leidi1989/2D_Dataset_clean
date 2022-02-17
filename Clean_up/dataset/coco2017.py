@@ -4,12 +4,14 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-17 17:43:21
+LastEditTime: 2022-02-18 02:04:36
 '''
 import time
 import shutil
 from PIL import Image
 import multiprocessing
+
+from sqlalchemy import desc, false
 
 import dataset
 from utils.utils import *
@@ -349,7 +351,7 @@ class COCO2017(Dataset_Base):
 
             # 将class_list_new转换为coco格式字典
             for n, clss in enumerate(dataset_instance
-                                    .temp_merge_class_list['Merge_target_dataset_class_list']):
+                                     .temp_merge_class_list['Merge_target_dataset_class_list']):
                 category_item = {'supercategory': 'none',
                                  'id': n,
                                  'name': clss}
@@ -567,29 +569,32 @@ class COCO2017(Dataset_Base):
             dataset_instance.target_dataset_annotations_folder)  # 读取target_annotations_folder文件夹下的全部文件名
         images_data_list = []
         images_data_dict = {}
-        for target_annotation in dataset_instance.target_check_file_name_list:
+        print('Start load target annotations:')
+        for target_annotation in tqdm(dataset_instance.target_check_file_name_list,
+                                      desc='Loading instances_train2017.json'):
             if target_annotation != 'instances_train2017.json':
                 continue
             target_annotation_path = os.path.join(
                 dataset_instance.target_dataset_annotations_folder, target_annotation)
-            print('Loading instances_train2017.json:')
             with open(target_annotation_path, 'r') as f:
                 data = json.loads(f.read())
             name_dict = {}
             for one_name in data['categories']:
                 name_dict['%s' % one_name['id']] = one_name['name']
 
-            print('Start count images:')
             total_image_count = 0
-            for d in tqdm(data['images']):
+            for d in tqdm(data['images'],
+                          desc='Count images',
+                          leave=False):
                 total_image_count += 1
             check_images_count = min(
                 dataset_instance.target_dataset_annotations_check_count, total_image_count)
             check_image_id_list = [random.randint(
                 0, total_image_count)for i in range(check_images_count)]
 
-            print('Start load each annotation data file:')
-            for n in check_image_id_list:
+            for n in tqdm(check_image_id_list,
+                          desc='Load image base information',
+                          leave=False):
                 d = data['images'][n]
                 img_id = d['id']
                 img_name = d['file_name']
@@ -605,7 +610,9 @@ class COCO2017(Dataset_Base):
                               img_path, height, width, channels, [])
                 images_data_dict.update({img_id: image})
 
-            for one_annotation in tqdm(data['annotations']):
+            for one_annotation in tqdm(data['annotations'],
+                                       desc='Load object information',
+                                       leave=False):
                 if one_annotation['image_id'] in images_data_dict:
                     ann_image_id = one_annotation['image_id']   # 获取此bbox图片id
                     box_xywh = []
@@ -672,7 +679,9 @@ class COCO2017(Dataset_Base):
                     images_data_dict[ann_image_id].object_list.append(
                         one_object)
 
-        for _, n in images_data_dict.items():
+        for _, n in tqdm(images_data_dict.items(),
+                         desc='Get result',
+                         leave=False):
             images_data_list.append(n)
         random.shuffle(images_data_list)
         check_images_count = min(

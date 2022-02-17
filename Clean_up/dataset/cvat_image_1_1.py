@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-17 17:43:45
+LastEditTime: 2022-02-18 01:59:13
 '''
 import shutil
 import multiprocessing
@@ -359,8 +359,10 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         tree = ET.parse(source_annotations_path)
         root = tree.getroot()
         random.shuffle(root)
-        root = root[0: dataset_instance.target_dataset_annotations_check_count+1]
-        for annotation in root:
+        root = root[0: dataset_instance.target_dataset_annotations_check_count]
+        for annotation in tqdm(root,
+                               desc='Load object annotation',
+                               leave=False):
             if annotation.tag != 'image':
                 continue
             image_name = str(annotation.attrib['name'])
