@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-10-28 14:44:29
+LastEditTime: 2022-02-17 15:44:29
 '''
 import os
 import cv2
@@ -24,13 +24,13 @@ def load_annotation(dataset: dict, source_annotations_name: str, process_output)
         process_output (dict): [进程通信字典]
     """
 
-    source_annotations_path = os.path.join(
+    source_annotation_path = os.path.join(
         dataset['source_annotations_folder'], source_annotations_name)
-    with open(source_annotations_path, 'r') as f:
+    with open(source_annotation_path, 'r') as f:
         true_box_dict_list = []
         for one_bbox in f.read().splitlines():
             one_bbox = one_bbox.split(' ')
-            image_name = (source_annotations_path.split(
+            image_name = (source_annotation_path.split(
                 os.sep)[-1]).replace('.txt', '.jpg')
             image_name_new = dataset['file_prefix'] + image_name
             image_path = os.path.join(

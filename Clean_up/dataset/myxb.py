@@ -2,76 +2,133 @@
 Description: 
 Version: 
 Author: Leidi
-Date: 2021-10-13 18:36:09
+Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2021-12-22 10:43:40
+LastEditTime: 2022-02-17 15:54:26
 '''
-import os
-import cv2
-
+from utils.utils import *
 from base.image_base import *
-from utils.utils import class_pixel_limit
-from annotation.annotation_temp import TEMP_OUTPUT
-from utils.modify_class import modify_true_box_list
+from base.dataset_base import Dataset_Base
 
 
-def load_annotation(dataset: dict, one_data: dict, process_output) -> None:
-    """[输出转换后的目标标签]
+class MYXB(Dataset_Base):
 
-    Args:
-        dataset (dict): [数据集信息字典]
-        source_annotation_path (str): [源标签路径]
-        process_output ([dict]): [进程通信字典]
-    """
+    def __init__(self, opt) -> None:
+        super().__init__(opt)
+        self.source_dataset_image_form_list = ['jpg']
+        self.source_dataset_annotation_form = 'json'
+        self.source_dataset_image_count = self.get_source_dataset_image_count()
+        self.source_dataset_annotation_count = self.get_source_dataset_annotation_count()
 
-    image_name = one_data['imageName']
-    image_name_new = dataset['file_prefix'] + image_name
-    image_path = os.path.join(dataset['temp_images_folder'], image_name_new)
-    true_box_dict_list = []  # 声明每张图片真实框列表
-    img = cv2.imread(image_path)
-    if img is None:
-        print('Can not load: {}'.format(image_name_new))
-        return
-    height, width, channels = img.shape     # 读取每张图片的shape
-    # 读取json文件中的每个真实框的class、xy信息
-    if len(one_data['Data']):
-        for box in one_data['Data']['svgArr']:
-            if box['tool'] == 'rectangle':
-                x = [float(box['data'][0]['x']), float(box['data'][1]['x']),
-                     float(box['data'][2]['x']), float(box['data'][3]['x'])]
-                y = [float(box['data'][0]['y']), float(box['data'][1]['y']),
-                     float(box['data'][2]['y']), float(box['data'][3]['y'])]
-                xmin = min(max(min(x), 0.), float(width))
-                ymin = min(max(min(y), 0.), float(height))
-                xmax = max(min(max(x), float(width)), 0.)
-                ymax = max(min(max(y), float(height)), 0.)
-                cls = box['secondaryLabel'][0]['value']
-                cls = cls.replace(' ', '').lower()
-                if cls not in dataset['source_class_list']:
+    def load_image_annotation(self, source_annotation_name: str, process_output: dict) -> None:
+        """将源标注转换为暂存标注
+
+        Args:
+            source_annotation_name (str): 源标注文件名称
+            process_output (dict): 进程间通信字典
+        """
+
+        source_annotation_path = os.path.join(
+            self.source_dataset_annotations_folder, source_annotation_name)
+        with open(source_annotation_path, 'r') as f:
+            object_list = []
+            data = json.load(f)
+            for annotation in data:
+                image_name = os.path.splitext(annotation['imageName'])[
+                    0] + '.' + self.temp_image_form
+                image_name_new = self.file_prefix + image_name
+                image_path = os.path.join(
+                    self.temp_images_folder, image_name_new)
+                img = cv2.imread(image_path)
+                if img is None:
+                    print('Can not load: {}'.format(image_name_new))
                     continue
-                true_box_dict_list.append(
-                    TRUE_BOX(cls, xmin, ymin, xmax, ymax, box['tool']))  # 将单个真实框加入单张图片真实框列表
+                height, width, channels = img.shape     # 读取每张图片的shape
+                if len(annotation['Data']):
+                    for box in annotation['Data']['svgArr']:
+                        if box['tool'] == 'rectangle':
+                            x = [float(box['data'][0]['x']), float(box['data'][1]['x']),
+                                 float(box['data'][2]['x']), float(box['data'][3]['x'])]
+                            y = [float(box['data'][0]['y']), float(box['data'][1]['y']),
+                                 float(box['data'][2]['y']), float(box['data'][3]['y'])]
+                            xmin = min(max(min(x), 0.), float(width))
+                            ymin = min(max(min(y), 0.), float(height))
+                            xmax = max(min(max(x), float(width)), 0.)
+                            ymax = max(min(max(y), float(height)), 0.)
+                            cls = box['secondaryLabel'][0]['value']
+                            cls = cls.replace(' ', '').lower()
+                            box_xywh = [int(xmin), int(ymin), int(
+                                xmax-xmin), int(ymax-ymin)]
+                            object_list.append(OBJECT(0,
+                                                      cls,
+                                                      box_clss=cls,
+                                                      box_xywh=box_xywh))
 
-    image = IMAGE(image_name, image_name_new, image_path, int(
-        height), int(width), int(channels), true_box_dict_list)
-    
-    modify_true_box_list(image, dataset['modify_class_dict'])
-    if dataset['class_pixel_distance_dict'] is not None:
-        class_pixel_limit(dataset, image.true_box_list)
-    if 0 == len(image.true_box_list):
-        print('{} has not true box, delete!'.format(image.image_name_new))
-        os.remove(image.image_path)
-        process_output['no_true_box_count'] += 1
-        process_output['fail_count'] += 1
-        return
-    temp_annotation_output_path = os.path.join(
-        dataset['temp_annotations_folder'],
-        image.file_name_new + '.' + dataset['temp_annotation_form'])
-    if TEMP_OUTPUT(temp_annotation_output_path, image):
-        process_output['temp_file_name_list'].append(image.file_name_new)
-        process_output['success_count'] += 1
-    else:
-        process_output['fail_count'] += 1
+                # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，
+                # 并将初始化后的对象存入total_images_data_list
+                image = IMAGE(image_name, image_name_new, image_path,
+                            height, width, channels, object_list)
+                # 读取目标标注信息，输出读取的source annotation至temp annotation
+                if image == None:
+                    continue
+                temp_annotation_output_path = os.path.join(
+                    self.temp_annotations_folder,
+                    image.file_name_new + '.' + self.temp_annotation_form)
+                image.modify_object_list(self)
+                image.object_pixel_limit(self)
+                if 0 == len(image.object_list):
+                    print('{} no object, has been delete.'.format(
+                        image.image_name_new))
+                    os.remove(image.image_path)
+                    process_output['no_object'] += 1
+                    process_output['fail_count'] += 1
+                    continue
+                if image.output_temp_annotation(temp_annotation_output_path):
+                    process_output['temp_file_name_list'].append(
+                        image.file_name_new)
+                    process_output['success_count'] += 1
+                else:
+                    print('errow output temp annotation: {}'.format(
+                        image.file_name_new))
+                    process_output['fail_count'] += 1
+            
         return
 
-    return
+    @staticmethod
+    def target_dataset(dataset_instance: Dataset_Base) -> None:
+        """[输出target annotation]
+
+        Args:
+            dataset (Dataset_Base): [数据集实例]
+        """
+
+        print('\nStart transform to target dataset:')
+
+        return
+
+    @staticmethod
+    def annotation_check(dataset_instance: Dataset_Base) -> list:
+        """[读取MYXB数据集图片类检测列表]
+
+        Args:
+            dataset_instance (object): [数据集实例]
+
+        Returns:
+            list: [数据集图片类检测列表]
+        """
+
+        check_images_list = []
+
+        return check_images_list
+
+    @staticmethod
+    def target_dataset_folder(dataset_instance: Dataset_Base) -> None:
+        """[生成MYXB组织格式的数据集]
+
+        Args:
+            dataset_instance (object): [数据集实例]
+        """
+
+        print('\nStart build target dataset folder:')
+
+        return

@@ -1,14 +1,15 @@
 # dataset path
-Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/KITTI_data_input
+Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/myxb_df_highway_urban_input
 
 # output path
-Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/KITTI_data_input_20220217
+Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/myxb_df_highway_urban_input_20220217
 
 # Source dataset style:
-# YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, HY_VAL, CVAT_COCO2017
-# YOLO, COCO2017, BDD100K, TT100K, CCTSDB, LISA, KITTI
-# NO: cityscapes, apolloscape_lane_segment, KITTI, SJT, MYXB, HY_HIGHWAY(小写)
-Source_dataset_style: KITTI
+# YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, CVAT_COCO2017, HY_VAL,
+# SJT, MYXB, HY_HIGHWAY,
+# YOLO, COCO2017, BDD100K, TT100K, CCTSDB, LISA, KITTI,
+# NO: cityscapes, apolloscape_lane_segment
+Source_dataset_style: MYXB
 
 # Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1, YOLO
 Target_dataset_style: YOLO

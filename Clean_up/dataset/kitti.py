@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-17 15:03:56
+LastEditTime: 2022-02-17 15:45:13
 '''
 from utils.utils import *
 from base.image_base import *
@@ -30,20 +30,20 @@ class KITTI(Dataset_Base):
 
         source_annotation_path = os.path.join(
             self.source_dataset_annotations_folder, source_annotation_name)
+        image_name = os.path.splitext(source_annotation_name)[
+            0] + '.' + self.temp_image_form
+        image_name_new = self.file_prefix + image_name
+        image_path = os.path.join(
+            self.temp_images_folder, image_name_new)
+        img = cv2.imread(image_path)
+        if img is None:
+            print('Can not load: {}'.format(image_name_new))
+            return
+        height, width, channels = img.shape     # 读取每张图片的shape
         with open(source_annotation_path, 'r') as f:
             object_list = []
             for one_bbox in f.read().splitlines():
                 one_bbox = one_bbox.split(' ')
-                image_name = os.path.splitext(source_annotation_name)[
-            0] + '.' + self.temp_image_form
-                image_name_new = self.file_prefix + image_name
-                image_path = os.path.join(
-                    self.temp_images_folder, image_name_new)
-                img = cv2.imread(image_path)
-                if img is None:
-                    print('Can not load: {}'.format(image_name_new))
-                    continue
-                height, width, channels = img.shape     # 读取每张图片的shape
                 cls = str(one_bbox[0])
                 cls = cls.strip(' ').lower()
                 if cls == 'dontcare' or cls == 'misc':
