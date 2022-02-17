@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-18 03:42:53
+LastEditTime: 2022-02-18 03:49:55
 '''
 import time
 import shutil
@@ -399,7 +399,7 @@ class COCO2017(Dataset_Base):
                 pbar, update = multiprocessing_list_tqdm(
                     annotation_path_list, desc='Load annotation', leave=False)
                 pool = multiprocessing.Pool(dataset_instance.workers)
-                for n, temp_annotation_path in tqdm(enumerate(annotation_path_list)):
+                for n, temp_annotation_path in enumerate(annotation_path_list):
                     annotations_list.append(
                         pool.apply_async(func=dataset.__dict__[dataset_instance.target_dataset_style].get_annotation,
                                          args=(dataset_instance, n,

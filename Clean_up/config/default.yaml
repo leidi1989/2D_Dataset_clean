@@ -12,7 +12,7 @@ Dataset_output_folder: /home/leidi/Data/dataset_test/ApolloScape_test_20220218
 Source_dataset_style: APOLLOSCAPE_LANE_SEGMENT
 
 # Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1, YOLO
-Target_dataset_style: CVAT_IMAGE_1_1
+Target_dataset_style: COCO2017
 
 # images or labels need to rename prefix
 File_prefix: "test"
@@ -32,14 +32,14 @@ Target_dataset_check_annotations_output_as_mask: True
 # Task and class config
 Task_and_class_config:
   # Detection, Semantic_segmentation, Instance_segmentation, Keypoints
-  Detection:
-    Source_dataset_class_file_path: Clean_up/data/segmentation/segment_classes_apolloscape_lane_segmentation_38_classes.names
-    Modify_class_file_path:
-    Target_each_class_object_pixel_limit_file_path:
-  # Semantic_segmentation:
+  # Detection:
   #   Source_dataset_class_file_path: Clean_up/data/segmentation/segment_classes_apolloscape_lane_segmentation_38_classes.names
-  #   Modify_class_file_path: 
+  #   Modify_class_file_path:
   #   Target_each_class_object_pixel_limit_file_path:
+  Semantic_segmentation:
+    Source_dataset_class_file_path: Clean_up/data/segmentation/segment_classes_apolloscape_lane_segmentation_38_classes.names
+    Modify_class_file_path: 
+    Target_each_class_object_pixel_limit_file_path:
   # Instance_segmentation:
   #   Source_dataset_class_file_path: Clean_up/data/segmentation/segment_classes_apolloscape_lane_segmentation_38_classes.names
   #   Modify_class_file_path: 
