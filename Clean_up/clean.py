@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-02-17 18:49:45
+LastEditTime: 2022-02-17 18:59:46
 '''
 import time
 import yaml
@@ -30,9 +30,9 @@ def main(dataset_config: dict) -> None:
     Input_dataset.transform_to_temp_dataset()
     Input_dataset.output_classname_file()
     Input_dataset.delete_redundant_image()
-    # Input_dataset.get_dataset_image_mean_std()
+    Input_dataset.get_dataset_image_mean_std()
     Input_dataset.divide_dataset()
-    # Input_dataset.sample_statistics()
+    Input_dataset.sample_statistics()
     
     # 输出并检测指定形式数据集
     dataset.__dict__[dataset_config['Target_dataset_style']

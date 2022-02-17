@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:07:13
 LastEditors: Leidi
-LastEditTime: 2022-02-17 15:57:43
+LastEditTime: 2022-02-17 19:03:01
 '''
 
 from .bdd100k import BDD100K
@@ -15,6 +15,7 @@ from .coco2017 import COCO2017
 from .cvat_coco2017 import CVAT_COCO2017
 from .cvat_image_1_1 import CVAT_IMAGE_1_1
 from .huaweiyun_segment import HUAWEIYUN_SEGMENT
+from .hy_highway import HY_HIGHWAY
 from .hy_val import HY_VAL
 from .kitti import KITTI
 from .lisa import LISA

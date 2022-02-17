@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-17 17:47:06
+LastEditTime: 2022-02-17 19:02:47
 '''
 import xml.etree.ElementTree as ET
 
@@ -13,12 +13,12 @@ from base.image_base import *
 from base.dataset_base import Dataset_Base
 
 
-class KITTI(Dataset_Base):
+class HY_HIGHWAY(Dataset_Base):
 
     def __init__(self, opt) -> None:
         super().__init__(opt)
-        self.source_dataset_image_form_list = ['xml']
-        self.source_dataset_annotation_form = 'txt'
+        self.source_dataset_image_form_list = ['jpg']
+        self.source_dataset_annotation_form = 'xml'
         self.source_dataset_image_count = self.get_source_dataset_image_count()
         self.source_dataset_annotation_count = self.get_source_dataset_annotation_count()
 
@@ -110,7 +110,7 @@ class KITTI(Dataset_Base):
 
     @staticmethod
     def annotation_check(dataset_instance: Dataset_Base) -> list:
-        """[读取KITTI数据集图片类检测列表]
+        """[读取HY_HIGHWAY数据集图片类检测列表]
 
         Args:
             dataset_instance (object): [数据集实例]
@@ -125,7 +125,7 @@ class KITTI(Dataset_Base):
 
     @staticmethod
     def target_dataset_folder(dataset_instance: Dataset_Base) -> None:
-        """[生成KITTI组织格式的数据集]
+        """[生成HY_HIGHWAY组织格式的数据集]
 
         Args:
             dataset_instance (object): [数据集实例]
