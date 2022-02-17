@@ -33,7 +33,7 @@ Target_dataset_check_annotations_output_as_mask: True
 Task_and_class_config:
   # Detection, Semantic_segmentation, Instance_segmentation, Keypoints
   Detection:
-    Source_dataset_class_file_path: Clean_up/data/detection/detect_classes_kitti_9_classes.names
+    Source_dataset_class_file_path: Clean_up/data/detection/detect_classes_myxb_df_highway_urban_38_classes.names
     Modify_class_file_path:
     Target_each_class_object_pixel_limit_file_path:
     Need_convert: False

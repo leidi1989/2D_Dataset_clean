@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-02-17 15:55:16
+LastEditTime: 2022-02-17 16:55:30
 '''
 import time
 import yaml
@@ -30,7 +30,7 @@ def main(dataset_config: dict) -> None:
     Input_dataset.transform_to_temp_dataset()
     Input_dataset.output_classname_file()
     Input_dataset.delete_redundant_image()
-    Input_dataset.get_dataset_image_mean_std()
+    # Input_dataset.get_dataset_image_mean_std()
     Input_dataset.divide_dataset()
     Input_dataset.sample_statistics()
     
