@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-17 19:41:17
+LastEditTime: 2022-02-17 20:14:10
 '''
 from utils.utils import *
 from base.image_base import *
@@ -184,16 +184,16 @@ class SJT(Dataset_Base):
                             continue
                         if object.object_clss in light_go:     # 将信号灯归类
                             object.object_clss = 'go'
-                            object.box_clss = object.object_clss
+                            object.box_clss = 'go'
                         if object.object_clss in light_stop:
                             object.object_clss = 'stop'
-                            object.box_clss = object.object_clss
+                            object.box_clss = 'stop'
                         if object.object_clss in light_warning:
                             object.object_clss = 'warning'
-                            object.box_clss = object.object_clss
+                            object.box_clss = 'warning'
                     if object.object_clss == 'trafficlightframe':    # 若为发现框内有信号灯颜色则更换为warning
                         object.object_clss = 'warning'
-                        object.box_clss = object.object_clss
+                        object.box_clss = 'warning'
                 else:
                     innate_light = ''
                     for object_light in object_list:    # 遍历源真实框列表
@@ -209,13 +209,13 @@ class SJT(Dataset_Base):
                     object.object_clss += ('_' + object.box_color)
                     if object.object_clss in light_go:     # 将信号灯归类
                         object.object_clss = 'go'
-                        object.box_clss = object.object_clss
+                        object.box_clss = 'go'
                     if object.object_clss in light_stop:
                         object.object_clss = 'stop'
-                        object.box_clss = object.object_clss
+                        object.box_clss = 'stop'
                     if object.object_clss in light_warning:
                         object.object_clss = 'warning'
-                        object.box_clss = object.object_clss
+                        object.box_clss = 'warning'
             # if one_true_box.clss == 'numbers':
             #     if one_true_box.color == 'green':     # 将数字类信号灯归类
             #         one_true_box.clss = 'go'
@@ -225,6 +225,8 @@ class SJT(Dataset_Base):
             #         one_true_box.color == 'no' or
             #         one_true_box.color == 'unclear'):
             #         one_true_box.clss = 'warning'
+            if object.object_clss not in self.total_task_source_class_list:
+                continue
             new_object_list.append(object)
 
         return new_object_list

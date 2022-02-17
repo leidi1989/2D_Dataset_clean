@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-02-17 19:23:35
+LastEditTime: 2022-02-17 19:55:50
 '''
 import time
 import yaml
@@ -29,7 +29,7 @@ def main(dataset_config: dict) -> None:
     # Input_dataset.source_dataset_copy_image_and_annotation()
     Input_dataset.transform_to_temp_dataset()
     Input_dataset.output_classname_file()
-    # Input_dataset.delete_redundant_image()
+    Input_dataset.delete_redundant_image()
     # Input_dataset.get_dataset_image_mean_std()
     Input_dataset.divide_dataset()
     # Input_dataset.sample_statistics()
@@ -40,8 +40,8 @@ def main(dataset_config: dict) -> None:
     Input_dataset.target_dataset_annotation_check()
 
     # 生成指定形式数据集组织结构
-    # dataset.__dict__[dataset_config['Target_dataset_style']
-    #                  ].target_dataset_folder(Input_dataset)
+    dataset.__dict__[dataset_config['Target_dataset_style']
+                     ].target_dataset_folder(Input_dataset)
 
     return
 
