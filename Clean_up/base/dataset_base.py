@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-17 17:23:03
+LastEditTime: 2022-02-18 02:27:39
 '''
 import dataset
 from utils.utils import *
@@ -159,7 +159,7 @@ class Dataset_Base:
         # others
         self.workers = dataset_config['workers']
         self.debug = dataset_config['debug']
-        self.task_convert = {}
+        self.need_convert = dataset_config['Need_convert']
         for task, task_info in dataset_config['Task_and_class_config'].items():
             source_dataset_class = get_class_list(
                 task_info['Source_dataset_class_file_path'])
@@ -169,13 +169,11 @@ class Dataset_Base:
                 source_dataset_class, modify_class_dict)
             object_pixel_limit_dict = get_class_pixel_limit(
                 task_info['Target_each_class_object_pixel_limit_file_path'])
-            need_conver = task_info['Need_convert']
             self.task_dict[task] = {'Source_dataset_class': source_dataset_class,
                                     'Modify_class_dict': modify_class_dict,
                                     'Target_dataset_class': target_dataset_class,
                                     'Target_object_pixel_limit_dict': object_pixel_limit_dict,
                                     }
-            self.task_convert.update({task: need_conver})
             self.temp_merge_class_list['Merge_source_dataset_class_list'].extend(
                 source_dataset_class)
             self.temp_merge_class_list['Merge_target_dataset_class_list'].extend(

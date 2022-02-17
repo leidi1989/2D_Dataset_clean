@@ -2,7 +2,7 @@
 Dataset_input_folder: /home/leidi/Data/dataset_test/ApolloScape_test
 
 # output path
-Dataset_output_folder: /home/leidi/Data/dataset_test/ApolloScape_test_20220217
+Dataset_output_folder: /home/leidi/Data/dataset_test/ApolloScape_test_20220218
 
 # Source dataset style:
 # YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, CVAT_COCO2017, HY_VAL,
@@ -32,26 +32,24 @@ Target_dataset_check_annotations_output_as_mask: True
 # Task and class config
 Task_and_class_config:
   # Detection, Semantic_segmentation, Instance_segmentation, Keypoints
-  # Detection:
-  #   Source_dataset_class_file_path: Clean_up/data/detection/detect_classes_sjt_17_classes.names
-  #   Modify_class_file_path:
-  #   Target_each_class_object_pixel_limit_file_path:
-  #   Need_convert: False
+  Detection:
+    Source_dataset_class_file_path: Clean_up/data/segmentation/segment_classes_apolloscape_lane_segmentation_38_classes.names
+    Modify_class_file_path:
+    Target_each_class_object_pixel_limit_file_path:
+    
   Semantic_segmentation:
     Source_dataset_class_file_path: Clean_up/data/segmentation/segment_classes_apolloscape_lane_segmentation_38_classes.names
     Modify_class_file_path: 
     Target_each_class_object_pixel_limit_file_path:
-    Need_convert: False
   # Instance_segmentation:
-  #   Source_dataset_class_file_path: Clean_up/data/segmentation/segment_classes_huaweiyun_segmentation_183_classes_20211116.names
-  #   Modify_class_file_path: Clean_up/data/segmentation/segment_classes_huaweiyun_segmentation_183_classes_to_3_classes.txt
+  #   Source_dataset_class_file_path: Clean_up/data/segmentation/segment_classes_apolloscape_lane_segmentation_38_classes.names
+  #   Modify_class_file_path: 
   #   Target_each_class_object_pixel_limit_file_path:
-  #   Need_convert: False
   # Keypoints:
   #   Source_dataset_class_file_path: Clean_up/data/segmentation/segment_classes_huaweiyun_segmentation_183_classes_20211116.names
   #   Modify_class_file_path: Clean_up/data/segmentation/segment_classes_huaweiyun_segmentation_183_classes_to_3_classes.txt
   #   Target_each_class_object_pixel_limit_file_path:
-  #   Need_convert: False
-
+  # segmentation_to_box, box_to_segmentation
+Need_convert: segmentation_to_box
 # progress debug
 debug: False
