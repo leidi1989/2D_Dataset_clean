@@ -1,8 +1,8 @@
 # dataset path
-Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/sjt_dataset_input
+Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/sjt_dataset_input_test
 
 # output path
-Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/sjt_dataset_input_20220217
+Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/sjt_dataset_input_test_20220217
 
 # Source dataset style:
 # YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, CVAT_COCO2017, HY_VAL,

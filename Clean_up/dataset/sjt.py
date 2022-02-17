@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-17 20:14:10
+LastEditTime: 2022-02-17 20:31:46
 '''
 from utils.utils import *
 from base.image_base import *
@@ -191,9 +191,6 @@ class SJT(Dataset_Base):
                         if object.object_clss in light_warning:
                             object.object_clss = 'warning'
                             object.box_clss = 'warning'
-                    if object.object_clss == 'trafficlightframe':    # 若为发现框内有信号灯颜色则更换为warning
-                        object.object_clss = 'warning'
-                        object.box_clss = 'warning'
                 else:
                     innate_light = ''
                     for object_light in object_list:    # 遍历源真实框列表
@@ -225,6 +222,9 @@ class SJT(Dataset_Base):
             #         one_true_box.color == 'no' or
             #         one_true_box.color == 'unclear'):
             #         one_true_box.clss = 'warning'
+            if object.object_clss == 'trafficlightframe':
+                object.object_clss = 'warning'
+                object.box_clss = 'warning'
             if object.object_clss not in self.total_task_source_class_list:
                 continue
             new_object_list.append(object)
