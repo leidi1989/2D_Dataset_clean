@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-18 03:35:51
+LastEditTime: 2022-02-18 04:22:01
 '''
 import shutil
 import multiprocessing
@@ -339,7 +339,8 @@ class CVAT_IMAGE_1_1(Dataset_Base):
                         'group_id': str(object.object_id)})
                     attribute = ET.SubElement(polygon, 'attribute', {
                         'name': '1'})
-                    attribute.text = object.segmentation_clss+str(object.object_id)
+                    attribute.text = object.segmentation_clss + \
+                        str(object.object_id)
             elif task == 'Instance_segmentation':
                 segmentation = np.asarray(
                     object.segmentation).flatten().tolist()
@@ -347,11 +348,11 @@ class CVAT_IMAGE_1_1(Dataset_Base):
                 if clss not in task_class_dict['Target_dataset_class']:
                     continue
                 box = ET.SubElement(image_xml, 'box', {
-                        'label': object.box_clss, 'occluded': '0', 'source': 'manual',
-                        'xtl': str(object.box_xywh[0]), 'ytl': str(object.box_xywh[1]),
-                        'xbr': str(object.box_xywh[0]+object.box_xywh[2]), 'ybr': str(object.box_xywh[1]+object.box_xywh[3]),
-                        'z_order': "0",
-                        'group_id': str(object.object_id)})
+                    'label': object.box_clss, 'occluded': '0', 'source': 'manual',
+                    'xtl': str(object.box_xywh[0]), 'ytl': str(object.box_xywh[1]),
+                    'xbr': str(object.box_xywh[0]+object.box_xywh[2]), 'ybr': str(object.box_xywh[1]+object.box_xywh[3]),
+                    'z_order': "0",
+                    'group_id': str(object.object_id)})
                 attribute = ET.SubElement(
                     box, 'attribute', {'name': '1'})
                 attribute.text = object.box_clss+str(object.object_id)
@@ -412,7 +413,7 @@ class CVAT_IMAGE_1_1(Dataset_Base):
         tree = ET.parse(source_annotations_path)
         root = tree.getroot()
         random.shuffle(root)
-        root = root[0: dataset_instance.target_dataset_annotations_check_count]
+        root = root[0 : dataset_instance.target_dataset_annotations_check_count]
         for annotation in tqdm(root,
                                desc='Load object annotation',
                                leave=False):

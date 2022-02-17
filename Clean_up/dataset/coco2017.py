@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-18 03:58:22
+LastEditTime: 2022-02-18 04:22:34
 '''
 import time
 import shutil
@@ -591,8 +591,9 @@ class COCO2017(Dataset_Base):
                 total_image_count += 1
             check_images_count = min(
                 dataset_instance.target_dataset_annotations_check_count, total_image_count)
-            check_image_id_list = [random.randint(
-                0, total_image_count)for i in range(check_images_count)]
+            image_id_list = [i for i in range(check_images_count)]
+            random.shuffle(image_id_list)
+            check_image_id_list = image_id_list[0: check_images_count]
 
             for n in tqdm(check_image_id_list,
                           desc='Load image base information',
@@ -603,8 +604,8 @@ class COCO2017(Dataset_Base):
                 img_name_new = img_name
                 img_path = os.path.join(
                     dataset_instance.temp_images_folder, img_name_new)
-                img = Image.open(img_path)
-                height, width = img.height, img.width
+                height = d['height']
+                width = d['width']
                 channels = 3
                 # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，
                 # 并将初始化后的对象存入total_images_data_list
