@@ -4,9 +4,9 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:07:13
 LastEditors: Leidi
-LastEditTime: 2022-02-17 19:03:01
+LastEditTime: 2022-02-18 01:37:28
 '''
-
+from .apolloscape_lane_segment import APOLLOSCAPE_LANE_SEGMENT
 from .bdd100k import BDD100K
 from .cctsdb import CCTSDB
 from .cityscapes import CITYSCAPES
