@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-27 14:05:30
 LastEditors: Leidi
-LastEditTime: 2022-02-10 16:35:34
+LastEditTime: 2022-02-18 14:58:16
 '''
 import os
 import cv2
@@ -13,7 +13,7 @@ from tqdm import tqdm
 from collections import namedtuple
 
 
-image_path = r'/mnt/data_1/Dataset/dataset_temp/clean/yunce_wudazhuoer_parking_20211213_20220209/cityscapes/data/gtFine/train/yunce/yunce_000000_000932_gtFine_labelIds.png'
+image_path = r'/mnt/data_1/Dataset/dataset_temp/TI_edgeailite_auto_annotation_20220218/source_dataset_annotations/zhuoer20211124_000000_000006_leftImg8bit.png'
 
 image = cv2.imread(image_path)
 
