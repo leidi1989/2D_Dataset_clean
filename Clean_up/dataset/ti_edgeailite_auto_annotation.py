@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-18 14:53:56
+LastEditTime: 2022-02-18 15:15:47
 '''
 import shutil
 import multiprocessing
@@ -159,6 +159,8 @@ class TI_EDGEAILITE_AUTO_ANNOTATION(Dataset_Base):
                 thresh1, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
             # 将多个标注polygon包围框转换为object
             for n, point in enumerate(contours):
+                if 0 == n:
+                    continue
                 point = np.squeeze(point)
                 point = np.squeeze(point)
                 point = point.tolist()
