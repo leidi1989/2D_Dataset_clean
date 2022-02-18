@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:07:13
 LastEditors: Leidi
-LastEditTime: 2022-02-18 01:37:28
+LastEditTime: 2022-02-18 14:12:46
 '''
 from .apolloscape_lane_segment import APOLLOSCAPE_LANE_SEGMENT
 from .bdd100k import BDD100K
@@ -21,6 +21,7 @@ from .kitti import KITTI
 from .lisa import LISA
 from .myxb import MYXB
 from .sjt import SJT
+from .ti_edgeailite_auto_annotation import TI_EDGEAILITE_AUTO_ANNOTATION
 from .tt100k import TT100K
 from .yolo import YOLO
 from .yunce_segment_coco import YUNCE_SEGMENT_COCO
