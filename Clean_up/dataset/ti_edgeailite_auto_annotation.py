@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-18 15:18:58
+LastEditTime: 2022-02-18 15:52:46
 '''
 import shutil
 import multiprocessing
@@ -167,6 +167,7 @@ class TI_EDGEAILITE_AUTO_ANNOTATION(Dataset_Base):
                 point = point.tolist()
                 if 3 > len(point):
                     continue
+                # 抽稀
                 object_list.append(OBJECT(n,
                                           object_clss=one.name,
                                           segmentation_clss=one.name,

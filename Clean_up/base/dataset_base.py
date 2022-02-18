@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-18 03:43:59
+LastEditTime: 2022-02-18 15:46:36
 '''
 import dataset
 from utils.utils import *
@@ -782,7 +782,15 @@ class Dataset_Base:
         return
 
     def get_temp_segmentation_class_pixal(self, temp_annotation_path: str) -> list:
+        """获取分割类别像素计数
 
+        Args:
+            temp_annotation_path (str): 暂存标注路径
+
+        Returns:
+            list: image_class_pixal_dict_list, total_annotation_class_count_dict_list
+        """
+        
         image_class_pixal_dict_list = []
         total_annotation_class_count_dict_list = []
 

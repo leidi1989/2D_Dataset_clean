@@ -22,7 +22,7 @@ File_prefix: "test"
 File_prefix_delimiter: "@"
 
 # (train, val, test, redund)
-Target_dataset_divide_proportion: 1,0,0,0
+Target_dataset_divide_proportion: 0.8,0.1,0.1,0
 
 # check target annotations
 Target_dataset_check_annotations_count: 100
@@ -31,7 +31,7 @@ Target_dataset_check_annotations_count: 100
 Target_dataset_check_annotations_output_as_mask: True
 
 # segmentation_to_box, box_to_segmentation
-Need_convert: 
+Need_convert:
 
 # Task and class config, select only one.
 # Detection, Semantic_segmentation, Instance_segmentation, Keypoints
