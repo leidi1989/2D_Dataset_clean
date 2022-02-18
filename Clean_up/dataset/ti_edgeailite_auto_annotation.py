@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-18 14:48:44
+LastEditTime: 2022-02-18 14:53:56
 '''
 import shutil
 import multiprocessing
@@ -145,14 +145,19 @@ class TI_EDGEAILITE_AUTO_ANNOTATION(Dataset_Base):
             bgr = [one.color[2], one.color[1], one.color[0]]
             for n, color in enumerate(bgr):
                 mask[:, :, n] = color
+            # 将mask和标注图片进行求亦或，获取亦或01结果图
             image_xor = cv2.bitwise_xor(mask, annotation_image)
+            # 使用亦或01结果图获取灰度图
             image_gray = cv2.cvtColor(image_xor.copy(), cv2.COLOR_BGR2GRAY)
+            # 使用灰度图获取指定mask类别色彩的二值图
             _, thresh1 = cv2.threshold(
                 image_gray, 1, 255, cv2.THRESH_BINARY_INV)
             if np.all(thresh1 == 0):
                 continue
+            # 使用二值图求取指定类别的包围框，即获取标注polygon包围框
             contours, _ = cv2.findContours(
                 thresh1, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            # 将多个标注polygon包围框转换为object
             for n, point in enumerate(contours):
                 point = np.squeeze(point)
                 point = np.squeeze(point)
