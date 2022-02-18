@@ -9,7 +9,6 @@ Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/TI_edgeailite_auto_annot
 # SJT, MYXB, HY_HIGHWAY,
 # YOLO, COCO2017, BDD100K, TT100K, CCTSDB, LISA, KITTI, APOLLOSCAPE_LANE_SEGMENT,
 # TI_EDGEAILITE_AUTO_ANNOTATION
-# NO: cityscapes
 Source_dataset_style: TI_EDGEAILITE_AUTO_ANNOTATION
 
 # Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1, YOLO
