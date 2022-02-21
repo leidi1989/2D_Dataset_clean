@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-02-21 13:43:52
+LastEditTime: 2022-02-21 13:54:06
 '''
 import os
 import cv2
@@ -241,14 +241,14 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
             self.need_convert = need_convert
         if 0 == len(self.box_xywh)\
                 and 0 != len(self.segmentation)  \
-            and self.need_convert == 'segmentation_to_box':
+        and self.need_convert == 'segmentation_to_box':
             self.box_xywh = self.true_segmentation_to_true_box()
             self.box_clss = self.segmentation_clss
             self.box_exist_flag = True
             self.object_convert_flag = 'segmentation_to_box'
         if 0 == len(self.segmentation)\
                 and 0 != len(self.box_xywh) \
-        and self.need_convert == 'box_to_segmentation':
+            and self.need_convert == 'box_to_segmentation':
             self.segmentation = self.true_box_to_true_segmentation()
             self.segmentation_clss = self.box_clss
             self.segmentation_exist_flag = True
@@ -452,6 +452,8 @@ class IMAGE:
                                      }
                       }
         id = 1
+        if 0 == len(self.object_list):
+            return True
         for object in self.object_list:
             # 真实框
             if object.box_exist_flag == False \
