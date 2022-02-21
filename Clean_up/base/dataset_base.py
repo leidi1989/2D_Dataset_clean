@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-18 15:46:36
+LastEditTime: 2022-02-21 18:46:07
 '''
 import dataset
 from utils.utils import *
@@ -381,6 +381,16 @@ class Dataset_Base:
                 os.remove(delete_image_path)
                 delete_count += 1
         print('Total delete redundant images count: {}'.format(delete_count))
+        # 更新文件名及文件路径成员
+        print('Update temp annotation name list.')
+        self.temp_annotation_name_list = get_temp_annotations_name_list(
+            self.temp_annotations_folder)
+        print('Update temp path name list.')
+        self.temp_annotations_path_list = temp_annotations_path_list(
+            self.temp_annotations_folder)
+        print('Update total file name path.')
+        self.total_file_name_path = total_file(
+            self.temp_informations_folder)
 
         return
 
@@ -790,7 +800,7 @@ class Dataset_Base:
         Returns:
             list: image_class_pixal_dict_list, total_annotation_class_count_dict_list
         """
-        
+
         image_class_pixal_dict_list = []
         total_annotation_class_count_dict_list = []
 
