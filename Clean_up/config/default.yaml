@@ -9,7 +9,7 @@ Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/TI_edgeailite_auto_annot
 # SJT, MYXB, HY_HIGHWAY,
 # YOLO, COCO2017, BDD100K, TT100K, CCTSDB, LISA, KITTI, APOLLOSCAPE_LANE_SEGMENT,
 # TI_EDGEAILITE_AUTO_ANNOTATION
-Source_dataset_style: TI_EDGEAILITE_AUTO_ANNOTATION
+Source_dataset_style: APOLLOSCAPE_LANE_SEGMENT
 
 # Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1, YOLO
 Target_dataset_style: CVAT_IMAGE_1_1
@@ -30,19 +30,19 @@ Target_dataset_check_annotations_count: 100
 Target_dataset_check_annotations_output_as_mask: True
 
 # segmentation_to_box, box_to_segmentation
-Need_convert:
+Need_convert: segmentation_to_box
 
 # Task and class config, select only one.
 # Detection, Semantic_segmentation, Instance_segmentation, Keypoints
 Task_and_class_config:
-  # Detection:
-  #   Source_dataset_class_file_path: Clean_up/data/segmentation/segment_classes_apolloscape_lane_segmentation_38_classes.names
-  #   Modify_class_file_path:
-  #   Target_each_class_object_pixel_limit_file_path:
-  Semantic_segmentation:
-    Source_dataset_class_file_path: Clean_up/data/auto_annotation/TI_edgeailite_auto_annotation_yunce_parking_6_classes.names
+  Detection:
+    Source_dataset_class_file_path: Clean_up/data/detection/detect_classes_apolloscape_lane_sign_12_classes.names
     Modify_class_file_path:
     Target_each_class_object_pixel_limit_file_path:
+  # Semantic_segmentation:
+  #   Source_dataset_class_file_path: Clean_up/data/auto_annotation/TI_edgeailite_auto_annotation_yunce_parking_6_classes.names
+  #   Modify_class_file_path:
+  #   Target_each_class_object_pixel_limit_file_path:
   # Instance_segmentation:
   #   Source_dataset_class_file_path: Clean_up/data/segmentation/segment_classes_apolloscape_lane_segmentation_38_classes.names
   #   Modify_class_file_path:
