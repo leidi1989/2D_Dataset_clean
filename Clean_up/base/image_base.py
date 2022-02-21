@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-02-21 13:54:06
+LastEditTime: 2022-02-21 18:22:05
 '''
 import os
 import cv2
@@ -442,7 +442,6 @@ class IMAGE:
 
         if self == None:
             return False
-
         annotation = {'name': self.file_name_new,
                       'frames': [{'timestamp': 10000,
                                   'objects': []}],
@@ -452,8 +451,7 @@ class IMAGE:
                                      }
                       }
         id = 1
-        if 0 == len(self.object_list):
-            return True
+        object_count = 0
         for object in self.object_list:
             # 真实框
             if object.box_exist_flag == False \
@@ -482,6 +480,9 @@ class IMAGE:
                            }
             annotation['frames'][0]['objects'].append(object_dict)
             id += 1
+            object_count += 1
+        if 0 == object_count:
+            return True
         # 输出json文件
         json.dump(annotation, open(temp_annotation_output_path, 'w'))
 
