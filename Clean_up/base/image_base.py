@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-02-18 02:57:28
+LastEditTime: 2022-02-21 13:43:52
 '''
 import os
 import cv2
@@ -351,6 +351,12 @@ class IMAGE:
                     elif task == 'Keypoints':
                         one_object.delete_keypoints_information()
             else:
+                if task_class_dict['Source_dataset_class'] is not None:
+                    for one_object in self.object_list:
+                        if one_object.object_clss not in task_class_dict['Source_dataset_class']:
+                            one_object.delete_box_information()
+                            one_object.delete_segmentation_information()
+                            one_object.delete_keypoints_information()
                 if task_class_dict['Modify_class_dict'] is not None:
                     for one_object in self.object_list:
                         # 遍历融合类别文件字典，完成label中的类别修改，
@@ -410,17 +416,17 @@ class IMAGE:
             if task_class_dict is None:
                 continue
             if task_class_dict['Target_object_pixel_limit_dict'] is not None:
-                for n, object in enumerate(self.object_list):
+                for n, one_object in enumerate(self.object_list):
                     if task == 'Detection' or task == 'Instance_segmentation' or task == 'Keypoint':
-                        pixel = object.box_get_area()
-                        if pixel < task_class_dict['Target_object_pixel_limit_dict'][object.box_clss][0] or \
-                                pixel > task_class_dict['Target_object_pixel_limit_dict'][object.box_clss][1]:
-                            self.object_list.pop(self.object_list.index(n))
+                        pixel = one_object.box_get_area()
+                        if pixel < task_class_dict['Target_object_pixel_limit_dict'][one_object.box_clss][0] or \
+                                pixel > task_class_dict['Target_object_pixel_limit_dict'][one_object.box_clss][1]:
+                            one_object.delete_box_information()
                     elif task == 'Semantic_segmentation':
-                        pixel = object.segmentation_get_bbox_area()
-                        if pixel < task_class_dict['Target_object_pixel_limit_dict'][object.segmentation_clss][0] or \
-                                pixel > task_class_dict['Target_object_pixel_limit_dict'][object.segmentation_clss][1]:
-                            self.object_list.pop(self.object_list.index(n))
+                        pixel = one_object.segmentation_get_bbox_area()
+                        if pixel < task_class_dict['Target_object_pixel_limit_dict'][one_object.segmentation_clss][0] or \
+                                pixel > task_class_dict['Target_object_pixel_limit_dict'][one_object.segmentation_clss][1]:
+                            one_object.delete_segmentation_information()
 
         return
 

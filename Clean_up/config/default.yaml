@@ -2,7 +2,7 @@
 Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/ApolloScape_test
 
 # output path
-Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/ApolloScape_test_20220218
+Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/ApolloScape_test_20220221
 
 # Source dataset style:
 # YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, CVAT_COCO2017, HY_VAL,
@@ -36,8 +36,8 @@ Need_convert: segmentation_to_box
 # Detection, Semantic_segmentation, Instance_segmentation, Keypoints
 Task_and_class_config:
   Detection:
-    Source_dataset_class_file_path: Clean_up/data/detection/detect_classes_apolloscape_lane_segmentation_38_classes.names
-    Modify_class_file_path: Clean_up/data/detection/detect_classes_apolloscape_lane_sign_12_classes.txt
+    Source_dataset_class_file_path: Clean_up/data/detection/detect_classes_apolloscape_lane_sign_12_classes.names
+    Modify_class_file_path: 
     Target_each_class_object_pixel_limit_file_path:
   # Semantic_segmentation:
   #   Source_dataset_class_file_path: Clean_up/data/auto_annotation/TI_edgeailite_auto_annotation_yunce_parking_6_classes.names
