@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-02-21 18:36:46
+LastEditTime: 2022-02-22 15:16:52
 '''
 import time
 import yaml
@@ -25,7 +25,7 @@ def main(dataset_config: dict) -> None:
         dataset_config['Source_dataset_style']](dataset_config)
     # except:
     #     print('Dataset initialize wrong, abort.')
-        
+
     Input_dataset.source_dataset_copy_image_and_annotation()
     Input_dataset.transform_to_temp_dataset()
     Input_dataset.output_classname_file()
@@ -33,7 +33,7 @@ def main(dataset_config: dict) -> None:
     # Input_dataset.get_dataset_image_mean_std()
     Input_dataset.divide_dataset()
     Input_dataset.sample_statistics()
-    
+
     # 输出并检测指定形式数据集
     dataset.__dict__[dataset_config['Target_dataset_style']
                      ].target_dataset(Input_dataset)
