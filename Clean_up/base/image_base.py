@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-02-22 14:30:33
+LastEditTime: 2022-02-22 15:07:58
 '''
 import os
 import cv2
@@ -334,7 +334,21 @@ class IMAGE:
         else:
             self.object_exist_flag = False
 
-    def modify_object_list(self, dataset_instance) -> None:
+    def object_class_modify_and_pixel_limit(self, dataset_instance: object) -> None:
+        """清理无目标标注
+
+        Args:
+            dataset_instance (object): _description_
+        """
+
+        self.object_class_modify(dataset_instance)
+        self.object_list_check_empty()
+        self.object_pixel_limit(dataset_instance)
+        self.object_list_check_empty()
+
+        return
+
+    def object_class_modify(self, dataset_instance: object) -> None:
         """[修改真实框类别]
 
         Args:
@@ -405,14 +419,14 @@ class IMAGE:
 
         return
 
-    def object_pixel_limit(self, input_dataset: object) -> None:
+    def object_pixel_limit(self, dataset_instance: object) -> None:
         """[对标注目标进行像素大小筛选]
 
         Args:
-            input_dataset (object): [数据集实例]
+            dataset_instance (object): [数据集实例]
         """
 
-        for task, task_class_dict in input_dataset.task_dict.items():
+        for task, task_class_dict in dataset_instance.task_dict.items():
             if task_class_dict is None:
                 continue
             if task_class_dict['Target_object_pixel_limit_dict'] is not None:
@@ -433,6 +447,20 @@ class IMAGE:
                         if pixel < task_class_dict['Target_object_pixel_limit_dict'][one_object.segmentation_clss][0] or \
                                 pixel > task_class_dict['Target_object_pixel_limit_dict'][one_object.segmentation_clss][1]:
                             one_object.delete_segmentation_information()
+
+        return
+
+    def object_list_check_empty(self) -> None:
+        """清理object_list中无标注目标
+        """
+        
+        temp_object_list =[]
+        for n in self.object_list:
+            if n.box_exist_flag \
+                or n.segmentation_exist_flag \
+                    or n.keypoints_exist_flag:
+                temp_object_list.append(n)
+        self.object_list = temp_object_list
 
         return
 

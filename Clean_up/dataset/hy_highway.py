@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-18 03:43:04
+LastEditTime: 2022-02-22 15:14:02
 '''
 import xml.etree.ElementTree as ET
 
@@ -76,8 +76,7 @@ class HY_HIGHWAY(Dataset_Base):
         temp_annotation_output_path = os.path.join(
             self.temp_annotations_folder,
             image.file_name_new + '.' + self.temp_annotation_form)
-        image.modify_object_list(self)
-        image.object_pixel_limit(self)
+        image.object_class_modify_and_pixel_limit(self)
         if 0 == len(image.object_list):
             print('{} no object, has been delete.'.format(
                 image.image_name_new))

@@ -127,7 +127,7 @@ class CVAT_IMAGE_1_1(Dataset_Base):
             temp_annotation_output_path = os.path.join(
                 self.temp_annotations_folder,
                 image.file_name_new + '.' + self.temp_annotation_form)
-            image.modify_object_list(self)
+            image.object_class_modify(self)
             image.object_pixel_limit(self)
             if 0 == len(image.object_list):
                 print('{} no object, has been delete.'.format(
