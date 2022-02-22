@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-02-22 16:19:37
+LastEditTime: 2022-02-22 17:18:40
 '''
 import time
 import yaml
@@ -19,6 +19,7 @@ def main(dataset_config: dict) -> None:
     Args:
         dataset_info (dict): [数据集信息字典]
     """
+    
     # try:
     Input_dataset = dataset.__dict__[
         dataset_config['Source_dataset_style']](dataset_config)
