@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-11-26 15:27:14
+LastEditTime: 2022-02-22 14:10:12
 '''
 import os
 import cv2
@@ -58,7 +58,6 @@ def load_annotation(dataset: dict, source_annotation_name: str, process_output: 
         '.')[0] + '.' + dataset['temp_image_form']
     image_name_new = dataset['file_prefix'] + image_name
 
-    # TODO debug
     # if image_name_new != 'bdd100k@00db9030-5102ed41.png':
     #     return
 

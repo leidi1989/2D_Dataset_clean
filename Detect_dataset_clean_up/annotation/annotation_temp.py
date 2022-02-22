@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-09 00:59:33
 LastEditors: Leidi
-LastEditTime: 2021-10-22 16:39:36
+LastEditTime: 2022-02-22 14:10:01
 '''
 import os
 import cv2
@@ -107,7 +107,6 @@ def TEMP_OUTPUT(annotation_output_path: str, image: IMAGE) -> bool:
                           str(int(box.xmax)) + '</xmax>\n')
                 xml.write('\t\t\t<ymax>' +
                           str(int(box.ymax)) + '</ymax>\n')
-                # TODO: 距离和遮挡
                 # xml.write('\t\t\t<distance>' +
                 #           str(int(box.distance)) + '</distance>\n')
                 # xml.write('\t\t\t<occlusion>' +

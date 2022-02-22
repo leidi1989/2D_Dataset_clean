@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-28 15:44:07
 LastEditors: Leidi
-LastEditTime: 2021-04-28 15:44:44
+LastEditTime: 2022-02-22 14:10:46
 '''
 import numpy as np
 
@@ -64,7 +64,6 @@ class per_image:
 
         return image_mask
 
-    # TODO
     def free_space_area(self):
         """[获取图片非真实框像素列表]
 

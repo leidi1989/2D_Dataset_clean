@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-04-26 20:59:03
 LastEditors: Leidi
-LastEditTime: 2021-12-22 10:45:29
+LastEditTime: 2022-02-22 14:11:02
 '''
 # -*- coding: utf-8 -*-
 import os
@@ -77,7 +77,6 @@ class per_image:
 
         return image_mask
 
-    # TODO
     def free_space_area(self):
         """[获取图片非真实框像素列表]
 
@@ -132,7 +131,7 @@ def from_ldp(input_path, class_list):
                     continue
                 xmlbox = obj.find('bndbox')
                 b = (float(xmlbox.find('xmin').text), float(xmlbox.find('xmax').text), float(xmlbox.find('ymin').text),
-                    float(xmlbox.find('ymax').text))
+                     float(xmlbox.find('ymax').text))
                 xmin = max(min(float(b[0]), float(b[1]), float(width)), 0.)
                 ymin = max(min(float(b[2]), float(b[3]), float(height)), 0.)
                 xmax = min(max(float(b[1]), float(b[0]), 0.), float(width))
@@ -425,7 +424,6 @@ def from_cctsdb(input_path, class_list):
                 if a in one_line_list:
                     image_erro.append(image_name)
                     continue
-                # TODO txt have repeat name
                 if not(image_name in image_name_dict.keys()):
                     image_name_dict[image_name] = image_index
                     image_index += 1
@@ -828,8 +826,6 @@ def from_sjt(input_path, class_list):
 
     return total_images_data_list
 
-# TODO
-
 
 def from_nuscenes(input_path, class_list):
 
@@ -969,20 +965,20 @@ def from_ccpd(input_path, class_list):
 
 def from_licenseplate(input_path, class_list):
     """抽取源标签文件中真实框信息声明为class per_image，返回total_images_data_list"""
-    
+
     local_mask = {"皖": 0, "沪": 1, "津": 2, "渝": 3, "冀": 4, "晋": 5, "蒙": 6, "辽": 7, "吉": 8, "黑": 9,
                   "苏": 10, "浙": 11, "京": 12, "闽": 13, "赣": 14, "鲁": 15, "豫": 16, "鄂": 17, "湘": 18,
                   "粤": 19, "桂": 20, "琼": 21, "川": 22, "贵": 23, "云": 24, "西": 25, "陕": 26, "甘": 27,
                   "青": 28, "宁": 29, "新": 30}
-    
-    code_mask = {"a" : 0, "b" : 1, "c" : 2, "d" : 3, "e" : 4, "f" : 5, "g" : 6, "h" : 7, "j" : 8, "k" : 9,
-                 "l" : 10, "m" : 11, "n" : 12, "p" : 13, "q" : 14, "r" : 15, "s" : 16, "t" : 17, "u" : 18,
-                 "v" : 19, "w" : 20, "x":  21, "y" : 22, "z" : 23, "0_" : 24, "1" : 25, "2" : 26, "3" : 27,
-                 "4" : 28, "5" : 29, "6" : 30, "7" : 31, "8" : 32, "9" : 33}
-    
+
+    code_mask = {"a": 0, "b": 1, "c": 2, "d": 3, "e": 4, "f": 5, "g": 6, "h": 7, "j": 8, "k": 9,
+                 "l": 10, "m": 11, "n": 12, "p": 13, "q": 14, "r": 15, "s": 16, "t": 17, "u": 18,
+                 "v": 19, "w": 20, "x":  21, "y": 22, "z": 23, "0_": 24, "1": 25, "2": 26, "3": 27,
+                 "4": 28, "5": 29, "6": 30, "7": 31, "8": 32, "9": 33}
+
     local_mask_key_list = [x for x, _ in local_mask.items()]
     code_mask_key_list = [x for x, _ in code_mask.items()]
-    
+
     image_path = os.path.join(input_path, 'JPEGImages')   # 图片路径
     src_lab_path = os.path.join(
         input_path, 'source_label')     # 对应图片的source label文件路径
@@ -1035,10 +1031,11 @@ def from_licenseplate(input_path, class_list):
                     cls, xmin, ymin, xmax, ymax))  # 将单个真实框加入单张图片真实框列表
         if 7 != len(truebox_dict_list):
             continue
-        truebox_dict_list.sort(key=lambda x:x.xmin)
-        
+        truebox_dict_list.sort(key=lambda x: x.xmin)
+
         # 更换真实框类别为车牌真实值
-        real_classes_list = list(map(int,src_lab_path_one.split('-')[4].split('_')))
+        real_classes_list = list(
+            map(int, src_lab_path_one.split('-')[4].split('_')))
         classes_decode_list = []
         classes_decode_list.append(local_mask_key_list[real_classes_list[0]])
         for one in real_classes_list[1:]:
@@ -1100,7 +1097,6 @@ def to_pascal(output_path, images_data_list):
                               str(int(box.xmax)) + '</xmax>\n')
                     xml.write('\t\t\t<ymax>' +
                               str(int(box.ymax)) + '</ymax>\n')
-                    # TODO: 距离和遮挡                              
                     # xml.write('\t\t\t<distance>' +
                     #           str(int(box.distance)) + '</distance>\n')
                     # xml.write('\t\t\t<occlusion>' +
@@ -1111,8 +1107,8 @@ def to_pascal(output_path, images_data_list):
         xml_count += 1
         # print(image_data.image_path + " has saved in " + xml_path)
     print('Total: %d file change save to %s, Done!' % (xml_count, output_path))
-    
-    
+
+
 def to_coco(output_path, images_data_list):
     print('\nStart to write each label data file:')
     xml_count = 0
@@ -1157,7 +1153,6 @@ def to_coco(output_path, images_data_list):
                               str(int(box.xmax)) + '</xmax>\n')
                     xml.write('\t\t\t<ymax>' +
                               str(int(box.ymax)) + '</ymax>\n')
-                    # TODO: 距离和遮挡
                     # xml.write('\t\t\t<distance>' +
                     #           str(int(box.distance)) + '</distance>\n')
                     # xml.write('\t\t\t<occlusion>' +

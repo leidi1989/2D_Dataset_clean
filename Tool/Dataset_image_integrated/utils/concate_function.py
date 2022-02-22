@@ -36,7 +36,7 @@ class concate_image:
         self.channels = channels_in    # 图片通道数
         self.true_box = true_box_in  # 图片真实框列表
         self.concat_mate_target_list = concat_mate_target_list_in
-     
+
 
 def load_cut_image(cut_bbox_image_list):
     """[读取图片信息]
@@ -85,15 +85,14 @@ def load_target_label(src_set_style, src_set_input_path, target_class_list):
     -------
     [list]
         [目标数据集数据列表]
-    """    
+    """
     data_list = []
-    data_list = pickup_data_from_function(src_set_style, 
-        src_set_input_path, target_class_list)     # 抽取目标数据集标签信息
+    data_list = pickup_data_from_function(src_set_style,
+                                          src_set_input_path, target_class_list)     # 抽取目标数据集标签信息
 
     return data_list
 
 
-# TODO
 def get_anchor_point(per_image, concate_image):
     """[依据per_image和concate_image数据，计算可拼接的锚点]
 
@@ -103,50 +102,43 @@ def get_anchor_point(per_image, concate_image):
         [目标图片类]
     concate_image : [class]
         [concat图片类]
-    
+
 
     Returns
     -------
     [class]
         [返回concat图片在目标图片上的true_box信息]
     """
-    
-    return # true_box
+
+    return  # true_box
 
 
-# TODO
 def space_mate(total_concate_image_list, total_target_dateset_list):
-    
+
     concat_mate_target_list = []
-    
+
     for one_concat_image in total_concate_image_list:
         for one_target_image in total_target_dateset_list:
 
-            
             pass
     pass
 
 
-# TODO
 def allot_target_image(total_concate_image_list, total_target_dateset_list):
-    
+
     concat_image_count = len(total_concate_image_list)      # 声明concat图片数量
     target_image_count = len(total_target_dateset_list)     # 声明target图片数量
-    
+
     concat_per_target = concat_image_count / target_image_count     # 计算分配张数
-    
-    target_class_set = get_dataset_scene(total_target_dateset_list)     # 获取目标数据集场景元组
-        
-    # TODO
+
+    target_class_set = get_dataset_scene(
+        total_target_dateset_list)     # 获取目标数据集场景元组
+
     if concat_per_target < 1:
         pick_target_image_count = concat_image_count
-        
-        
-        
+
         print(0)
-    # TODO
     else:
-        
-        
+
         print(0)
     pass

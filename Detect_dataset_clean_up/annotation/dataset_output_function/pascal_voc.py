@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-19 15:55:16
 LastEditors: Leidi
-LastEditTime: 2021-10-22 16:27:13
+LastEditTime: 2022-02-22 14:09:57
 '''
 import os
 import codecs
@@ -61,7 +61,6 @@ def annotation_output(dataset: dict, temp_annotation_path: str) -> None:
                             str(int(box.xmax)) + '</xmax>\n')
                 xml.write('\t\t\t<ymax>' +
                             str(int(box.ymax)) + '</ymax>\n')
-                # TODO: 距离和遮挡
                 # xml.write('\t\t\t<distance>' +
                 #           str(int(box.distance)) + '</distance>\n')
                 # xml.write('\t\t\t<occlusion>' +

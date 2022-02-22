@@ -1,3 +1,11 @@
+'''
+Description: 
+Version: 
+Author: Leidi
+Date: 2022-01-14 16:49:12
+LastEditors: Leidi
+LastEditTime: 2022-02-22 14:11:54
+'''
 # -*- coding: utf-8 -*-
 import argparse
 import os
@@ -40,13 +48,12 @@ if __name__ == "__main__":
         src_set_style)     # 获取对应数据集类型的文件路径
     for one in src_set_fold_list:       # 创建融合数据集目录
         check_output_path(os.path.join(output_path, one))
-    
-    # TODO
+
     # src_put_path_dict = pickup_src_set_output_function(
     #     src_set_style, input_path)     # 获取源数据集下文件组织路径
     # output_path_dict = pickup_new_set_output_function(
     #     out_set_style, output_path)   # 获取新数据集下文件组织路径
-    
+
     total_mix_images_path_list = []     # 声明混合数据集图片路径列表
 
     total_label_list_path = check_input_path(os.path.join(
@@ -61,7 +68,6 @@ if __name__ == "__main__":
 
     print('\nStart to dataset mix:')
     print('\nStart to fix class in label:')
-    # TODO
     # fix_total_label_path_dict = extract_label(
     #     src_total_label_path_list, classes_src_list, classes_fix_dict, new_class_names_list)
     # # 获取全部标签名称列表，修改标签后key为标签名称value为对应路径的全部标签字典

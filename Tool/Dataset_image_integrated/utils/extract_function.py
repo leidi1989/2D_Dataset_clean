@@ -46,7 +46,7 @@ class per_image:
         true_box_list : [list]
             [真实框列表]
         """
-        
+
         self.mask = np.zeros((self.height, self.width))
         for one_ture_box in self.true_box_list:     # 读取true_box并对前景在mask上置1
             self.mask[int(one_ture_box.ymin):int(one_ture_box.ymax),
@@ -63,12 +63,10 @@ class per_image:
 
         self.true_box_list.append(one_bbox_data)
 
-    # TODO
     def get_free_space_circle_center_point(self, mask):
 
         pass
 
-    # TODO
     def get_free_space_circle(self, free_space_circle_center_point):
 
         pass
@@ -212,7 +210,6 @@ def from_hy_highway(input_path, class_list):
             ymax = float(max(float(b[3]), float(b[2])))
             truebox_dict_list.append(true_box(
                 cls, xmin, ymin, xmax, ymax, 'rectangle', difficult))  # 使用动态名称变量将单个真实框加入单张图片真实框列表
-
 
         one_image = per_image(image_name, img_path, int(
             height), int(width), int(channels), truebox_dict_list)
@@ -379,7 +376,7 @@ def from_coco(input_path, class_list):
                                    1].true_box_list_updata(one_bbox)
         # for one in total_images_data_list:
         #     one.get_true_box_mask()     # 获取每张图片的真实框掩码图
-        
+
     return total_images_data_list
 
 
@@ -614,7 +611,7 @@ def from_yolo(input_path, class_list):
                 truebox_dict_list.append(true_box(
                     cls, xmin, ymin, xmax, ymax))  # 使用动态名称变量将单个真实框加入单张图片真实框列表
         one_image = per_image(image_name, img_path, int(
-                        height), int(width), int(channels), truebox_dict_list)
+            height), int(width), int(channels), truebox_dict_list)
         # one_image.get_true_box_mask()   # 获取真实框在图像上的掩码图
         # 使用动态名称变量将单张图对象，添加进全数据集数据列表中
         total_images_data_list.append(one_image)
@@ -622,9 +619,8 @@ def from_yolo(input_path, class_list):
 
     return total_images_data_list
 
-    
+
 def from_sjt(input_path, class_list):
-    
     """抽取源标签文件中真实框信息声明为class per_image，返回total_images_data_list"""
 
     key = 'imageName'
@@ -663,10 +659,11 @@ def from_sjt(input_path, class_list):
                 if cls not in class_list:
                     continue
                 if xmax > xmin and ymax > ymin:
-                    truebox_dict_list.append(true_box(cls, xmin, ymin, xmax, ymax))  # 使用动态名称变量将单个真实框加入单张图片真实框列表
+                    # 使用动态名称变量将单个真实框加入单张图片真实框列表
+                    truebox_dict_list.append(
+                        true_box(cls, xmin, ymin, xmax, ymax))
         one_image = per_image(img_name, img_path, int(
             height), int(width), int(channels), truebox_dict_list)
-        # TODO
         # one_image.get_true_box_mask()   # 获取真实框在图像上的掩码图
         # 使用动态名称变量将单张图对象，添加进全数据集数据列表中
         total_images_data_list.append(one_image)

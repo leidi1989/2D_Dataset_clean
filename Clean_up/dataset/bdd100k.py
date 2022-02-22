@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-18 03:42:45
+LastEditTime: 2022-02-22 14:09:46
 '''
 from utils.utils import *
 from base.image_base import *
@@ -61,7 +61,6 @@ class BDD100K(Dataset_Base):
             0] + '.' + self.temp_image_form
         image_name_new = self.file_prefix + image_name
 
-        # TODO debug
         # if image_name_new != 'bdd100k@00db9030-5102ed41.png':
         #     return
 

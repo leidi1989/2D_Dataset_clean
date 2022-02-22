@@ -91,34 +91,37 @@ def load_target_label(src_set_style, src_set_input_path, target_class_list):
     return data_list
 
 
-# TODO
 def get_anchor_point(concate_image, target_image):
     pass
-    
+
 
 def allot_target_image(cut_bbox_image_space_list, target_image_space_list):
 
     concat_image_count = len(cut_bbox_image_space_list)      # 声明concat图片数量
     target_image_count = len(target_image_space_list)     # 声明target图片数量
     concat_per_target = concat_image_count / target_image_count     # 计算分配张数
-    target_image_space_list.sort(key = takeSecond, reverse=True)    # 按列表的第2个元素进行排序
-    cut_bbox_image_space_list.sort(key = takeSecond, reverse=True)   # 按列表的第2个元素进行排序
-    random_target_image_count_num_list = [[i] for i in range(target_image_count)]
+    target_image_space_list.sort(
+        key=takeSecond, reverse=True)    # 按列表的第2个元素进行排序
+    cut_bbox_image_space_list.sort(
+        key=takeSecond, reverse=True)   # 按列表的第2个元素进行排序
+    random_target_image_count_num_list = [[i]
+                                          for i in range(target_image_count)]
     random.shuffle(random_target_image_count_num_list)  # 获取目标图片乱序
-    random_concat_image_count_num_list = [[i] for i in range(concat_image_count)]
+    random_concat_image_count_num_list = [[i]
+                                          for i in range(concat_image_count)]
     random.shuffle(random_concat_image_count_num_list)  # 获取剪切图片乱序
-    
+
     if concat_per_target < 1:   # 若cut图片不足覆盖全部目标数据集
         # 则从目标数据集挑选concat_image_count数量的图片出来拼接
         pick_target_image_count = concat_image_count
         for i in range(pick_target_image_count):
             pass
-        
+
         print(0)
     else:   # 否则
         pick_target_image_num = concat_image_count // target_image_count    # 计算覆盖次数
         # 全覆盖后余数部分从目标数据集挑选concat_image_count数量的图片出来拼接
         pick_target_image_count = concat_image_count % target_image_count
-        
+
         print(0)
     print(0)
