@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-02-21 18:22:05
+LastEditTime: 2022-02-22 14:30:33
 '''
 import os
 import cv2
@@ -418,11 +418,17 @@ class IMAGE:
             if task_class_dict['Target_object_pixel_limit_dict'] is not None:
                 for n, one_object in enumerate(self.object_list):
                     if task == 'Detection' or task == 'Instance_segmentation' or task == 'Keypoint':
+                        if one_object.box_clss not in task_class_dict['Target_object_pixel_limit_dict']:
+                            one_object.delete_box_information()
+                            continue
                         pixel = one_object.box_get_area()
                         if pixel < task_class_dict['Target_object_pixel_limit_dict'][one_object.box_clss][0] or \
                                 pixel > task_class_dict['Target_object_pixel_limit_dict'][one_object.box_clss][1]:
                             one_object.delete_box_information()
                     elif task == 'Semantic_segmentation':
+                        if one_object.segmentation_clss not in task_class_dict['Target_object_pixel_limit_dict']:
+                            one_object.delete_segmentation_information()
+                            continue
                         pixel = one_object.segmentation_get_bbox_area()
                         if pixel < task_class_dict['Target_object_pixel_limit_dict'][one_object.segmentation_clss][0] or \
                                 pixel > task_class_dict['Target_object_pixel_limit_dict'][one_object.segmentation_clss][1]:
