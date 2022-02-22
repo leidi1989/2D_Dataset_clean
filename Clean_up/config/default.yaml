@@ -1,8 +1,8 @@
 # dataset path
-Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/ApolloScape_test
+Dataset_input_folder: /home/hy/leidi/dataset/Autopilot_segmentation_dataset/ApolloScape/apolloscape_segmentation_lane
 
 # output path
-Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/ApolloScape_test_20220222
+Dataset_output_folder: /mnt/sda/leidi/dataset/Autopilot_detection_dataset/apolloscape_lane_mark_20220222
 
 # Source dataset style:
 # [YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, CVAT_COCO2017, HY_VAL,
@@ -12,16 +12,16 @@ Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/ApolloScape_test_2022022
 Source_dataset_style: APOLLOSCAPE_LANE_SEGMENT
 
 # Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1, YOLO
-Target_dataset_style: CVAT_IMAGE_1_1
+Target_dataset_style: YOLO
 
 # images or labels need to rename prefix
-File_prefix: "test"
+File_prefix: "apolloscape@lane@mark"
 
 # name delimiter(cityscapes need: "@")
 File_prefix_delimiter: "@"
 
 # (train, val, test, redund)
-Target_dataset_divide_proportion: 0.8,0.1,0.1,0
+Target_dataset_divide_proportion: 0.95,0.025,0.025,0
 
 # check target annotations
 Target_dataset_check_annotations_count: 100
