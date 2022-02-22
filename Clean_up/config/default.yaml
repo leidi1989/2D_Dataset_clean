@@ -1,8 +1,8 @@
 # dataset path
-Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/bdd100k_images_annotations_test
+Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/bdd100k_images_annotations
 
 # output path
-Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/bdd100k_images_annotations_test_only_1_class_20220222
+Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/bdd100k_images_annotations_only_road_20220222
 
 # Source dataset style:
 # [YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, CVAT_COCO2017, HY_VAL,

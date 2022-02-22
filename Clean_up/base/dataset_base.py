@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-22 17:08:03
+LastEditTime: 2022-02-22 17:14:47
 '''
 import dataset
 from utils.utils import *
@@ -115,12 +115,9 @@ class Dataset_Base:
         self.temp_set_name_list = ['total_distibution.txt', 'train_distibution.txt',
                                    'val_distibution.txt', 'test_distibution.txt',
                                    'redund_distibution.txt']
-        self.temp_annotation_name_list = get_temp_annotations_name_list(
-            self.temp_annotations_folder)
-        self.temp_annotations_path_list = temp_annotations_path_list(
-            self.temp_annotations_folder)
-        self.temp_image_name_list = get_temp_images_name_list(
-            self.temp_images_folder)
+        self.temp_annotation_name_list = self.get_temp_annotations_name_list()
+        self.temp_annotations_path_list = self.get_temp_annotations_path_list()
+        self.temp_image_name_list = self.get_temp_images_name_list()
 
         # target dataset
         self.dataset_output_folder = check_output_path(
@@ -388,7 +385,7 @@ class Dataset_Base:
         for n in os.listdir(self.temp_annotations_folder):
             annotation_name = os.path.splitext(n)[0]
             if annotation_name not in self.temp_image_name_list:
-                delete_image_path = os.path.join(self.temp_images_folder, n)
+                delete_image_path = os.path.join(self.temp_annotations_folder, n)
                 print('Delete redundant image: \t{}'.format(n))
                 os.remove(delete_image_path)
                 delete_annotation_count += 1
@@ -399,7 +396,7 @@ class Dataset_Base:
         print('Update temp annotation name list.')
         self.temp_annotation_name_list = self.get_temp_annotations_name_list()
         print('Update temp path name list.')
-        self.temp_annotations_path_list = self.temp_annotations_path_list()
+        self.temp_annotations_path_list = self.get_temp_annotations_path_list()
         print('Update total file name path.')
         self.total_file_name_path = self.total_file()
 
@@ -419,8 +416,23 @@ class Dataset_Base:
                 os.path.splitext(n.split(os.sep)[-1])[0])
 
         return temp_file_name_list
+    
+    def get_temp_images_name_list(self) -> list:
+        """[获取暂存数据集图片名称列表]
 
-    def temp_annotations_path_list(self) -> list:
+        Returns:
+            list: [暂存数据集文件名称列表]
+        """
+
+        temp_file_name_list = []    # 暂存数据集文件名称列表
+        print('Get temp file name list:')
+        for n in tqdm(os.listdir(self.temp_images_folder)):
+            temp_file_name_list.append(
+                os.path.splitext(n.split(os.sep)[-1])[0])
+
+        return temp_file_name_list
+
+    def get_temp_annotations_path_list(self) -> list:
         """[获取暂存数据集全量标签路径列表]
 
         Args:
