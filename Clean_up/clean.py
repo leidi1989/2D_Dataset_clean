@@ -28,7 +28,7 @@ def main(dataset_config: dict) -> None:
     Input_dataset.source_dataset_copy_image_and_annotation()
     Input_dataset.transform_to_temp_dataset()
     Input_dataset.output_classname_file()
-    Input_dataset.delete_redundant_image()
+    Input_dataset.delete_redundant_image_annotation()
     Input_dataset.get_dataset_image_mean_std()
     Input_dataset.divide_dataset()
     Input_dataset.sample_statistics()

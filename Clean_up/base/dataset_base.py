@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-21 18:46:07
+LastEditTime: 2022-02-22 17:08:03
 '''
 import dataset
 from utils.utils import *
@@ -119,6 +119,8 @@ class Dataset_Base:
             self.temp_annotations_folder)
         self.temp_annotations_path_list = temp_annotations_path_list(
             self.temp_annotations_folder)
+        self.temp_image_name_list = get_temp_images_name_list(
+            self.temp_images_folder)
 
         # target dataset
         self.dataset_output_folder = check_output_path(
@@ -367,30 +369,39 @@ class Dataset_Base:
 
         return
 
-    def delete_redundant_image(self) -> None:
-        """[删除无标注图片]
+    def delete_redundant_image_annotation(self) -> None:
+        """[删除无标注图片, 无标注temp annotation]
         """
 
         print('\nStar delete redundant image:')
-        delete_count = 0
+        delete_image_count = 0
         for n in os.listdir(self.temp_images_folder):
             image_name = os.path.splitext(n)[0]
             if image_name not in self.temp_annotation_name_list:
                 delete_image_path = os.path.join(self.temp_images_folder, n)
                 print('Delete redundant image: \t{}'.format(n))
                 os.remove(delete_image_path)
-                delete_count += 1
-        print('Total delete redundant images count: {}'.format(delete_count))
+                delete_image_count += 1
+
+        delete_annotation_count = 0
+        print('\nStar delete redundant annotation:')
+        for n in os.listdir(self.temp_annotations_folder):
+            annotation_name = os.path.splitext(n)[0]
+            if annotation_name not in self.temp_image_name_list:
+                delete_image_path = os.path.join(self.temp_images_folder, n)
+                print('Delete redundant image: \t{}'.format(n))
+                os.remove(delete_image_path)
+                delete_annotation_count += 1
+        print('Total delete redundant images count: {}'.format(delete_image_count))
+        print('Total delete redundant annotation count: {}'.format(
+            delete_annotation_count))
         # 更新文件名及文件路径成员
         print('Update temp annotation name list.')
-        self.temp_annotation_name_list = get_temp_annotations_name_list(
-            self.temp_annotations_folder)
+        self.temp_annotation_name_list = self.get_temp_annotations_name_list()
         print('Update temp path name list.')
-        self.temp_annotations_path_list = temp_annotations_path_list(
-            self.temp_annotations_folder)
+        self.temp_annotations_path_list = self.temp_annotations_path_list()
         print('Update total file name path.')
-        self.total_file_name_path = total_file(
-            self.temp_informations_folder)
+        self.total_file_name_path = self.total_file()
 
         return
 
@@ -408,6 +419,59 @@ class Dataset_Base:
                 os.path.splitext(n.split(os.sep)[-1])[0])
 
         return temp_file_name_list
+
+    def temp_annotations_path_list(self) -> list:
+        """[获取暂存数据集全量标签路径列表]
+
+        Args:
+            temp_annotations_folder (str): [暂存数据集标签文件夹路径]
+
+        Returns:
+            list: [暂存数据集全量标签路径列表]
+        """
+
+        temp_annotation_path_list = []  # 暂存数据集全量标签路径列表
+        print('Get temp annotation path.')
+        for n in os.listdir(self.temp_annotations_folder):
+            temp_annotation_path_list.append(
+                os.path.join(self.temp_annotations_folder, n))
+
+        return temp_annotation_path_list
+
+    def total_file(self) -> list:
+        """[获取暂存数据集全量图片文件名列表]
+
+        Args:
+            temp_informations_folder (str): [暂存数据集信息文件夹]
+
+        Returns:
+            list: [暂存数据集全量图片文件名列表]
+        """
+
+        total_list = []  # 暂存数据集全量图片文件名列表
+        print('Get total file name list.')
+        try:
+            with open(os.path.join(self.temp_informations_folder, 'total.txt'), 'r') as f:
+                for n in f.read().splitlines():
+                    total_list.append(os.path.splitext(n.split(os.sep)[-1])[0])
+                f.close()
+
+            total_file_name_path = os.path.join(
+                self.temp_informations_folder, 'total_file_name.txt')
+            print('Output total_file_name.txt.')
+            with open(total_file_name_path, 'w') as f:
+                if len(total_list):
+                    for n in total_list:
+                        f.write('%s\n' % n)
+                    f.close()
+                else:
+                    f.close()
+        except:
+            print('total.txt had not create, return None.')
+
+            return None
+
+        return total_file_name_path
 
     def divide_dataset(self) -> None:
         """按不同场景划分数据集, 并根据不同场景按比例抽取train、val、test、redundancy比例为
