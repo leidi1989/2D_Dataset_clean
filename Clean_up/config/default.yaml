@@ -1,27 +1,28 @@
 # dataset path
-Dataset_input_folder: /home/hy/leidi/dataset/Autopilot_segmentation_dataset/ApolloScape/apolloscape_segmentation_lane
+Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/bdd100k_images_annotations_test
 
 # output path
-Dataset_output_folder: /mnt/sda/leidi/dataset/Autopilot_detection_dataset/apolloscape_lane_mark_20220222
+Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/bdd100k_images_annotations_test_only_1_class_20220222
 
 # Source dataset style:
 # [YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, CVAT_COCO2017, HY_VAL,
 # SJT, MYXB, HY_HIGHWAY,
 # YOLO, COCO2017, BDD100K, TT100K, CCTSDB, LISA, KITTI, APOLLOSCAPE_LANE_SEGMENT,
 # TI_EDGEAILITE_AUTO_ANNOTATION]
-Source_dataset_style: APOLLOSCAPE_LANE_SEGMENT
+Source_dataset_style: BDD100K
 
 # Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1, YOLO
-Target_dataset_style: YOLO
+Target_dataset_style: CITYSCAPES
 
 # images or labels need to rename prefix
-File_prefix: "apolloscape@lane@mark"
+File_prefix: "bdd100k@drivable@area"
 
 # name delimiter(cityscapes need: "@")
 File_prefix_delimiter: "@"
 
 # (train, val, test, redund)
-Target_dataset_divide_proportion: 0.95,0.025,0.025,0
+# Target_dataset_divide_proportion: 0.95,0.025,0.025,0
+Target_dataset_divide_proportion: 0.8,0.1,0.1,0
 
 # check target annotations
 Target_dataset_check_annotations_count: 100
@@ -35,14 +36,15 @@ Need_convert: segmentation_to_box
 # Task and class config, select only one.
 # Detection, Semantic_segmentation, Instance_segmentation, Keypoints
 Task_and_class_config:
-  Detection:
-    Source_dataset_class_file_path: Clean_up/data/class/detection/detect_classes_apolloscape_lane_sign_12_classes.names
-    Modify_class_file_path:
-    Target_each_class_object_pixel_limit_file_path: Clean_up/data/pixel_limit/detection/detect_classes_apolloscape_lane_sign_12_classes.txt
-  # Semantic_segmentation:
-  #   Source_dataset_class_file_path: Clean_up/data/auto_annotation/TI_edgeailite_auto_annotation_yunce_parking_6_classes.names
+  # Detection:
+  #   Source_dataset_class_file_path: Clean_up/data/class/detection/detect_classes_apolloscape_lane_sign_12_classes.names
   #   Modify_class_file_path:
   #   Target_each_class_object_pixel_limit_file_path:
+  Semantic_segmentation:
+    Source_dataset_class_file_path: Clean_up/data/class/segmentation/segment_classes_bdd100k_11_classes.names
+    # Modify_class_file_path: Clean_up/data/class/segmentation/segment_classes_bdd100k_11_classes_to_cityscapes_1_classes_driverable_area.txt
+    Modify_class_file_path: 
+    Target_each_class_object_pixel_limit_file_path:
   # Instance_segmentation:
   #   Source_dataset_class_file_path: Clean_up/data/segmentation/segment_classes_apolloscape_lane_segmentation_38_classes.names
   #   Modify_class_file_path:
