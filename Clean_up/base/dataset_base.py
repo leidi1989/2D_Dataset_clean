@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-23 10:46:12
+LastEditTime: 2022-02-23 11:30:09
 '''
 import dataset
 from utils.utils import *
@@ -178,10 +178,10 @@ class Dataset_Base:
             self.temp_merge_class_list['Merge_target_dataset_class_list'].extend(
                 target_dataset_class)
         if 'Instance_segmentation' in dataset_config['Task_and_class_config'] and \
-            dataset_config['Task_and_class_config']['Instance_segmentation'] is not None:
-                self.task_dict['Detection'] = self.task_dict['Instance_segmentation']
-                self.task_dict['Semantic_segmentation'] = self.task_dict['Instance_segmentation']
-            
+                dataset_config['Task_and_class_config']['Instance_segmentation'] is not None:
+            self.task_dict['Detection'] = self.task_dict['Instance_segmentation']
+            self.task_dict['Semantic_segmentation'] = self.task_dict['Instance_segmentation']
+
         self.total_task_source_class_list = self.get_total_task_source_class_list()
 
         print('Dataset instance initialize end.')
@@ -377,23 +377,29 @@ class Dataset_Base:
 
         print('\nStar delete redundant image:')
         delete_image_count = 0
-        for n in os.listdir(self.temp_images_folder):
+        for n in tqdm(os.listdir(self.temp_images_folder),
+                      desc='Chech and delete redundant images'):
             image_name = os.path.splitext(n)[0]
             if image_name not in self.temp_annotation_name_list:
                 delete_image_path = os.path.join(self.temp_images_folder, n)
                 print('Delete redundant image: \t{}'.format(n))
                 os.remove(delete_image_path)
                 delete_image_count += 1
+        self.temp_image_name_list = self.get_temp_images_name_list()
 
         delete_annotation_count = 0
         print('\nStar delete redundant annotation:')
-        for n in os.listdir(self.temp_annotations_folder):
+        for n in tqdm(os.listdir(self.temp_annotations_folder),
+                      desc='Chech and delete redundant annotations'):
             annotation_name = os.path.splitext(n)[0]
             if annotation_name not in self.temp_image_name_list:
-                delete_image_path = os.path.join(self.temp_annotations_folder, n)
+                delete_image_path = os.path.join(
+                    self.temp_annotations_folder, n)
                 print('Delete redundant image: \t{}'.format(n))
                 os.remove(delete_image_path)
                 delete_annotation_count += 1
+        self.temp_annotation_name_list = self.get_temp_annotations_name_list()
+
         print('Total delete redundant images count: {}'.format(delete_image_count))
         print('Total delete redundant annotation count: {}'.format(
             delete_annotation_count))
@@ -421,7 +427,7 @@ class Dataset_Base:
                 os.path.splitext(n.split(os.sep)[-1])[0])
 
         return temp_file_name_list
-    
+
     def get_temp_images_name_list(self) -> list:
         """[获取暂存数据集图片名称列表]
 
