@@ -1,8 +1,8 @@
 # dataset path
-Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/bdd100k_images_annotations_test
+Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/bdd100k_images_annotations
 
 # output path
-Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/bdd100k_images_annotations_test_20220223
+Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/bdd100k_images_annotations_instance_segmentation_7_classes_lane_line_20220223
 
 # Source dataset style:
 # [YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, CVAT_COCO2017, HY_VAL,
@@ -15,14 +15,14 @@ Source_dataset_style: BDD100K
 Target_dataset_style: COCO2017
 
 # images or labels need to rename prefix
-File_prefix: "bdd100k@instance@line"
+File_prefix: "bdd100k@instance@lane@line"
 
 # name delimiter(cityscapes need: "@")
 File_prefix_delimiter: "@"
 
 # (train, val, test, redund)
-# Target_dataset_divide_proportion: 0.95,0.025,0.025,0
-Target_dataset_divide_proportion: 0.8,0.1,0.1,0
+Target_dataset_divide_proportion: 0.95,0.025,0.025,0
+# Target_dataset_divide_proportion: 0.8,0.1,0.1,0
 
 # check target annotations
 Target_dataset_check_annotations_count: 100
