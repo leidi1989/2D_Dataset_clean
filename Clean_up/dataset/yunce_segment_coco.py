@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-22 15:14:35
+LastEditTime: 2022-02-23 10:30:57
 '''
 import time
 import shutil
@@ -239,7 +239,7 @@ class YUNCE_SEGMENT_COCO(Dataset_Base):
 
         one_object = OBJECT(id, cls, cls, cls, cls,
                             box_xywh, segmentation, keypoints_num, keypoints,
-                            self.task_convert,
+                            need_convert=self.need_convert,
                             segmentation_area=segmentation_area,
                             segmentation_iscrowd=segmentation_iscrowd,
                             )
@@ -656,7 +656,7 @@ class YUNCE_SEGMENT_COCO(Dataset_Base):
 
                     one_object = OBJECT(id, cls, cls, cls, cls,
                                         box_xywh, segmentation, keypoints_num, keypoints,
-                                        dataset_instance.need_convert,
+                                        need_convert=dataset_instance.need_convert,
                                         segmentation_area=segmentation_area,
                                         segmentation_iscrowd=segmentation_iscrowd
                                         )

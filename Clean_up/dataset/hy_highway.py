@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-22 15:14:02
+LastEditTime: 2022-02-23 10:31:38
 '''
 import xml.etree.ElementTree as ET
 
@@ -64,12 +64,13 @@ class HY_HIGHWAY(Dataset_Base):
             object_list.append(OBJECT(0,
                                       clss,
                                       box_clss=clss,
-                                      box_xywh=box_xywh))
+                                      box_xywh=box_xywh,
+                                      need_convert=self.need_convert))
 
         # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，
         # 并将初始化后的对象存入total_images_data_list
         image = IMAGE(image_name, image_name_new, image_path,
-                        height, width, channels, object_list)
+                      height, width, channels, object_list)
         # 读取目标标注信息，输出读取的source annotation至temp annotation
         if image == None:
             return

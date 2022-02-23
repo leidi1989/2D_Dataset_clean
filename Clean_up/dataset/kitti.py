@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-17 17:47:16
+LastEditTime: 2022-02-23 10:27:36
 '''
 from utils.utils import *
 from base.image_base import *
@@ -61,7 +61,8 @@ class KITTI(Dataset_Base):
                 object_list.append(OBJECT(0,
                                           clss,
                                           box_clss=clss,
-                                          box_xywh=box_xywh))
+                                          box_xywh=box_xywh,
+                                          need_convert=self.need_convert))
 
             # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，
             # 并将初始化后的对象存入total_images_data_list

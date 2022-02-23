@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-21 18:34:17
+LastEditTime: 2022-02-23 10:25:36
 '''
 import shutil
 import multiprocessing
@@ -118,7 +118,8 @@ class CVAT_IMAGE_1_1(Dataset_Base):
                 object_list.append(OBJECT(n,
                                           clss,
                                           segmentation_clss=clss,
-                                          segmentation=segment))
+                                          segmentation=segment,
+                                          need_convert=self.need_convert))
             image = IMAGE(image_name, image_name_new, image_path,
                           height, width, channels, object_list)
             # 读取目标标注信息，输出读取的source annotation至temp annotation
@@ -445,7 +446,8 @@ class CVAT_IMAGE_1_1(Dataset_Base):
                     object_list.append(OBJECT(n,
                                               clss,
                                               box_clss=clss,
-                                              box_xywh=box_xywh))
+                                              box_xywh=box_xywh,
+                                              need_convert=dataset_instance.need_convert))
                 elif obj.tag == 'polygon':
                     clss = str(obj.attrib['label'])
                     clss = clss.replace(' ', '').lower()
@@ -458,7 +460,8 @@ class CVAT_IMAGE_1_1(Dataset_Base):
                     object_list.append(OBJECT(n,
                                               clss,
                                               segmentation_clss=clss,
-                                              segmentation=segment))
+                                              segmentation=segment,
+                                              need_convert=dataset_instance.need_convert))
             image = IMAGE(image_name, image_name, image_path, int(
                 height), int(width), int(channels), object_list)
             check_images_list.append(image)

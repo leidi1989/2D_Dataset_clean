@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-22 15:14:17
+LastEditTime: 2022-02-23 10:31:16
 '''
 import time
 import shutil
@@ -310,7 +310,7 @@ class COCO2017(Dataset_Base):
 
         one_object = OBJECT(id, clss, clss, clss, clss,
                             box_xywh, segmentation, keypoints_num, keypoints,
-                            self.task_convert,
+                            need_covert=self.need_convert,
                             segmentation_area=segmentation_area,
                             segmentation_iscrowd=segmentation_iscrowd,
                             )
@@ -416,7 +416,7 @@ class COCO2017(Dataset_Base):
 
             # 将class_list_new转换为coco格式字典
             for n, clss in enumerate(dataset_instance
-                                    .temp_merge_class_list['Merge_target_dataset_class_list']):
+                                     .temp_merge_class_list['Merge_target_dataset_class_list']):
                 category_item = {'supercategory': 'none',
                                  'id': n,
                                  'name': clss}
@@ -721,7 +721,7 @@ class COCO2017(Dataset_Base):
 
                     one_object = OBJECT(id, clss, clss, clss, clss,
                                         box_xywh, segmentation, keypoints_num, keypoints,
-                                        dataset_instance.need_convert,
+                                        need_convert=dataset_instance.need_convert,
                                         segmentation_area=segmentation_area,
                                         segmentation_iscrowd=segmentation_iscrowd
                                         )

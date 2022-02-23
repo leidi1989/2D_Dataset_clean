@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-22 15:13:42
+LastEditTime: 2022-02-23 10:19:31
 '''
 from utils.utils import *
 from base.image_base import *
@@ -100,7 +100,8 @@ class BDD100K(Dataset_Base):
                                       clss,
                                       box_clss=clss,
                                       box_xywh=box_xywh,
-                                      box_color=object['attributes']['trafficLightColor']))
+                                      box_color=object['attributes']['trafficLightColor'],
+                                      need_convert=self.need_convert))
         object_count += len(object_box_list)
 
         # object segment area
@@ -151,7 +152,8 @@ class BDD100K(Dataset_Base):
             object_list.append(OBJECT(n+object_count,
                                       clss,
                                       segmentation_clss=clss,
-                                      segmentation=segmentation_point_list))
+                                      segmentation=segmentation_point_list,
+                                      need_convert=self.need_convert))
         object_count += len(object_segment_area_list)
 
         # 车道线提取，lane单双线标注分类
@@ -264,7 +266,8 @@ class BDD100K(Dataset_Base):
             object_list.append(OBJECT(p+object_count,
                                       clss,
                                       segmentation_clss=clss,
-                                      segmentation=line_point_list_1))
+                                      segmentation=line_point_list_1,
+                                      need_convert=self.need_convert))
         object_count += len(object_segment_double_line_lane_pair_list)
 
         # object segment one line lane
@@ -297,7 +300,8 @@ class BDD100K(Dataset_Base):
                 object_list.append(OBJECT(n+object_count,
                                           clss,
                                           segmentation_clss=clss,
-                                          segmentation=line_point_list_loop))
+                                          segmentation=line_point_list_loop,
+                                          need_convert=self.need_convert))
             # 贝塞尔曲线
             else:
                 # 单线左侧边缘
@@ -339,7 +343,8 @@ class BDD100K(Dataset_Base):
                 object_list.append(OBJECT(n+object_count,
                                           clss,
                                           segmentation_clss=clss,
-                                          segmentation=line_point_list_loop))
+                                          segmentation=line_point_list_loop,
+                                          need_convert=self.need_convert))
         object_count += len(object_segment_one_line_lane_list)
 
         # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，

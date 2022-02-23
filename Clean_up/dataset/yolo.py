@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-17 17:40:26
+LastEditTime: 2022-02-23 10:29:34
 '''
 import shutil
 import multiprocessing
@@ -71,7 +71,8 @@ class YOLO(Dataset_Base):
                 object_list.append(OBJECT(n,
                                           clss,
                                           box_clss=clss,
-                                          box_xywh=box_xywh))  # 将单个真实框加入单张图片真实框列表
+                                          box_xywh=box_xywh,
+                                          need_convert=self.need_convert))  # 将单个真实框加入单张图片真实框列表
             image = IMAGE(image_name, image_name, image_path, int(
                 height), int(width), int(channels), object_list)
 
@@ -219,7 +220,8 @@ class YOLO(Dataset_Base):
                     object_list.append(OBJECT(n,
                                               clss,
                                               box_clss=clss,
-                                              box_xywh=box_xywh))  # 将单个真实框加入单张图片真实框列表
+                                              box_xywh=box_xywh,
+                                              need_convert=dataset_instance.need_convert))  # 将单个真实框加入单张图片真实框列表
                 image = IMAGE(image_name, image_name, image_path, int(
                     height), int(width), int(channels), object_list)
                 check_images_list.append(image)
