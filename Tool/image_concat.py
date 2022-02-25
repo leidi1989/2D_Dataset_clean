@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-27 14:05:30
 LastEditors: Leidi
-LastEditTime: 2022-02-25 16:45:12
+LastEditTime: 2022-02-25 18:29:44
 '''
 import argparse
 import multiprocessing
@@ -15,7 +15,12 @@ import yaml
 from tqdm import tqdm
 
 
-def main(config) -> None:
+def main(config: dict) -> None:
+    """按指定数量拼接图片
+
+    Args:
+        config (dict): 配置信息
+    """
 
     image_input_folder = Path(config['input_folder'])
     image_output_folder = Path(config['output_folder'])
