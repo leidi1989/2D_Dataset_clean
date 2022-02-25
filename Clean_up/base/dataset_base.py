@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-23 11:30:09
+LastEditTime: 2022-02-24 23:06:08
 '''
 import dataset
 from utils.utils import *
@@ -62,7 +62,6 @@ class Dataset_Base:
         Args:
             dataset_config (dict): [数据集配置信息字典]
         """
-
         print('Start dataset instance initialize:')
         # Source_dataset
         self.dataset_input_folder = check_input_path(
