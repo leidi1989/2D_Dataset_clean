@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-27 14:05:30
 LastEditors: Leidi
-LastEditTime: 2022-02-25 18:29:44
+LastEditTime: 2022-02-25 18:38:56
 '''
 import argparse
 import multiprocessing
@@ -33,6 +33,7 @@ def main(config: dict) -> None:
     output_count = 0
     image_count = 0
     for image_path in tqdm(image_input_folder.iterdir(),
+                           total=len(image_input_folder.iterdir()),
                            desc='concate image'):
         temp_four_image.append(
             [image_path, cv2.imread(str(image_path.absolute()))])

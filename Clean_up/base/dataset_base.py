@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-24 23:06:08
+LastEditTime: 2022-02-25 18:52:27
 '''
 import dataset
 from utils.utils import *
@@ -219,16 +219,26 @@ class Dataset_Base:
             pool.join()
         pbar.close()
 
+        if self.source_dataset_style == 'HY_VAL':
+            annotation_count = self.source_dataset_image_count
+        else:
+            annotation_count = self.source_dataset_annotation_count
         pbar, update = multiprocessing_object_tqdm(
-            self.source_dataset_annotation_count, 'Copy annotations')
+            annotation_count, 'Copy annotations')
         for root, _, files in os.walk(self.dataset_input_folder):
             pool = multiprocessing.Pool(self.workers)
             for n in files:
-                if n.endswith(self.source_dataset_annotation_form):
+                if self.source_dataset_style == 'HY_VAL':
                     pool.apply_async(self.source_dataset_copy_annotation,
                                      args=(root, n,),
                                      callback=update,
                                      error_callback=err_call_back)
+                else:
+                    if n.endswith(self.source_dataset_annotation_form):
+                        pool.apply_async(self.source_dataset_copy_annotation,
+                                         args=(root, n,),
+                                         callback=update,
+                                         error_callback=err_call_back)
             pool.close()
             pool.join()
         pbar.close()
@@ -375,6 +385,8 @@ class Dataset_Base:
         """
 
         print('\nStar delete redundant image:')
+        self.temp_image_name_list = self.get_temp_images_name_list()
+        self.temp_annotation_name_list = self.get_temp_annotations_name_list()
         delete_image_count = 0
         for n in tqdm(os.listdir(self.temp_images_folder),
                       desc='Chech and delete redundant images'):
@@ -387,6 +399,7 @@ class Dataset_Base:
         self.temp_image_name_list = self.get_temp_images_name_list()
 
         delete_annotation_count = 0
+        self.temp_annotation_name_list = self.get_temp_annotations_name_list()
         print('\nStar delete redundant annotation:')
         for n in tqdm(os.listdir(self.temp_annotations_folder),
                       desc='Chech and delete redundant annotations'):
