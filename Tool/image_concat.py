@@ -4,15 +4,13 @@ Version:
 Author: Leidi
 Date: 2021-10-27 14:05:30
 LastEditors: Leidi
-LastEditTime: 2022-02-25 16:42:23
+LastEditTime: 2022-02-25 16:45:12
 '''
 import argparse
 import multiprocessing
-import os
 from pathlib import Path
 
 import cv2
-from pathlib2 import PurePath
 import yaml
 from tqdm import tqdm
 
@@ -79,7 +77,6 @@ if __name__ == "__main__":
                         type=int, help='maximum number of dataloader workers(multiprocessing.cpu_count())')
 
     opt = parser.parse_args()
-    # load dataset config file
     config = yaml.load(
         open(opt.config, 'r', encoding="utf-8"), Loader=yaml.FullLoader)
 
