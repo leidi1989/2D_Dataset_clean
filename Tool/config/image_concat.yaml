@@ -1,0 +1,5 @@
+input_folder: /mnt/data_1/Dataset/dataset_sample/whu_20211123
+
+output_folder: /mnt/data_1/Dataset/dataset_sample/whu_20211123_4_image_concate
+
+concate_num: 4
