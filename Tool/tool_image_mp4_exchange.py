@@ -60,6 +60,7 @@ def img2mp4(image_folder_path: str, mp4fps: int) -> None:
     root = image_folder_path.split(os.sep)[1:]
     output_folder = '/'+(os.sep).join(root[:-1])
     mp4_name = root[-1]+'.mp4'
+    # mp4_name = root[-1]+'.avi'
     mp4_file_path = os.path.join(output_folder, mp4_name)
 
     if os.path.splitext(first_image_path)[-1] == '.jpg':
@@ -70,11 +71,13 @@ def img2mp4(image_folder_path: str, mp4fps: int) -> None:
         img = Image.open(first_image_path)
         size = (img.width, img.height)
         img = np.array(img)
-        
+
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')   # 视频写入编码器
+    # fourcc = cv2.VideoWriter_fourcc('M', 'J', 'P', 'G')
     videoWrite = cv2.VideoWriter(mp4_file_path, fourcc, mp4fps, size)
     # 根据图片的大小，创建写入对象(文件名，支持的编码器，帧频，视频大小(图片大小))
-    for name in tqdm(image_list):
+    for name in tqdm(image_list,
+                     desc='Concate image'):
         fileName = os.path.join(image_folder_path, name)  # 读取所有图片的路径
         img = cv2.imread(fileName)  # 写入图片
         videoWrite.write(img)  # 将图片写入所创建的视频对象
@@ -84,14 +87,10 @@ def img2mp4(image_folder_path: str, mp4fps: int) -> None:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog='tool_avi_to_mp4.py')
+    parser = argparse.ArgumentParser(prog='tool_image_mp4_exchange.py')
     parser.add_argument('--avipath', default=r'',
                         type=str, help='avi path')
-<<<<<<< HEAD
-    parser.add_argument('--imgpath', default=r'/mnt/data_1/Dataset/detect_output/yolov5/100epoch_hy_parking_8_classes_20220125_20220125_yolov5_l_20220127',
-=======
-    parser.add_argument('--imgpath', default=r'/mnt/data_1/Dataset/detect_output/yolov5/100epoch_yolov5_l_hy_parking_8_classes_20220125_20220125',
->>>>>>> 43a0241834a067b97dec10fa46afe6c726c0dfb7
+    parser.add_argument('--input_folder', default=r'/mnt/data_1/Dataset/detect_output/edgeai-torchvision/100epoch_bdd100k_images_annotations_only_road_20220222_fpn_edgeailite_aspp_regnetx800mf_resize768x384_traincrop768x384/100epoch_2022-02-24_14-03-15_bdd100k_1_classes_fpn_edgeailite_aspp_regnetx800mf_resize768x384_traincrop768x384',
                         type=str, help='image output path')
     parser.add_argument('--pref', default=r'',
                         type=str, help='rename prefix')
@@ -104,7 +103,7 @@ if __name__ == "__main__":
     opt = parser.parse_args()
 
     avi_path = opt.avipath
-    img_folder_path = opt.imgpath
+    img_folder_path = opt.input_folder
     profix = opt.pref
     image_time = opt.time
     mp4fps = opt.mp4fps

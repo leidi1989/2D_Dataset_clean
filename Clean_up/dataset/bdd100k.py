@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-22 15:13:42
+LastEditTime: 2022-02-27 16:01:04
 '''
 from utils.utils import *
 from base.image_base import *
@@ -89,22 +89,23 @@ class BDD100K(Dataset_Base):
                     object_segment_lane_list.append(object)
 
         # true box
-        for n, object in enumerate(object_box_list):
+        for a, object in enumerate(object_box_list):
             clss = object['category']
             clss = clss.replace(' ', '').lower()
             box_xywh = temp_box_to_coco_box([object['box2d']['x1'],
                                              object['box2d']['y1'],
                                              object['box2d']['x2'],
                                              object['box2d']['y2']])
-            object_list.append(OBJECT(n,
+            object_list.append(OBJECT(a,
                                       clss,
                                       box_clss=clss,
                                       box_xywh=box_xywh,
-                                      box_color=object['attributes']['trafficLightColor']))
+                                      box_color=object['attributes']['trafficLightColor'],
+                                      need_convert=self.need_convert))
         object_count += len(object_box_list)
 
         # object segment area
-        for n, object in enumerate(object_segment_area_list):
+        for b, object in enumerate(object_segment_area_list):
             clss = object['category']
             clss = clss.replace(' ', '').lower()
             segmentation_point_list = []
@@ -148,10 +149,11 @@ class BDD100K(Dataset_Base):
             for n in segmentation_point_list:
                 segmentation_point_list_temp.append(n.astype(np.int).tolist())
             segmentation_point_list = segmentation_point_list_temp
-            object_list.append(OBJECT(n+object_count,
+            object_list.append(OBJECT(b+object_count,
                                       clss,
                                       segmentation_clss=clss,
-                                      segmentation=segmentation_point_list))
+                                      segmentation=segmentation_point_list,
+                                      need_convert=self.need_convert))
         object_count += len(object_segment_area_list)
 
         # 车道线提取，lane单双线标注分类
@@ -226,9 +228,7 @@ class BDD100K(Dataset_Base):
                             temp_line = line
 
         # object segment double line lane
-        for p, q in enumerate(object_segment_double_line_lane_pair_list):
-            m = q[0]
-            n = q[1]
+        for c, [m, n] in enumerate(object_segment_double_line_lane_pair_list):
             clss = m['category']
             clss = clss.replace(' ', '').lower()
             # line 1
@@ -261,14 +261,15 @@ class BDD100K(Dataset_Base):
             for n in line_point_list_1:
                 line_point_list_1_temp.append(n.astype(np.int).tolist())
             line_point_list_1 = line_point_list_1_temp
-            object_list.append(OBJECT(p+object_count,
+            object_list.append(OBJECT(c+object_count,
                                       clss,
                                       segmentation_clss=clss,
-                                      segmentation=line_point_list_1))
+                                      segmentation=line_point_list_1,
+                                      need_convert=self.need_convert))
         object_count += len(object_segment_double_line_lane_pair_list)
 
         # object segment one line lane
-        for n, object in enumerate(object_segment_one_line_lane_list):
+        for d, object in enumerate(object_segment_one_line_lane_list):
             clss = object['category']
             clss = clss.replace(' ', '').lower()
             segmentation_point_list = [x[0:-1] for x in object['poly2d']]
@@ -294,10 +295,11 @@ class BDD100K(Dataset_Base):
                 for n in line_point_list_loop:
                     line_point_list_loop_temp.append(n.astype(np.int).tolist())
                 line_point_list_loop = line_point_list_loop_temp
-                object_list.append(OBJECT(n+object_count,
+                object_list.append(OBJECT(d+object_count,
                                           clss,
                                           segmentation_clss=clss,
-                                          segmentation=line_point_list_loop))
+                                          segmentation=line_point_list_loop,
+                                          need_convert=self.need_convert))
             # 贝塞尔曲线
             else:
                 # 单线左侧边缘
@@ -336,10 +338,11 @@ class BDD100K(Dataset_Base):
                 for n in line_point_list_loop:
                     line_point_list_loop_temp.append(n.astype(np.int).tolist())
                 line_point_list_loop = line_point_list_loop_temp
-                object_list.append(OBJECT(n+object_count,
+                object_list.append(OBJECT(d+object_count,
                                           clss,
                                           segmentation_clss=clss,
-                                          segmentation=line_point_list_loop))
+                                          segmentation=line_point_list_loop,
+                                          need_convert=self.need_convert))
         object_count += len(object_segment_one_line_lane_list)
 
         # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，

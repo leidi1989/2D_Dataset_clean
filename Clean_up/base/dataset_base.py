@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-22 17:14:47
+LastEditTime: 2022-02-27 16:24:27
 '''
 import dataset
 from utils.utils import *
@@ -62,7 +62,6 @@ class Dataset_Base:
         Args:
             dataset_config (dict): [数据集配置信息字典]
         """
-
         print('Start dataset instance initialize:')
         # Source_dataset
         self.dataset_input_folder = check_input_path(
@@ -177,6 +176,7 @@ class Dataset_Base:
                 source_dataset_class)
             self.temp_merge_class_list['Merge_target_dataset_class_list'].extend(
                 target_dataset_class)
+
         self.total_task_source_class_list = self.get_total_task_source_class_list()
 
         print('Dataset instance initialize end.')
@@ -215,16 +215,26 @@ class Dataset_Base:
             pool.join()
         pbar.close()
 
+        if self.source_dataset_style == 'HY_VAL':
+            annotation_count = self.source_dataset_image_count
+        else:
+            annotation_count = self.source_dataset_annotation_count
         pbar, update = multiprocessing_object_tqdm(
-            self.source_dataset_annotation_count, 'Copy annotations')
+            annotation_count, 'Copy annotations')
         for root, _, files in os.walk(self.dataset_input_folder):
             pool = multiprocessing.Pool(self.workers)
             for n in files:
-                if n.endswith(self.source_dataset_annotation_form):
+                if self.source_dataset_style == 'HY_VAL':
                     pool.apply_async(self.source_dataset_copy_annotation,
                                      args=(root, n,),
                                      callback=update,
                                      error_callback=err_call_back)
+                else:
+                    if n.endswith(self.source_dataset_annotation_form):
+                        pool.apply_async(self.source_dataset_copy_annotation,
+                                         args=(root, n,),
+                                         callback=update,
+                                         error_callback=err_call_back)
             pool.close()
             pool.join()
         pbar.close()
@@ -371,24 +381,33 @@ class Dataset_Base:
         """
 
         print('\nStar delete redundant image:')
+        self.temp_image_name_list = self.get_temp_images_name_list()
+        self.temp_annotation_name_list = self.get_temp_annotations_name_list()
         delete_image_count = 0
-        for n in os.listdir(self.temp_images_folder):
+        for n in tqdm(os.listdir(self.temp_images_folder),
+                      desc='Chech and delete redundant images'):
             image_name = os.path.splitext(n)[0]
             if image_name not in self.temp_annotation_name_list:
                 delete_image_path = os.path.join(self.temp_images_folder, n)
                 print('Delete redundant image: \t{}'.format(n))
                 os.remove(delete_image_path)
                 delete_image_count += 1
+        self.temp_image_name_list = self.get_temp_images_name_list()
 
         delete_annotation_count = 0
+        self.temp_annotation_name_list = self.get_temp_annotations_name_list()
         print('\nStar delete redundant annotation:')
-        for n in os.listdir(self.temp_annotations_folder):
+        for n in tqdm(os.listdir(self.temp_annotations_folder),
+                      desc='Chech and delete redundant annotations'):
             annotation_name = os.path.splitext(n)[0]
             if annotation_name not in self.temp_image_name_list:
-                delete_image_path = os.path.join(self.temp_annotations_folder, n)
+                delete_image_path = os.path.join(
+                    self.temp_annotations_folder, n)
                 print('Delete redundant image: \t{}'.format(n))
                 os.remove(delete_image_path)
                 delete_annotation_count += 1
+        self.temp_annotation_name_list = self.get_temp_annotations_name_list()
+
         print('Total delete redundant images count: {}'.format(delete_image_count))
         print('Total delete redundant annotation count: {}'.format(
             delete_annotation_count))
@@ -416,7 +435,7 @@ class Dataset_Base:
                 os.path.splitext(n.split(os.sep)[-1])[0])
 
         return temp_file_name_list
-    
+
     def get_temp_images_name_list(self) -> list:
         """[获取暂存数据集图片名称列表]
 

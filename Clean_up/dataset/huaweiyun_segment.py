@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-22 15:13:57
+LastEditTime: 2022-02-23 10:31:45
 '''
 import time
 import shutil
@@ -29,7 +29,7 @@ class HUAWEIYUN_SEGMENT(Dataset_Base):
     def transform_to_temp_dataset(self) -> None:
         """[转换标注文件为暂存标注]
         """
-        
+
         print('\nStart transform to temp dataset:')
         success_count = 0
         fail_count = 0
@@ -140,7 +140,7 @@ class HUAWEIYUN_SEGMENT(Dataset_Base):
             image_base_information (dict): [数据信息字典]
             total_annotations_dict (dict): [进程间通信字典]
         """
-        
+
         image_id = image_base_information['id']
         image_name = os.path.splitext(image_base_information['file_name'])[
             0] + '.' + self.temp_image_form
@@ -236,7 +236,7 @@ class HUAWEIYUN_SEGMENT(Dataset_Base):
 
         one_object = OBJECT(id, clss, clss, clss, clss,
                             box_xywh, segmentation, keypoints_num, keypoints,
-                            self.task_convert,
+                            need_corvert=self.need_convert,
                             segmentation_area=segmentation_area,
                             segmentation_iscrowd=segmentation_iscrowd,
                             )
@@ -341,7 +341,7 @@ class HUAWEIYUN_SEGMENT(Dataset_Base):
 
             # 将class_list_new转换为coco格式字典
             for n, clss in enumerate(dataset_instance
-                                    .temp_merge_class_list['Merge_target_dataset_class_list']):
+                                     .temp_merge_class_list['Merge_target_dataset_class_list']):
                 category_item = {'supercategory': 'none',
                                  'id': n,
                                  'name': clss}
@@ -463,7 +463,7 @@ class HUAWEIYUN_SEGMENT(Dataset_Base):
         Returns:
             list: [图片标签信息列表]
         """
-        
+
         image = dataset_instance.TEMP_LOAD(
             dataset_instance, temp_annotation_path)
         if image == None:
@@ -655,7 +655,7 @@ class HUAWEIYUN_SEGMENT(Dataset_Base):
 
                     one_object = OBJECT(n, clss, clss, clss, clss,
                                         box_xywh, segmentation, keypoints_num, keypoints,
-                                        dataset_instance.need_convert,
+                                        need_convert=dataset_instance.need_convert,
                                         segmentation_area=segmentation_area,
                                         segmentation_iscrowd=segmentation_iscrowd
                                         )

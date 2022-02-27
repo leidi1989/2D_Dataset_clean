@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-22 15:14:07
+LastEditTime: 2022-02-23 10:28:43
 '''
 from utils.utils import *
 from base.image_base import *
@@ -84,7 +84,8 @@ class SJT(Dataset_Base):
                                               box_xywh=box_xywh,
                                               box_color=box_color,
                                               box_occlusion=ture_box_occlusion,
-                                              box_distance=ture_box_distance))
+                                              box_distance=ture_box_distance,
+                                              need_convert=self.need_convert))
                 else:
                     print('\nBbox error!')
                     continue
@@ -96,7 +97,8 @@ class SJT(Dataset_Base):
                                           box_xywh=box_xywh,
                                           box_color=box_color,
                                           box_occlusion=ture_box_occlusion,
-                                          box_distance=ture_box_distance))
+                                          box_distance=ture_box_distance,
+                                          need_convert=self.need_convert))
         # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，
         # 并将初始化后的对象存入total_images_data_list
         object_list = self.change_traffic_light(object_list)

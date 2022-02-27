@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-17 21:06:40
+LastEditTime: 2022-02-23 10:28:27
 '''
 from utils.utils import *
 from base.image_base import *
@@ -64,12 +64,13 @@ class MYXB(Dataset_Base):
                             object_list.append(OBJECT(0,
                                                       clss,
                                                       box_clss=clss,
-                                                      box_xywh=box_xywh))
+                                                      box_xywh=box_xywh,
+                                                      need_convert=self.need_convert))
 
                 # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，
                 # 并将初始化后的对象存入total_images_data_list
                 image = IMAGE(image_name, image_name_new, image_path,
-                            height, width, channels, object_list)
+                              height, width, channels, object_list)
                 # 读取目标标注信息，输出读取的source annotation至temp annotation
                 if image == None:
                     continue
@@ -93,7 +94,7 @@ class MYXB(Dataset_Base):
                     print('errow output temp annotation: {}'.format(
                         image.file_name_new))
                     process_output['fail_count'] += 1
-            
+
         return
 
     @staticmethod

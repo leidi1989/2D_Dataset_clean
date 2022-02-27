@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-22 15:14:05
+LastEditTime: 2022-02-23 10:28:17
 '''
 import shutil
 from PIL import Image
@@ -219,7 +219,8 @@ class LISA(Dataset_Base):
         object = OBJECT(0,
                         clss,
                         box_clss=clss,
-                        box_xywh=box_xywh)
+                        box_xywh=box_xywh,
+                        need_convert=self.need_convert)
 
         return image_name_new, object
 

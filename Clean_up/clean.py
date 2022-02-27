@@ -4,11 +4,13 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-02-22 17:18:40
+LastEditTime: 2022-02-27 16:44:55
 '''
-import time
-import yaml
 import argparse
+import multiprocessing
+import time
+
+import yaml
 
 import dataset
 
@@ -26,13 +28,13 @@ def main(dataset_config: dict) -> None:
     # except:
     #     print('Dataset initialize wrong, abort.')
 
-    Input_dataset.source_dataset_copy_image_and_annotation()
+    # Input_dataset.source_dataset_copy_image_and_annotation()
     Input_dataset.transform_to_temp_dataset()
     Input_dataset.output_classname_file()
     Input_dataset.delete_redundant_image_annotation()
-    Input_dataset.get_dataset_image_mean_std()
+    # Input_dataset.get_dataset_image_mean_std()
     Input_dataset.divide_dataset()
-    Input_dataset.sample_statistics()
+    # Input_dataset.sample_statistics()
 
     # 输出并检测指定形式数据集
     dataset.__dict__[dataset_config['Target_dataset_style']
@@ -51,7 +53,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='clean.py')
     parser.add_argument('--config', '--c', dest='config', default=r'Clean_up/config/default.yaml',
                         type=str, help='dataset config file path')
-    parser.add_argument('--workers', '--w', dest='workers', default=32,
+    parser.add_argument('--workers', '--w', dest='workers', default=multiprocessing.cpu_count(),
                         type=int, help='maximum number of dataloader workers(multiprocessing.cpu_count())')
 
     opt = parser.parse_args()

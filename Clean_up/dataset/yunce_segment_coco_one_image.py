@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-22 15:14:21
+LastEditTime: 2022-02-23 10:30:31
 '''
 import time
 import shutil
@@ -123,7 +123,7 @@ class YUNCE_SEGMENT_COCO_ONE_IMAGE(Dataset_Base):
 
             object_list.append(OBJECT(id, cls, cls, cls, cls,
                                       box_xywh, segmentation, keypoints_num, keypoints,
-                                      self.task_convert,
+                                      need_convert=self.need_convert,
                                       segmentation_area=segmentation_area,
                                       segmentation_iscrowd=segmentation_iscrowd,
                                       ))
@@ -303,7 +303,7 @@ class YUNCE_SEGMENT_COCO_ONE_IMAGE(Dataset_Base):
         Returns:
             dict: [图片基础信息]
         """
-        
+
         image = dataset_instance.TEMP_LOAD(
             dataset_instance, temp_annotation_path)
         if image == None:
@@ -531,7 +531,7 @@ class YUNCE_SEGMENT_COCO_ONE_IMAGE(Dataset_Base):
 
                     one_object = OBJECT(id, cls, cls, cls, cls,
                                         box_xywh, segmentation, keypoints_num, keypoints,
-                                        dataset_instance.need_convert,
+                                        need_convert=dataset_instance.need_convert,
                                         segmentation_area=segmentation_area,
                                         segmentation_iscrowd=segmentation_iscrowd
                                         )
