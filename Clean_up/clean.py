@@ -4,9 +4,10 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-02-27 15:25:20
+LastEditTime: 2022-02-27 16:44:55
 '''
 import argparse
+import multiprocessing
 import time
 
 import yaml
@@ -52,7 +53,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='clean.py')
     parser.add_argument('--config', '--c', dest='config', default=r'Clean_up/config/default.yaml',
                         type=str, help='dataset config file path')
-    parser.add_argument('--workers', '--w', dest='workers', default=32,
+    parser.add_argument('--workers', '--w', dest='workers', default=multiprocessing.cpu_count(),
                         type=int, help='maximum number of dataloader workers(multiprocessing.cpu_count())')
 
     opt = parser.parse_args()
