@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-27 15:18:43
+LastEditTime: 2022-02-27 16:40:35
 '''
 import time
 import shutil
@@ -288,7 +288,6 @@ class COCO2017(Dataset_Base):
             dataset_instance (Dataset_Base): [数据集实例]
         """
 
-        annotation_id = 0
         print('\nStart transform to target dataset:')
         for dataset_temp_annotation_path_list in tqdm(dataset_instance.temp_divide_file_list[1:-1],
                                                       desc='Transform to target dataset'):
@@ -348,10 +347,10 @@ class COCO2017(Dataset_Base):
             }
 
             # 将class_list_new转换为coco格式字典
-            for n, clss in enumerate(dataset_instance
+            for a, clss in enumerate(dataset_instance
                                      .temp_merge_class_list['Merge_target_dataset_class_list']):
                 category_item = {'supercategory': 'none',
-                                 'id': n,
+                                 'id': a,
                                  'name': clss}
                 coco['categories'].append(category_item)
 
@@ -375,11 +374,11 @@ class COCO2017(Dataset_Base):
                                                      desc='Load image base information',
                                                      leave=False)
             pool = multiprocessing.Pool(dataset_instance.workers)
-            for n, temp_annotation_path in enumerate(annotation_path_list):
+            for b, temp_annotation_path in enumerate(annotation_path_list):
                 image_information_list.append(
                     pool.apply_async(func=dataset.__dict__[dataset_instance.target_dataset_style].get_image_information,
                                      args=(dataset_instance, coco,
-                                           n, temp_annotation_path,),
+                                           b, temp_annotation_path,),
                                      callback=update,
                                      error_callback=err_call_back))
             pool.close()
@@ -392,6 +391,7 @@ class COCO2017(Dataset_Base):
 
             # 读取图片标注基础信息
             print('Start load annotation:')
+            annotation_id = 0
             for task, task_class_dict in tqdm(dataset_instance.task_dict.items(),
                                               desc='Load each task annotation',
                                               leave=False):
@@ -401,10 +401,10 @@ class COCO2017(Dataset_Base):
                 pbar, update = multiprocessing_list_tqdm(
                     annotation_path_list, desc='Load annotation', leave=False)
                 pool = multiprocessing.Pool(dataset_instance.workers)
-                for n, temp_annotation_path in enumerate(annotation_path_list):
+                for c, temp_annotation_path in enumerate(annotation_path_list):
                     annotations_list.append(
                         pool.apply_async(func=dataset.__dict__[dataset_instance.target_dataset_style].get_annotation,
-                                         args=(dataset_instance, n,
+                                         args=(dataset_instance, c,
                                                temp_annotation_path,
                                                task,
                                                task_class_dict,),
