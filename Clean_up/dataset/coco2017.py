@@ -4,14 +4,13 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-23 10:23:52
+LastEditTime: 2022-02-27 15:18:43
 '''
 import time
 import shutil
 from PIL import Image
 import multiprocessing
 
-from sqlalchemy import desc, false
 
 import dataset
 from utils.utils import *
@@ -289,6 +288,7 @@ class COCO2017(Dataset_Base):
             dataset_instance (Dataset_Base): [数据集实例]
         """
 
+        annotation_id = 0
         print('\nStart transform to target dataset:')
         for dataset_temp_annotation_path_list in tqdm(dataset_instance.temp_divide_file_list[1:-1],
                                                       desc='Transform to target dataset'):
@@ -414,8 +414,9 @@ class COCO2017(Dataset_Base):
                 pool.join()
                 pbar.close()
 
-                annotation_id = 0
-                for n in tqdm(annotations_list):
+                for n in tqdm(annotations_list,
+                              desc='Get total annotations',
+                              leave=False):
                     for m in n.get():
                         m['id'] = annotation_id
                         coco['annotations'].append(m)

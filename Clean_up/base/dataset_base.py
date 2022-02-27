@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-25 18:52:27
+LastEditTime: 2022-02-27 15:38:49
 '''
 import dataset
 from utils.utils import *
@@ -176,10 +176,10 @@ class Dataset_Base:
                 source_dataset_class)
             self.temp_merge_class_list['Merge_target_dataset_class_list'].extend(
                 target_dataset_class)
-        if 'Instance_segmentation' in dataset_config['Task_and_class_config'] and \
-                dataset_config['Task_and_class_config']['Instance_segmentation'] is not None:
-            self.task_dict['Detection'] = self.task_dict['Instance_segmentation']
-            self.task_dict['Semantic_segmentation'] = self.task_dict['Instance_segmentation']
+        # if 'Instance_segmentation' in dataset_config['Task_and_class_config'] and \
+        #         dataset_config['Task_and_class_config']['Instance_segmentation'] is not None:
+        #     self.task_dict['Detection'] = self.task_dict['Instance_segmentation']
+        #     self.task_dict['Semantic_segmentation'] = self.task_dict['Instance_segmentation']
 
         self.total_task_source_class_list = self.get_total_task_source_class_list()
 
