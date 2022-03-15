@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:07:13
 LastEditors: Leidi
-LastEditTime: 2022-02-18 14:12:46
+LastEditTime: 2022-03-10 16:56:04
 '''
 from .apolloscape_lane_segment import APOLLOSCAPE_LANE_SEGMENT
 from .bdd100k import BDD100K
@@ -26,3 +26,4 @@ from .tt100k import TT100K
 from .yolo import YOLO
 from .yunce_segment_coco import YUNCE_SEGMENT_COCO
 from .yunce_segment_coco_one_image import YUNCE_SEGMENT_COCO_ONE_IMAGE
+from .geely_coco_one_image import GEELY_COCO_ONE_IMAGE
