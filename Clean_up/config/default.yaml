@@ -13,7 +13,7 @@ Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/yunce_zhigu_chuangyichen
 Source_dataset_style: YUNCE_SEGMENT_COCO_ONE_IMAGE
 
 # Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1, YOLO
-Target_dataset_style: COCO2017
+Target_dataset_style: YOLO
 
 # images or labels need to rename prefix
 File_prefix: Yunce@ZhiguChuangyichengParking
@@ -40,6 +40,10 @@ Need_convert:
 Task_and_class_config:
   # Detection:
   #   Source_dataset_class_file_path: Clean_up/data/class/detection/detect_classes_apolloscape_lane_sign_12_classes.names
+  #   Modify_class_file_path:
+  #   Target_each_class_object_pixel_limit_file_path: Clean_up/data/pixel_limit/detection/detect_classes_apolloscape_lane_sign_12_classes.txt
+  # Semantic_segmentation:
+  #   Source_dataset_class_file_path: Clean_up/data/auto_annotation/TI_edgeailite_auto_annotation_yunce_parking_6_classes.names
   #   Modify_class_file_path:
   #   Target_each_class_object_pixel_limit_file_path:
   Semantic_segmentation:
