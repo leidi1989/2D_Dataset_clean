@@ -90,7 +90,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='tool_image_mp4_exchange.py')
     parser.add_argument('--avipath', default=r'',
                         type=str, help='avi path')
-    parser.add_argument('--input_folder', default=r'/mnt/data_1/Dataset/Demo/demo_image/cam_front_center_20220315',
+    parser.add_argument('--input_folder', default=r'/mnt/data_1/Dataset/BEV/demo/demo_gaojia_20220316',
                         type=str, help='image output path')
     parser.add_argument('--pref', default=r'',
                         type=str, help='rename prefix')
@@ -98,7 +98,7 @@ if __name__ == "__main__":
                         type=str, help='image output')
     parser.add_argument('--time', default=1,
                         type=int, help='the time of create image, secend')
-    parser.add_argument('--mp4fps', default=20,
+    parser.add_argument('--mp4fps', default=15,
                         type=int, help='the fps of concate images.')
     opt = parser.parse_args()
 

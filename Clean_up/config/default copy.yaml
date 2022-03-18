@@ -1,8 +1,8 @@
 # dataset path
-Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/yunce_zhigu_chuangyicheng_parking_fish_20220224
+Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/GEELY_DATASET
 
 # output path
-Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/yunce_zhigu_chuangyicheng_parking_fish_20220224_20220315
+Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/GEELY_DATASET_20220310
 # Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/bdd100k_images_annotations_test_20220223
 
 # Source dataset style:
@@ -16,7 +16,7 @@ Source_dataset_style: YUNCE_SEGMENT_COCO_ONE_IMAGE
 Target_dataset_style: COCO2017
 
 # images or labels need to rename prefix
-File_prefix: Yunce@ZhiguChuangyichengParking
+File_prefix: geely@urban
 
 # name delimiter(cityscapes need: "@")
 File_prefix_delimiter: "@"
@@ -38,14 +38,14 @@ Need_convert:
 # Task and class config, select only one.
 # Detection, Semantic_segmentation, Instance_segmentation, Keypoints
 Task_and_class_config:
-  # Detection:
-  #   Source_dataset_class_file_path: Clean_up/data/class/detection/detect_classes_apolloscape_lane_sign_12_classes.names
-  #   Modify_class_file_path:
-  #   Target_each_class_object_pixel_limit_file_path:
-  Semantic_segmentation:
-    Source_dataset_class_file_path: Clean_up/data/class/segmentation/segment_classes_yunce_segmentation_184_classes_infer_20211116.names
-    Modify_class_file_path: 
+  Detection:
+    Source_dataset_class_file_path: Clean_up/data/class/detection/detect_classes_apolloscape_lane_sign_12_classes.names
+    Modify_class_file_path:
     Target_each_class_object_pixel_limit_file_path:
+  # Semantic_segmentation:
+  #   Source_dataset_class_file_path: Clean_up/data/class/segmentation/segment_classes_yunce_segmentation_184_classes_include_infer_to_2_classes_parking_20220111.name
+  #   Modify_class_file_path: 
+  #   Target_each_class_object_pixel_limit_file_path:
   # Instance_segmentation:
   #   Source_dataset_class_file_path: Clean_up/data/class/instance/instance_classes_bdd100k_11_classes.names
   #   Modify_class_file_path: Clean_up/data/class/instance/instance_classes_bdd100k_11_classes_to_7_classes_line.txt
