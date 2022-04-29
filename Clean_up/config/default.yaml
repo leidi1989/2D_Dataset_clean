@@ -1,8 +1,8 @@
 # dataset path
-Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/yunce_zhigu_chuangyicheng_parking_fish_20220224
+Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/yunce_20220425
 
 # output path
-Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/yunce_zhigu_chuangyicheng_parking_fish_20220224_20220315
+Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/yunce_20220425_20220429
 # Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/bdd100k_images_annotations_test_20220223
 
 # Source dataset style:
@@ -13,10 +13,10 @@ Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/yunce_zhigu_chuangyichen
 Source_dataset_style: YUNCE_SEGMENT_COCO_ONE_IMAGE
 
 # Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1, YOLO
-Target_dataset_style: YOLO
+Target_dataset_style: CITYSCAPES
 
 # images or labels need to rename prefix
-File_prefix: Yunce@ZhiguChuangyichengParking
+File_prefix: yunce@hongshanguangchang
 
 # name delimiter(cityscapes need: "@")
 File_prefix_delimiter: "@"
@@ -47,7 +47,7 @@ Task_and_class_config:
   #   Modify_class_file_path:
   #   Target_each_class_object_pixel_limit_file_path:
   Semantic_segmentation:
-    Source_dataset_class_file_path: Clean_up/data/class/segmentation/segment_classes_yunce_segmentation_184_classes_infer_20211116.names
+    Source_dataset_class_file_path: Clean_up/data/class/segmentation/segment_classes_yunce_segmentation_28_classes_20220429.names
     Modify_class_file_path: 
     Target_each_class_object_pixel_limit_file_path:
   # Instance_segmentation:

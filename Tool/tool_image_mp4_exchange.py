@@ -90,7 +90,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='tool_image_mp4_exchange.py')
     parser.add_argument('--avipath', default=r'',
                         type=str, help='avi path')
-    parser.add_argument('--input_folder', default=r'/home/leidi/Downloads/bev_c_20220324',
+    parser.add_argument('--input_folder', default=r'/media/leidi/HRZ/7030_19082',
                         type=str, help='image output path')
     parser.add_argument('--pref', default=r'',
                         type=str, help='rename prefix')
@@ -98,7 +98,7 @@ if __name__ == "__main__":
                         type=str, help='image output')
     parser.add_argument('--time', default=1,
                         type=int, help='the time of create image, secend')
-    parser.add_argument('--mp4fps', default=15,
+    parser.add_argument('--mp4fps', default=10,
                         type=int, help='the fps of concate images.')
     opt = parser.parse_args()
 
