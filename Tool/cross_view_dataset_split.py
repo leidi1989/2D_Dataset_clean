@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-05-04 20:07:30
 LastEditors: Leidi
-LastEditTime: 2022-05-11 18:34:01
+LastEditTime: 2022-05-11 18:35:11
 '''
 import argparse
 import os
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     parser.add_argument("--data_path", type=str,
                         default='/mnt/data_2/Dataset/Autopilot_bev_dataset/hy_bev_6v_hq2_wd_hsgc_40_40_15_15_20220420_cross_view',
                         help="path to folder of raw images")
-    parser.add_argument("--dataset_divide_proportion", dest='proportion', type=list, default=[0.75, 0.05, 0.2, 0],
+    parser.add_argument("--dataset_divide_proportion", dest='proportion', type=list, default=[0.75, 0.1, 0.15, 0],
                         help="ratio of train, test, val and redund data")
     parser.add_argument("--output_path", type=str, default='/mnt/data_2/Dataset/Autopilot_bev_dataset/hy_bev_6v_hq2_wd_hsgc_40_40_15_15_20220420_cross_view',
                         help="path to folder of raw images")
