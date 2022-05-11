@@ -12,7 +12,7 @@ Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/yunce_20220425_20220429
 # TI_EDGEAILITE_AUTO_ANNOTATION
 Source_dataset_style: YUNCE_SEGMENT_COCO_ONE_IMAGE
 
-# Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1, YOLO
+# Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1, YOLO, CROSS_VIEW
 Target_dataset_style: CITYSCAPES
 
 # images or labels need to rename prefix
