@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-06-13 15:22:26
+LastEditTime: 2022-06-13 15:29:38
 '''
 import argparse
 import multiprocessing
@@ -36,15 +36,16 @@ def main(dataset_config: dict) -> None:
     Input_dataset.get_dataset_image_mean_std()
     Input_dataset.divide_dataset()
     Input_dataset.sample_statistics()
+    
+    if not Input_dataset.only_static:
+        # 输出并检测指定形式数据集
+        dataset.__dict__[dataset_config['Target_dataset_style']
+                        ].target_dataset(Input_dataset)
+        Input_dataset.target_dataset_annotation_check()
 
-    # 输出并检测指定形式数据集
-    dataset.__dict__[dataset_config['Target_dataset_style']
-                     ].target_dataset(Input_dataset)
-    Input_dataset.target_dataset_annotation_check()
-
-    # 生成指定形式数据集组织结构
-    dataset.__dict__[dataset_config['Target_dataset_style']
-                     ].target_dataset_folder(Input_dataset)
+        # 生成指定形式数据集组织结构
+        dataset.__dict__[dataset_config['Target_dataset_style']
+                        ].target_dataset_folder(Input_dataset)
 
     return
 
