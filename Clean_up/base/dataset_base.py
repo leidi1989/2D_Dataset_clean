@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-02-27 16:24:27
+LastEditTime: 2022-06-13 15:24:11
 '''
 import dataset
 from utils.utils import *
@@ -135,6 +135,7 @@ class Dataset_Base:
         self.target_dataset_divide_proportion = tuple(float(x)
                                                       for x in (dataset_config['Target_dataset_divide_proportion'].split(',')))
         self.temp_divide_file_annotation_path_dict = {}
+        self.only_static = dataset_config['Only_static']
 
         # 声明set类别统计pandas字典
         self.temp_divide_object_count_dataframe_dict = {}
@@ -198,22 +199,26 @@ class Dataset_Base:
 
         return total_task_source_class_list
 
-    def source_dataset_copy_image_and_annotation(self):
+    def source_dataset_copy_image_and_annotation(self) -> None:
+        """拷贝图片和标注文件
+        """
+        
         print('\nStart source dataset copy image and annotation:')
-        pbar, update = multiprocessing_object_tqdm(
-            self.source_dataset_image_count, 'Copy images')
-        for root, _, files in os.walk(self.dataset_input_folder):
-            pool = multiprocessing.Pool(self.workers)
-            for n in files:
-                if os.path.splitext(n)[-1].replace('.', '') in \
-                        self.source_dataset_image_form_list:
-                    pool.apply_async(self.source_dataset_copy_image,
-                                     args=(root, n,),
-                                     callback=update,
-                                     error_callback=err_call_back)
-            pool.close()
-            pool.join()
-        pbar.close()
+        if not self.only_static:
+            pbar, update = multiprocessing_object_tqdm(
+                self.source_dataset_image_count, 'Copy images')
+            for root, _, files in os.walk(self.dataset_input_folder):
+                pool = multiprocessing.Pool(self.workers)
+                for n in files:
+                    if os.path.splitext(n)[-1].replace('.', '') in \
+                            self.source_dataset_image_form_list:
+                        pool.apply_async(self.source_dataset_copy_image,
+                                        args=(root, n,),
+                                        callback=update,
+                                        error_callback=err_call_back)
+                pool.close()
+                pool.join()
+            pbar.close()
 
         if self.source_dataset_style == 'HY_VAL':
             annotation_count = self.source_dataset_image_count
@@ -1318,15 +1323,20 @@ class Dataset_Base:
                 os.sep)[-1].replace('.json', '.' + dataset_instance.temp_image_form)
             image_path = os.path.join(
                 dataset_instance.temp_images_folder, image_name)
-            if os.path.splitext(image_path)[-1] == '.png':
-                img = Image.open(image_path)
-                height, width = img.height, img.width
-                channels = 3
+            if not dataset_instance.only_static:
+                if os.path.splitext(image_path)[-1] == '.png':
+                    img = Image.open(image_path)
+                    height, width = img.height, img.width
+                    channels = 3
+                else:
+                    image_size = cv2.imread(image_path).shape
+                    height = int(image_size[0])
+                    width = int(image_size[1])
+                    channels = int(image_size[2])
             else:
-                image_size = cv2.imread(image_path).shape
-                height = int(image_size[0])
-                width = int(image_size[1])
-                channels = int(image_size[2])
+                height = int(data['base_information']['height'])
+                width = int(data['base_information']['width'])
+                channels = int(data['base_information']['channels'])
 
             object_list = []
             for object in data['frames'][0]['objects']:

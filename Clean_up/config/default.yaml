@@ -15,6 +15,9 @@ Source_dataset_style: YUNCE_SEGMENT_COCO_ONE_IMAGE
 # Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1, YOLO, CROSS_VIEW
 Target_dataset_style: CITYSCAPES
 
+# only static
+Only_static: True
+
 # images or labels need to rename prefix
 File_prefix: yunce@hongshanguangchang
 

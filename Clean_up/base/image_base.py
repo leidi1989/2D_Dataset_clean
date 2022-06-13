@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-02-27 16:35:27
+LastEditTime: 2022-06-13 15:24:51
 '''
 import os
 import cv2
@@ -14,16 +14,16 @@ import numpy as np
 
 class BOX:
     """真实框类"""
-
-    def __init__(self,
-                 box_clss: str = '',
-                 box_xywh: list = None,
-                 box_color: str = '',
-                 box_tool: str = '',
-                 box_difficult: int = 0,
-                 box_distance: float = 0,
-                 box_occlusion: float = 0,
-                 ) -> None:
+    def __init__(
+        self,
+        box_clss: str = '',
+        box_xywh: list = None,
+        box_color: str = '',
+        box_tool: str = '',
+        box_difficult: int = 0,
+        box_distance: float = 0,
+        box_occlusion: float = 0,
+    ) -> None:
         """[真实框类]
 
         Args:
@@ -69,8 +69,10 @@ class BOX:
 
         point_0 = [self.box_xywh[0], self.box_xywh[1]]
         point_1 = [self.box_xywh[0] + self.box_xywh[2], self.box_xywh[1]]
-        point_2 = [self.box_xywh[0] + self.box_xywh[2],
-                   self.box_xywh[1] + self.box_xywh[3]]
+        point_2 = [
+            self.box_xywh[0] + self.box_xywh[2],
+            self.box_xywh[1] + self.box_xywh[3]
+        ]
         point_3 = [self.box_xywh[0], self.box_xywh[1] + self.box_xywh[3]]
 
         return [point_0, point_1, point_2, point_3]
@@ -78,13 +80,13 @@ class BOX:
 
 class SEGMENTATION:
     """真分割类"""
-
-    def __init__(self,
-                 segmentation_clss: str = '',
-                 segmentation: list = None,
-                 segmentation_area: int = None,
-                 segmentation_iscrowd: int = 0,
-                 ) -> None:
+    def __init__(
+        self,
+        segmentation_clss: str = '',
+        segmentation: list = None,
+        segmentation_area: int = None,
+        segmentation_iscrowd: int = 0,
+    ) -> None:
         """[真分割]
 
         Args:
@@ -125,7 +127,7 @@ class SEGMENTATION:
         min_y = int(np.min(segmentation[:, 1]))
         max_x = int(np.max(segmentation[:, 0]))
         max_y = int(np.max(segmentation[:, 1]))
-        box_xywh = [min_x, min_y, max_x-min_x, max_y-min_y]
+        box_xywh = [min_x, min_y, max_x - min_x, max_y - min_y]
 
         return box_xywh[2] * box_xywh[3]
 
@@ -150,12 +152,12 @@ class SEGMENTATION:
 
 class KEYPOINTS:
     """真实关键点类"""
-
-    def __init__(self,
-                 keypoints_clss: str = '',
-                 keypoints_num: int = 0,
-                 keypoints: list = None,
-                 ) -> None:
+    def __init__(
+        self,
+        keypoints_clss: str = '',
+        keypoints_num: int = 0,
+        keypoints: list = None,
+    ) -> None:
         """[真实关键点类]
 
         Args:
@@ -178,31 +180,26 @@ class KEYPOINTS:
 
 class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
     """标注物体类"""
-
-    def __init__(self,
-                 object_id: int,
-                 object_clss: str,
-                 box_clss: str = '',
-                 segmentation_clss: str = '',
-                 keypoints_clss: str = '',
-
-                 box_xywh: list = None,
-                 segmentation: list = None,
-
-                 keypoints_num: int = 0,
-                 keypoints: list = None,
-
-                 need_convert: str = None,
-
-                 box_color: str = '',
-                 box_tool: str = '',
-                 box_difficult: int = 0,
-                 box_distance: float = 0,
-                 box_occlusion: float = 0,
-
-                 segmentation_area: int = None,
-                 segmentation_iscrowd: int = 0,
-                 ) -> None:
+    def __init__(
+        self,
+        object_id: int,
+        object_clss: str,
+        box_clss: str = '',
+        segmentation_clss: str = '',
+        keypoints_clss: str = '',
+        box_xywh: list = None,
+        segmentation: list = None,
+        keypoints_num: int = 0,
+        keypoints: list = None,
+        need_convert: str = None,
+        box_color: str = '',
+        box_tool: str = '',
+        box_difficult: int = 0,
+        box_distance: float = 0,
+        box_occlusion: float = 0,
+        segmentation_area: int = None,
+        segmentation_iscrowd: int = 0,
+    ) -> None:
         """[标注物体类初始化]
 
         Args:
@@ -225,13 +222,20 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
             segmentation_iscrowd (int, optional): [是否使用coco2017中的iscrowd格式]. Defaults to 0.
         """
 
-        BOX.__init__(self, box_clss, box_xywh,
-                     box_color=box_color, box_tool=box_tool, box_difficult=box_difficult,
-                     box_distance=box_distance, box_occlusion=box_occlusion)
-        SEGMENTATION.__init__(self, segmentation_clss, segmentation,
-                              segmentation_area=segmentation_area, segmentation_iscrowd=segmentation_iscrowd)
-        KEYPOINTS.__init__(self, keypoints_clss, keypoints_num,
-                           keypoints)
+        BOX.__init__(self,
+                     box_clss,
+                     box_xywh,
+                     box_color=box_color,
+                     box_tool=box_tool,
+                     box_difficult=box_difficult,
+                     box_distance=box_distance,
+                     box_occlusion=box_occlusion)
+        SEGMENTATION.__init__(self,
+                              segmentation_clss,
+                              segmentation,
+                              segmentation_area=segmentation_area,
+                              segmentation_iscrowd=segmentation_iscrowd)
+        KEYPOINTS.__init__(self, keypoints_clss, keypoints_num, keypoints)
         self.object_id = object_id
         self.object_clss = object_clss
         self.object_convert_flag = ''
@@ -295,16 +299,16 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
 
 class IMAGE:
     """图片类"""
-
-    def __init__(self,
-                 image_name_in: str = '',
-                 image_name_new_in: str = '',
-                 image_path_in: str = '',
-                 height_in: int = 0,
-                 width_in: int = 0,
-                 channels_in: int = 0,
-                 object_list_in: list = None,
-                 ) -> None:
+    def __init__(
+        self,
+        image_name_in: str = '',
+        image_name_new_in: str = '',
+        image_path_in: str = '',
+        height_in: int = 0,
+        width_in: int = 0,
+        channels_in: int = 0,
+        object_list_in: list = None,
+    ) -> None:
         """[图片类]
 
         Args:
@@ -317,14 +321,14 @@ class IMAGE:
             object_list_in (list): [标注目标列表]
         """
 
-        self.image_name = image_name_in                     # 图片名称
-        self.image_name_new = image_name_new_in             # 修改后图片名称
+        self.image_name = image_name_in  # 图片名称
+        self.image_name_new = image_name_new_in  # 修改后图片名称
         self.file_name = os.path.splitext(self.image_name)[0]
         self.file_name_new = os.path.splitext(self.image_name_new)[0]
-        self.image_path = image_path_in                     # 图片地址
-        self.height = height_in                             # 图片高
-        self.width = width_in                               # 图片宽
-        self.channels = channels_in                         # 图片通道数
+        self.image_path = image_path_in  # 图片地址
+        self.height = height_in  # 图片高
+        self.width = width_in  # 图片宽
+        self.channels = channels_in  # 图片通道数
         if object_list_in == None:
             self.object_list = []
         else:
@@ -334,7 +338,8 @@ class IMAGE:
         else:
             self.object_exist_flag = False
 
-    def object_class_modify_and_pixel_limit(self, dataset_instance: object) -> None:
+    def object_class_modify_and_pixel_limit(self,
+                                            dataset_instance: object) -> None:
         """清理无目标标注
 
         Args:
@@ -361,17 +366,21 @@ class IMAGE:
                 and dataset_instance.task_dict['Instance_segmentation'] is not None \
                 and dataset_instance.task_dict['Instance_segmentation']['Source_dataset_class'] is not None:
             for one_object in self.object_list:
-                if one_object.object_clss not in dataset_instance.task_dict['Instance_segmentation']['Source_dataset_class']:
+                if one_object.object_clss not in dataset_instance.task_dict[
+                        'Instance_segmentation']['Source_dataset_class']:
                     one_object.delete_box_information()
                     one_object.delete_segmentation_information()
                     one_object.delete_keypoints_information()
-            if dataset_instance.task_dict['Instance_segmentation']['Modify_class_dict'] is not None:
+            if dataset_instance.task_dict['Instance_segmentation'][
+                    'Modify_class_dict'] is not None:
                 for one_object in self.object_list:
                     # 遍历融合类别文件字典，完成label中的类别修改，
                     # 若此bbox类别属于混合标签类别列表，则返回该标签在混合类别列表的索引值，修改类别。
                     not_in_modify_class_dict_box = True
                     not_in_modify_class_dict_segmentation = True
-                    for key, value in dataset_instance.task_dict['Instance_segmentation']['Modify_class_dict'].items():
+                    for key, value in dataset_instance.task_dict[
+                            'Instance_segmentation'][
+                                'Modify_class_dict'].items():
                         if one_object.box_clss in set(value):
                             one_object.box_clss = key
                             one_object.object_clss = one_object.box_clss
@@ -396,7 +405,8 @@ class IMAGE:
                 else:
                     if task_class_dict['Source_dataset_class'] is not None:
                         for one_object in self.object_list:
-                            if one_object.object_clss not in task_class_dict['Source_dataset_class']:
+                            if one_object.object_clss not in task_class_dict[
+                                    'Source_dataset_class']:
                                 one_object.delete_box_information()
                                 one_object.delete_segmentation_information()
                                 one_object.delete_keypoints_information()
@@ -406,7 +416,8 @@ class IMAGE:
                             # 若此bbox类别属于混合标签类别列表，则返回该标签在混合类别列表的索引值，修改类别。
                             if task == 'Detection':
                                 not_in_modify_class_dict = True
-                                for key, value in task_class_dict['Modify_class_dict'].items():
+                                for key, value in task_class_dict[
+                                        'Modify_class_dict'].items():
                                     if one_object.box_clss in set(value):
                                         one_object.box_clss = key
                                         one_object.object_clss = one_object.box_clss
@@ -415,32 +426,40 @@ class IMAGE:
                                     one_object.delete_box_information()
                             elif task == 'Semantic_segmentation':
                                 not_in_modify_class_dict = True
-                                for key, value in task_class_dict['Modify_class_dict'].items():
-                                    if one_object.segmentation_clss in set(value):
+                                for key, value in task_class_dict[
+                                        'Modify_class_dict'].items():
+                                    if one_object.segmentation_clss in set(
+                                            value):
                                         one_object.segmentation_clss = key
                                         one_object.object_clss = one_object.segmentation_clss
                                         not_in_modify_class_dict = False
                                 if not_in_modify_class_dict:
-                                    one_object.delete_segmentation_information()
+                                    one_object.delete_segmentation_information(
+                                    )
                             elif task == 'Instance_segmentation':
                                 not_in_modify_class_dict_box = True
                                 not_in_modify_class_dict_segmentation = True
-                                for key, value in task_class_dict['Modify_class_dict'].items():
+                                for key, value in task_class_dict[
+                                        'Modify_class_dict'].items():
                                     if one_object.box_clss in set(value):
                                         one_object.box_clss = key
                                         one_object.object_clss = one_object.box_clss
                                         not_in_modify_class_dict_box = False
-                                    if one_object.segmentation_clss in set(value):
+                                    if one_object.segmentation_clss in set(
+                                            value):
                                         one_object.segmentation_clss = key
                                         one_object.object_clss = one_object.segmentation_clss
                                         not_in_modify_class_dict_segmentation = False
                                 if not_in_modify_class_dict_box and not_in_modify_class_dict_segmentation:
                                     one_object.delete_box_information()
-                                    one_object.delete_segmentation_information()
+                                    one_object.delete_segmentation_information(
+                                    )
                             elif task == 'Keypoint':
                                 not_in_modify_class_dict = True
-                                for key, value in task_class_dict['Modify_class_dict'].items():
-                                    if one_object.keypoints_class in set(value):
+                                for key, value in task_class_dict[
+                                        'Modify_class_dict'].items():
+                                    if one_object.keypoints_class in set(
+                                            value):
                                         one_object.keypoints_class = key
                                         not_in_modify_class_dict = False
                                 if not_in_modify_class_dict:
@@ -461,7 +480,8 @@ class IMAGE:
             if task_class_dict['Target_object_pixel_limit_dict'] is not None:
                 for n, one_object in enumerate(self.object_list):
                     if task == 'Detection' or task == 'Instance_segmentation' or task == 'Keypoint':
-                        if one_object.box_clss not in task_class_dict['Target_object_pixel_limit_dict']:
+                        if one_object.box_clss not in task_class_dict[
+                                'Target_object_pixel_limit_dict']:
                             one_object.delete_box_information()
                             continue
                         pixel = one_object.box_get_area()
@@ -469,7 +489,8 @@ class IMAGE:
                                 pixel > task_class_dict['Target_object_pixel_limit_dict'][one_object.box_clss][1]:
                             one_object.delete_box_information()
                     elif task == 'Semantic_segmentation':
-                        if one_object.segmentation_clss not in task_class_dict['Target_object_pixel_limit_dict']:
+                        if one_object.segmentation_clss not in task_class_dict[
+                                'Target_object_pixel_limit_dict']:
                             one_object.delete_segmentation_information()
                             continue
                         pixel = one_object.segmentation_get_bbox_area()
@@ -505,14 +526,23 @@ class IMAGE:
 
         if self == None:
             return False
-        annotation = {'name': self.file_name_new,
-                      'frames': [{'timestamp': 10000,
-                                  'objects': []}],
-                      'attributes': {'weather': 'undefined',
-                                     'scene': 'city street',
-                                     'timeofday': 'daytime'
-                                     }
-                      }
+        annotation = {
+            'name': self.file_name_new,
+            'base_information': {
+                'width': self.width,
+                'height': self.height,
+                'channels': self.channels
+            },
+            'frames': [{
+                'timestamp': 10000,
+                'objects': []
+            }],
+            'attributes': {
+                'weather': 'undefined',
+                'scene': 'city street',
+                'timeofday': 'daytime'
+            }
+        }
         id = 1
         object_count = 0
         for object in self.object_list:
@@ -521,26 +551,27 @@ class IMAGE:
                 and object.segmentation_exist_flag == False \
                     and object.keypoints_exist_flag == False:
                 continue
-            object_dict = {'id': id,
-                           'object_clss': object.object_clss,
-                           'box_clss': object.box_clss,
-                           'box_color': object.box_color,
-                           'box_difficult': object.box_difficult,
-                           'box_distance': object.box_distance,
-                           'box_occlusion': object.box_occlusion,
-                           'box_tool': object.box_tool,
-                           'box_xywh': object.box_xywh,
-                           'box_exist_flag': object.box_exist_flag,
-                           'keypoints_clss': object.keypoints_clss,
-                           'keypoints_num': object.keypoints_num,
-                           'keypoints': object.keypoints,
-                           'keypoints_exist_flag': object.keypoints_exist_flag,
-                           'segmentation_clss': object.segmentation_clss,
-                           'segmentation': object.segmentation,
-                           'segmentation_area': object.segmentation_area,
-                           'segmentation_iscrowd': object.segmentation_iscrowd,
-                           'segmentation_exist_flag': object.segmentation_exist_flag,
-                           }
+            object_dict = {
+                'id': id,
+                'object_clss': object.object_clss,
+                'box_clss': object.box_clss,
+                'box_color': object.box_color,
+                'box_difficult': object.box_difficult,
+                'box_distance': object.box_distance,
+                'box_occlusion': object.box_occlusion,
+                'box_tool': object.box_tool,
+                'box_xywh': object.box_xywh,
+                'box_exist_flag': object.box_exist_flag,
+                'keypoints_clss': object.keypoints_clss,
+                'keypoints_num': object.keypoints_num,
+                'keypoints': object.keypoints,
+                'keypoints_exist_flag': object.keypoints_exist_flag,
+                'segmentation_clss': object.segmentation_clss,
+                'segmentation': object.segmentation,
+                'segmentation_area': object.segmentation_area,
+                'segmentation_iscrowd': object.segmentation_iscrowd,
+                'segmentation_exist_flag': object.segmentation_exist_flag,
+            }
             annotation['frames'][0]['objects'].append(object_dict)
             id += 1
             object_count += 1
