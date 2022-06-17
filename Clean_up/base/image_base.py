@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-06-13 15:24:51
+LastEditTime: 2022-06-17 10:42:26
 '''
 import os
 import cv2
@@ -188,6 +188,8 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
         segmentation_clss: str = '',
         keypoints_clss: str = '',
         box_xywh: list = None,
+        box_xtlytlxbrybr: list = None,
+        box_rotation: float = 0,
         segmentation: list = None,
         keypoints_num: int = 0,
         keypoints: list = None,
