@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-06-17 10:42:26
+LastEditTime: 2022-06-17 10:44:38
 '''
 import os
 import cv2
@@ -211,6 +211,8 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
             segmentation_clss (str): [分割区域类别]
             keypoints_clss (str): [关键点类别]
             box_xywh (list): [真实框x, y, width, height列表]
+            box_xtlytlxbrybr (list): [真实框左上右下对角点列表]
+            box_rotation (float): [真实框旋转角]
             segmentation (list): [分割多边形点列表]
             keypoints_num (int): [关键点个数]
             keypoints (list): [关键点坐标]
