@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-06-17 13:58:14
+LastEditTime: 2022-06-17 14:10:59
 '''
 import json
 import math
@@ -51,7 +51,7 @@ class BOX:
         if box_xtlytlxbrybr == None:
             self.box_xtlytlxbrybr = []
             self.rotated_rect_points = []
-            self.size_erro = 0
+            self.box_size_erro = 0
         else:
             self.box_xtlytlxbrybr = box_xtlytlxbrybr
             rotated_rect_points_size_erro = self.rotated_rect_point(
@@ -59,7 +59,7 @@ class BOX:
                 self.box_xtlytlxbrybr[2], self.box_xtlytlxbrybr[3],
                 self.box_rotation)
             self.rotated_rect_points = rotated_rect_points_size_erro[0]
-            self.size_erro = rotated_rect_points_size_erro[1]
+            self.box_size_erro = rotated_rect_points_size_erro[1]
         self.box_rotation = box_rotation
         self.box_color = box_color
         self.box_tool = box_tool
@@ -636,7 +636,9 @@ class IMAGE:
                 'box_tool': object.box_tool,
                 'box_xywh': object.box_xywh,
                 'box_xtlytlxbrybr': object.box_xtlytlxbrybr,
-                'box_rotation': object.box_rotation,
+                'box_rotation': object.rotation,
+                'box_rotated_rect_points': object.rotated_rect_points,
+                'box_size_erro': object.box_size_erro,
                 'box_exist_flag': object.box_exist_flag,
                 'keypoints_clss': object.keypoints_clss,
                 'keypoints_num': object.keypoints_num,
