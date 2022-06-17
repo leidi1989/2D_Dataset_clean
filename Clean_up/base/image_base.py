@@ -4,11 +4,13 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-06-17 10:44:38
+LastEditTime: 2022-06-17 13:58:14
 '''
-import os
-import cv2
 import json
+import math
+import os
+
+import cv2
 import numpy as np
 
 
@@ -18,6 +20,8 @@ class BOX:
         self,
         box_clss: str = '',
         box_xywh: list = None,
+        box_xtlytlxbrybr: list = None,
+        box_rotation: float = 0,
         box_color: str = '',
         box_tool: str = '',
         box_difficult: int = 0,
@@ -28,12 +32,14 @@ class BOX:
 
         Args:
             box_clss (str): [类别]
-            xywh (list): [bbox左上点和宽高]
-            color (str, optional): [真实框目标颜色]. Defaults to ''.
-            tool (str, optional): [bbox工具]. Defaults to ''.
-            difficult (int, optional): [困难样本]. Defaults to 0.
-            distance (float, optional): [真实框中心点距离]. Defaults to 0.
-            occlusion (float, optional): [真实框遮挡率]. Defaults to 0.
+            box_xywh (list): [bbox左上点和宽高]
+            box_xtlytlxbrybr (list): [真实框左上右下对角点列表]
+            box_rotation (float): [真实框旋转角]
+            box_color (str, optional): [真实框目标颜色]. Defaults to ''.
+            box_tool (str, optional): [bbox工具]. Defaults to ''.
+            box_difficult (int, optional): [困难样本]. Defaults to 0.
+            box_distance (float, optional): [真实框中心点距离]. Defaults to 0.
+            box_occlusion (float, optional): [真实框遮挡率]. Defaults to 0.
         """
 
         self.box_clss = box_clss
@@ -41,6 +47,20 @@ class BOX:
             self.box_xywh = []
         else:
             self.box_xywh = box_xywh
+        self.box_rotation = box_rotation
+        if box_xtlytlxbrybr == None:
+            self.box_xtlytlxbrybr = []
+            self.rotated_rect_points = []
+            self.size_erro = 0
+        else:
+            self.box_xtlytlxbrybr = box_xtlytlxbrybr
+            rotated_rect_points_size_erro = self.rotated_rect_point(
+                self.box_xtlytlxbrybr[0], self.box_xtlytlxbrybr[1],
+                self.box_xtlytlxbrybr[2], self.box_xtlytlxbrybr[3],
+                self.box_rotation)
+            self.rotated_rect_points = rotated_rect_points_size_erro[0]
+            self.size_erro = rotated_rect_points_size_erro[1]
+        self.box_rotation = box_rotation
         self.box_color = box_color
         self.box_tool = box_tool
         self.box_difficult = box_difficult
@@ -76,6 +96,56 @@ class BOX:
         point_3 = [self.box_xywh[0], self.box_xywh[1] + self.box_xywh[3]]
 
         return [point_0, point_1, point_2, point_3]
+
+    def rotated_rect_point(xtl: float,
+                           ytl: float,
+                           xbr: float,
+                           ybr: float,
+                           angle: float,
+                           min_width: float = 0,
+                           max_width: float = 0,
+                           min_height: float = 0,
+                           max_heigh: float = 0) -> list:
+        """由box左上右下点及旋转角求box四个角点坐标。
+
+        Args:
+            xtl (float): box左上点x坐标
+            ytl (float): box左上点y坐标
+            xbr (float): box右下点x坐标
+            ybr (float): box右下点y坐标
+            angle (float): 旋转角度
+            min_width (float, optional): box最小宽度. Defaults to 0.
+            max_width (float, optional): box最大宽度. Defaults to 0.
+            min_height (float, optional): box最小高度. Defaults to 0.
+            max_heigh (float, optional): box最大高度. Defaults to 0.
+
+        Returns:
+            list: point_array.tolist(), size_err
+        """
+
+        width, height = abs(xtl - xbr), abs(ytl - ybr)
+        if width < height:
+            width, height = height, width
+        size_err = 0
+        if width > max_width or height > max_heigh or width < min_width or height < min_height:
+            size_err = 1
+        center_x, center_y = (xtl + xbr) / 2, (ytl + ybr) / 2
+        angle = (270 - angle) * math.pi / 180  # 弧度
+        xo = np.cos(angle)
+        yo = np.sin(angle)
+        y1 = center_y + height / 2 * yo
+        x1 = center_x - height / 2 * xo
+        y2 = center_y - height / 2 * yo
+        x2 = center_x + height / 2 * xo
+
+        point_array = np.array([
+            [x1 - width / 2 * yo, y1 - width / 2 * xo],
+            [x2 - width / 2 * yo, y2 - width / 2 * xo],
+            [x2 + width / 2 * yo, y2 + width / 2 * xo],
+            [x1 + width / 2 * yo, y1 + width / 2 * xo],
+        ]).astype(np.int32)
+
+        return point_array.tolist(), size_err
 
 
 class SEGMENTATION:
@@ -180,28 +250,26 @@ class KEYPOINTS:
 
 class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
     """标注物体类"""
-    def __init__(
-        self,
-        object_id: int,
-        object_clss: str,
-        box_clss: str = '',
-        segmentation_clss: str = '',
-        keypoints_clss: str = '',
-        box_xywh: list = None,
-        box_xtlytlxbrybr: list = None,
-        box_rotation: float = 0,
-        segmentation: list = None,
-        keypoints_num: int = 0,
-        keypoints: list = None,
-        need_convert: str = None,
-        box_color: str = '',
-        box_tool: str = '',
-        box_difficult: int = 0,
-        box_distance: float = 0,
-        box_occlusion: float = 0,
-        segmentation_area: int = None,
-        segmentation_iscrowd: int = 0,
-    ) -> None:
+    def __init__(self,
+                 object_id: int,
+                 object_clss: str,
+                 box_clss: str = '',
+                 segmentation_clss: str = '',
+                 keypoints_clss: str = '',
+                 box_xywh: list = None,
+                 box_xtlytlxbrybr: list = None,
+                 box_rotation: float = 0,
+                 segmentation: list = None,
+                 keypoints_num: int = 0,
+                 keypoints: list = None,
+                 need_convert: str = None,
+                 box_color: str = '',
+                 box_tool: str = '',
+                 box_difficult: int = 0,
+                 box_distance: float = 0,
+                 box_occlusion: float = 0,
+                 segmentation_area: int = None,
+                 segmentation_iscrowd: int = 0) -> None:
         """[标注物体类初始化]
 
         Args:
@@ -229,6 +297,8 @@ class OBJECT(BOX, SEGMENTATION, KEYPOINTS):
         BOX.__init__(self,
                      box_clss,
                      box_xywh,
+                     box_xtlytlxbrybr=box_xtlytlxbrybr,
+                     box_rotation=box_rotation,
                      box_color=box_color,
                      box_tool=box_tool,
                      box_difficult=box_difficult,
@@ -565,6 +635,8 @@ class IMAGE:
                 'box_occlusion': object.box_occlusion,
                 'box_tool': object.box_tool,
                 'box_xywh': object.box_xywh,
+                'box_xtlytlxbrybr': object.box_xtlytlxbrybr,
+                'box_rotation': object.box_rotation,
                 'box_exist_flag': object.box_exist_flag,
                 'keypoints_clss': object.keypoints_clss,
                 'keypoints_num': object.keypoints_num,
