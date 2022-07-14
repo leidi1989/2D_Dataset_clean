@@ -38,6 +38,10 @@ Target_dataset_check_annotations_output_as_mask: True
 # Need_convert: segmentation_to_box
 Need_convert: 
 
+# 标注框旋转角度
+# Label box rotation angle
+Label_object_rotation_angle: 0
+
 # Task and class config, select only one.
 # Detection, Semantic_segmentation, Instance_segmentation, Keypoints
 Task_and_class_config:

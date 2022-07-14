@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-23 10:29:34
+LastEditTime: 2022-07-14 11:33:17
 '''
 import shutil
 import multiprocessing
@@ -73,7 +73,7 @@ class YOLO(Dataset_Base):
                                           box_clss=clss,
                                           box_xywh=box_xywh,
                                           need_convert=self.need_convert))  # 将单个真实框加入单张图片真实框列表
-            image = IMAGE(image_name, image_name, image_path, int(
+            image = IMAGE(image_name, image_name_new, image_path, int(
                 height), int(width), int(channels), object_list)
 
             temp_annotation_output_path = os.path.join(

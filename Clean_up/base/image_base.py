@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:13:19
 LastEditors: Leidi
-LastEditTime: 2022-07-14 11:10:30
+LastEditTime: 2022-07-14 13:36:17
 '''
 import json
 import math
@@ -48,7 +48,7 @@ class BOX:
         else:
             self.box_xywh = box_xywh
         self.box_rotation = box_rotation
-        if box_xtlytlxbrybr == None:
+        if box_xtlytlxbrybr == None or 0 == len(box_xtlytlxbrybr):
             self.box_xtlytlxbrybr = []
             self.box_rotated_rect_points = []
             self.box_size_erro = 0
