@@ -1,8 +1,8 @@
 # dataset path
-Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/yunce_20220425
+Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/hy_lisa_sjt_suzhou_trafficlight_3_classes_output_20210730/new
 
 # output path
-Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/yunce_20220425_20220429
+Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/hy_lisa_sjt_suzhou_trafficlight_3_classes_output_20210730/new_20220714
 # Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/bdd100k_images_annotations_test_20220223
 
 # Source dataset style:
@@ -10,23 +10,23 @@ Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/yunce_20220425_20220429
 # SJT, MYXB, HY_HIGHWAY, GEELY_COCO_ONE_IMAGE
 # YOLO, COCO2017, BDD100K, TT100K, CCTSDB, LISA, KITTI, APOLLOSCAPE_LANE_SEGMENT,
 # TI_EDGEAILITE_AUTO_ANNOTATION
-Source_dataset_style: YUNCE_SEGMENT_COCO_ONE_IMAGE
+Source_dataset_style: YOLO
 
 # Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1, YOLO, CROSS_VIEW
-Target_dataset_style: CITYSCAPES
+Target_dataset_style: COCO2017
 
 # only static
-Only_static: True
+Only_static: False
 
 # images or labels need to rename prefix
-File_prefix: yunce@hongshanguangchang
+File_prefix: trafficlight
 
 # name delimiter(cityscapes need: "@")
 File_prefix_delimiter: "@"
 
 # (train, val, test, redund)
 # Target_dataset_divide_proportion: 0.95,0.025,0.025,0
-Target_dataset_divide_proportion: 0.8,0.1,0.1,0
+Target_dataset_divide_proportion: 0.84,0.08,0.08,0
 
 # check target annotations
 Target_dataset_check_annotations_count: 100
@@ -42,7 +42,7 @@ Need_convert:
 # Detection, Semantic_segmentation, Instance_segmentation, Keypoints
 Task_and_class_config:
   Detection:
-    Source_dataset_class_file_path: Clean_up/data/class/detection/detect_classes_apolloscape_lane_sign_12_classes.names
+    Source_dataset_class_file_path: Clean_up/data/class/detection/detect_classes_trafficlight_3_classes_20220714.name
     Modify_class_file_path:
     Target_each_class_object_pixel_limit_file_path: 
   # Semantic_segmentation:
