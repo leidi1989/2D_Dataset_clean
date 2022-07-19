@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-23 10:31:38
+LastEditTime: 2022-07-19 11:11:54
 '''
 import xml.etree.ElementTree as ET
 
@@ -14,15 +14,16 @@ from base.dataset_base import Dataset_Base
 
 
 class HY_HIGHWAY(Dataset_Base):
-
     def __init__(self, opt) -> None:
         super().__init__(opt)
         self.source_dataset_image_form_list = ['png']
         self.source_dataset_annotation_form = 'xml'
         self.source_dataset_image_count = self.get_source_dataset_image_count()
-        self.source_dataset_annotation_count = self.get_source_dataset_annotation_count()
+        self.source_dataset_annotation_count = self.get_source_dataset_annotation_count(
+        )
 
-    def load_image_annotation(self, source_annotation_name: str, process_output: dict) -> None:
+    def load_image_annotation(self, source_annotation_name: str,
+                              process_output: dict) -> None:
         """将源标注转换为暂存标注
 
         Args:
@@ -34,16 +35,15 @@ class HY_HIGHWAY(Dataset_Base):
             self.source_dataset_annotations_folder, source_annotation_name)
         tree = ET.parse(source_annotation_path)
         root = tree.getroot()
-        image_name = os.path.splitext(str(root.find('filename').text))[
-            0] + '.' + self.temp_image_form
+        image_name = os.path.splitext(str(
+            root.find('filename').text))[0] + '.' + self.temp_image_form
         image_name_new = self.file_prefix + image_name
-        image_path = os.path.join(
-            self.temp_images_folder, image_name_new)
+        image_path = os.path.join(self.temp_images_folder, image_name_new)
         img = cv2.imread(image_path)
         if img is None:
             print('Can not load: {}'.format(image_name_new))
             return
-        height, width, channels = img.shape     # 读取每张图片的shape
+        height, width, channels = img.shape  # 读取每张图片的shape
 
         object_list = []
         for obj in root.iter('object'):
@@ -53,24 +53,31 @@ class HY_HIGHWAY(Dataset_Base):
             if int(difficult) == 1:
                 continue
             xmlbox = obj.find('bndbox')
-            b = (float(xmlbox.find('xmin').text), float(xmlbox.find('xmax').text), float(xmlbox.find('ymin').text),
+            b = (float(xmlbox.find('xmin').text),
+                 float(xmlbox.find('xmax').text),
+                 float(xmlbox.find('ymin').text),
                  float(xmlbox.find('ymax').text))
             xmin = max(min(float(b[0]), float(b[1]), float(width)), 0.)
             ymin = max(min(float(b[2]), float(b[3]), float(height)), 0.)
             xmax = min(max(float(b[1]), float(b[0]), 0.), float(width))
             ymax = min(max(float(b[3]), float(b[2]), 0.), float(height))
-            box_xywh = [int(xmin), int(ymin), int(
-                xmax-xmin), int(ymax-ymin)]
-            object_list.append(OBJECT(0,
-                                      clss,
-                                      box_clss=clss,
-                                      box_xywh=box_xywh,
-                                      need_convert=self.need_convert))
+            box_xywh = [
+                int(xmin),
+                int(ymin),
+                int(xmax - xmin),
+                int(ymax - ymin)
+            ]
+            object_list.append(
+                OBJECT(object_id=0,
+                       object_clss=clss,
+                       box_clss=clss,
+                       box_xywh=box_xywh,
+                       need_convert=self.need_convert))
 
         # 将获取的图片名称、图片路径、高、宽作为初始化per_image对象参数，
         # 并将初始化后的对象存入total_images_data_list
-        image = IMAGE(image_name, image_name_new, image_path,
-                      height, width, channels, object_list)
+        image = IMAGE(image_name, image_name_new, image_path, height, width,
+                      channels, object_list)
         # 读取目标标注信息，输出读取的source annotation至temp annotation
         if image == None:
             return
@@ -85,8 +92,7 @@ class HY_HIGHWAY(Dataset_Base):
             process_output['no_object'] += 1
             return
         if image.output_temp_annotation(temp_annotation_output_path):
-            process_output['temp_file_name_list'].append(
-                image.file_name_new)
+            process_output['temp_file_name_list'].append(image.file_name_new)
             process_output['success_count'] += 1
         else:
             print('errow output temp annotation: {}'.format(

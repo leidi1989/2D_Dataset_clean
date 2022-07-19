@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-10-13 18:36:09
 LastEditors: Leidi
-LastEditTime: 2021-12-22 10:43:16
+LastEditTime: 2022-07-19 11:13:45
 '''
 import os
 import cv2
@@ -50,7 +50,7 @@ def load_annotation(dataset: dict, one_data: dict, process_output) -> None:
                 if cls not in dataset['source_class_list']:
                     continue
                 true_box_dict_list.append(
-                    TRUE_BOX(cls, xmin, ymin, xmax, ymax, box['tool']))  # 将单个真实框加入单张图片真实框列表
+                    BOX(cls, xmin, ymin, xmax, ymax, box['tool']))  # 将单个真实框加入单张图片真实框列表
     image = IMAGE(image_name, image_name_new, image_path, int(
         height), int(width), int(channels), true_box_dict_list)
 

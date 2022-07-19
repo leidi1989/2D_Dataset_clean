@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-02-25 18:44:26
+LastEditTime: 2022-07-19 11:12:13
 '''
 import shutil
 
@@ -14,13 +14,13 @@ from base.dataset_base import Dataset_Base
 
 
 class HY_VAL(Dataset_Base):
-
     def __init__(self, opt) -> None:
         super().__init__(opt)
         self.source_dataset_image_form_list = ['jpg', 'png']
         self.source_dataset_annotation_form = 'json'
         self.source_dataset_image_count = self.get_source_dataset_image_count()
-        self.source_dataset_annotation_count = self.get_source_dataset_annotation_count()
+        self.source_dataset_annotation_count = self.get_source_dataset_annotation_count(
+        )
 
     def source_dataset_copy_annotation(self, root: str, n: str) -> None:
         """[复制源数据集标签文件至目标数据集中的source_annotations中]
@@ -57,8 +57,8 @@ class HY_VAL(Dataset_Base):
         for n in total_source_dataset_annotations_list:
             source_dataset_annotation = os.path.join(
                 self.source_dataset_annotations_folder, n)
-            temp_annotation = os.path.join(
-                self.temp_annotations_folder, self.file_prefix + n)
+            temp_annotation = os.path.join(self.temp_annotations_folder,
+                                           self.file_prefix + n)
             shutil.copy(source_dataset_annotation, temp_annotation)
 
         # 更新输出统计
