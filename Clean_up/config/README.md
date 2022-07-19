@@ -4,7 +4,7 @@
  * @Author: Leidi
  * @Date: 2022-07-19 14:53:07
  * @LastEditors: Leidi
- * @LastEditTime: 2022-07-19 15:41:53
+ * @LastEditTime: 2022-07-19 15:50:56
 -->
 > Dataset_input_folder: (/path)
 
@@ -77,5 +77,6 @@
 
 任务和任务类别配置，需选择一项填写（Detection, Semantic_segmentation, Instance_segmentation, Keypoints），并给出对应的类别文件路径，类别修改文件路径，类别距离挑选文件路径
 
-# debug: （True or False）
+> debug: （True or False）
+
 debug模式
