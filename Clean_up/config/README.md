@@ -4,7 +4,7 @@
  * @Author: Leidi
  * @Date: 2022-07-19 14:53:07
  * @LastEditors: Leidi
- * @LastEditTime: 2022-07-19 15:35:21
+ * @LastEditTime: 2022-07-19 15:41:53
 -->
 > Dataset_input_folder: (/path)
 
@@ -25,10 +25,6 @@
 输入目标数据集输入类型
 [COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1, YOLO, CROSS_VIEW]
 
-> Only_static: (True or False)
-
-是否只进行统计
-
 > File_prefix: (any str)
 
 图片及标注文件添加的前缀
@@ -36,6 +32,10 @@
 > File_prefix_delimiter: "@"
 
 图片及标注文件添加的前缀分隔符(cityscapes need: "@")
+
+> Only_static: (True or False)
+
+是否只进行统计
 
 > Target_dataset_divide_proportion: 0.8,0.1,0.1,0
 

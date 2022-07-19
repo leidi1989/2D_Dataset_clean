@@ -15,14 +15,14 @@ Source_dataset_style: YUNCE_SEGMENT_COCO_ONE_IMAGE
 # Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1, YOLO, CROSS_VIEW
 Target_dataset_style: CITYSCAPES
 
-# only static
-Only_static: False
-
 # images or labels need to rename prefix
 File_prefix: yunceparking
 
 # name delimiter(cityscapes need: "@")
 File_prefix_delimiter: "@"
+
+# only static
+Only_static: False
 
 # (train, val, test, redund)
 # Target_dataset_divide_proportion: 0.95,0.025,0.025,0
@@ -36,7 +36,7 @@ Target_dataset_check_annotations_output_as_mask: True
 
 # segmentation_to_box, box_to_segmentation
 # Need_convert: segmentation_to_box
-Need_convert: 
+Need_convert:
 
 # 标注框旋转角度
 # Label box rotation angle
@@ -48,14 +48,14 @@ Task_and_class_config:
   # Detection:
   #   Source_dataset_class_file_path: Clean_up/data/class/detection/detect_classes_trafficlight_3_classes_20220714.name
   #   Modify_class_file_path:
-  #   Target_each_class_object_pixel_limit_file_path: 
+  #   Target_each_class_object_pixel_limit_file_path:
   Semantic_segmentation:
     Source_dataset_class_file_path: Clean_up/data/class/segmentation/segment_classes_yunce_segmentation_184_classes_infer_20211116.names
     Modify_class_file_path:
     Target_each_class_object_pixel_limit_file_path:
   # Semantic_segmentation:
   #   Source_dataset_class_file_path: Clean_up/data/class/segmentation/segment_classes_yunce_segmentation_28_classes_20220429.names
-  #   Modify_class_file_path: 
+  #   Modify_class_file_path:
   #   Target_each_class_object_pixel_limit_file_path:
   # Instance_segmentation:
   #   Source_dataset_class_file_path: Clean_up/data/class/instance/instance_classes_bdd100k_11_classes.names
