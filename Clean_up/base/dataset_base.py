@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-07-19 10:59:12
+LastEditTime: 2022-08-07 15:39:45
 '''
 import dataset
 from utils.utils import *
@@ -161,6 +161,7 @@ class Dataset_Base:
             float(x) for x in (
                 dataset_config['Target_dataset_divide_proportion'].split(',')))
         self.temp_divide_file_annotation_path_dict = {}
+        self.keep_no_object = dataset_config['Keep_no_object']
         self.only_static = dataset_config['Only_static']
 
         # 声明set类别统计pandas字典

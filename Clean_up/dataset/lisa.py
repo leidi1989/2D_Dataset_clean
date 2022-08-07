@@ -239,7 +239,7 @@ class LISA(Dataset_Base):
             self.temp_annotations_folder,
             image.file_name_new + '.' + self.temp_annotation_form)
         image.object_class_modify_and_pixel_limit(self)
-        if 0 == len(image.object_list):
+        if 0 == len(image.object_list) and not self.keep_no_object:
             print('{} no object, has been delete.'.format(
                 image.image_name_new))
             os.remove(image.image_path)

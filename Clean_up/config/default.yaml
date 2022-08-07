@@ -21,6 +21,9 @@ File_prefix: yunceparking
 # name delimiter(cityscapes need: "@")
 File_prefix_delimiter: "@"
 
+# 是否删除无训练目标图片
+Keep_no_object: True
+
 # only static
 Only_static: False
 
