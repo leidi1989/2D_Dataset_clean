@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2021-08-04 16:45:50
 LastEditors: Leidi
-LastEditTime: 2022-07-19 11:02:11
+LastEditTime: 2022-08-12 16:57:21
 '''
 import argparse
 import multiprocessing
@@ -33,7 +33,7 @@ def main(dataset_config: dict) -> None:
     Input_dataset.output_classname_file()
     if not Input_dataset.only_static:
         Input_dataset.delete_redundant_image_annotation()
-    Input_dataset.get_dataset_image_mean_std()
+    # Input_dataset.get_dataset_image_mean_std()
     Input_dataset.divide_dataset()
     Input_dataset.sample_statistics()
     

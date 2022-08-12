@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 17:43:48
 LastEditors: Leidi
-LastEditTime: 2022-07-19 11:11:54
+LastEditTime: 2022-08-12 16:37:18
 '''
 import xml.etree.ElementTree as ET
 
@@ -16,7 +16,7 @@ from base.dataset_base import Dataset_Base
 class HY_HIGHWAY(Dataset_Base):
     def __init__(self, opt) -> None:
         super().__init__(opt)
-        self.source_dataset_image_form_list = ['png']
+        self.source_dataset_image_form_list = ['jpg', 'png']
         self.source_dataset_annotation_form = 'xml'
         self.source_dataset_image_count = self.get_source_dataset_image_count()
         self.source_dataset_annotation_count = self.get_source_dataset_annotation_count(

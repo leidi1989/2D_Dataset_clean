@@ -1,22 +1,22 @@
 # dataset path
-Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/yunceparking/yunce_wudazhuoer_parking_fish_20211227170346
+Dataset_input_folder: /mnt/data_1/Dataset/dataset_temp/traffic_light/hy_lisa_sjt_suzhou_trafficlight_3_classes_input_20210730_test_20220812
 
 # output path
-Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/yunceparking/yunce_wudazhuoer_parking_fish_20211227170346_20220719
+Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/traffic_light/hy_lisa_sjt_suzhou_trafficlight_3_classes_input_20210730_test_20220812_debug
 # Dataset_output_folder: /mnt/data_1/Dataset/dataset_temp/bdd100k_images_annotations_test_20220223
 
 # Source dataset style:
-# [YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, CVAT_COCO2017, HY_VAL,
+# [TEMP_DATASET, YUNCE_SEGMENT_COCO, YUNCE_SEGMENT_COCO_ONE_IMAGE, HUAWEIYUN_SEGMENT, CVAT_COCO2017, HY_VAL,
 # SJT, MYXB, HY_HIGHWAY, GEELY_COCO_ONE_IMAGE
 # YOLO, COCO2017, BDD100K, TT100K, CCTSDB, LISA, KITTI, APOLLOSCAPE_LANE_SEGMENT,
 # TI_EDGEAILITE_AUTO_ANNOTATION
-Source_dataset_style: YUNCE_SEGMENT_COCO_ONE_IMAGE
+Source_dataset_style: TEMP_DATASET
 
 # Target dataset style: COCO2017, CITYSCAPES, CITYSCAPES_VAL, CVAT_IMAGE_1_1, YOLO, CROSS_VIEW
-Target_dataset_style: CITYSCAPES
+Target_dataset_style: CVAT_IMAGE_1_1
 
 # images or labels need to rename prefix
-File_prefix: yunceparking
+File_prefix: ''
 
 # name delimiter(cityscapes need: "@")
 File_prefix_delimiter: "@"
@@ -48,14 +48,14 @@ Label_object_rotation_angle: 0
 # Task and class config, select only one.
 # Detection, Semantic_segmentation, Instance_segmentation, Keypoints
 Task_and_class_config:
-  # Detection:
-  #   Source_dataset_class_file_path: Clean_up/data/class/detection/detect_classes_trafficlight_3_classes_20220714.name
-  #   Modify_class_file_path:
-  #   Target_each_class_object_pixel_limit_file_path:
-  Semantic_segmentation:
-    Source_dataset_class_file_path: Clean_up/data/class/segmentation/segment_classes_yunce_segmentation_184_classes_infer_20211116.names
+  Detection:
+    Source_dataset_class_file_path: Clean_up/data/class/detection/detect_classes_trafficlight_3_classes_20220714.name
     Modify_class_file_path:
     Target_each_class_object_pixel_limit_file_path:
+  # Semantic_segmentation:
+  #   Source_dataset_class_file_path: Clean_up/data/class/segmentation/segment_classes_yunce_segmentation_184_classes_infer_20211116.names
+  #   Modify_class_file_path:
+  #   Target_each_class_object_pixel_limit_file_path:
   # Semantic_segmentation:
   #   Source_dataset_class_file_path: Clean_up/data/class/segmentation/segment_classes_yunce_segmentation_28_classes_20220429.names
   #   Modify_class_file_path:

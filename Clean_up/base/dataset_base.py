@@ -4,7 +4,7 @@ Version:
 Author: Leidi
 Date: 2022-01-07 11:00:30
 LastEditors: Leidi
-LastEditTime: 2022-08-07 15:39:45
+LastEditTime: 2022-08-12 16:43:40
 '''
 import dataset
 from utils.utils import *
@@ -32,7 +32,7 @@ plt.switch_backend('agg')
 SOURCE_DATASET_STYLE = [
     'COCO2017', 'YUNCE_SEGMENT_COCO', 'YUNCE_SEGMENT_COCO_ONE_IMAGE',
     'HUAWEIYUN_SEGMENT', 'HY_VAL', 'BDD100K', 'YOLO', 'TT100K', 'CCTSDB',
-    'LISA'
+    'LISA', 'TEMP_DATASET'
 ]
 
 TARGET_DATASET_STYLE = [
@@ -244,9 +244,12 @@ class Dataset_Base:
                     if os.path.splitext(n)[-1].replace('.', '') in \
                             self.source_dataset_image_form_list:
                         pool.apply_async(self.source_dataset_copy_image,
-                                        args=(root, n,),
-                                        callback=update,
-                                        error_callback=err_call_back)
+                                         args=(
+                                             root,
+                                             n,
+                                         ),
+                                         callback=update,
+                                         error_callback=err_call_back)
                 pool.close()
                 pool.join()
             pbar.close()
